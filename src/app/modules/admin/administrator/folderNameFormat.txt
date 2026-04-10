@@ -1,0 +1,13 @@
+Folder name format
+// use this format for easy to manage and develop
+
+Char format (for folder)
+m = first folder
+n = second folder
+o = third folder
+p = fourth folder
+
+use Number after Char format for sort folder
+
+is folder = use Upper case at first char in name
+is component = use Lowercase at first char in name

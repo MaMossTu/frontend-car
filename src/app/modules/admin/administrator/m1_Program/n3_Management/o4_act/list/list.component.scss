@@ -1,0 +1,14 @@
+button { font-family: 'Prompt'; }
+mat-form-field, mff { display: inline; }
+
+// input[readonly] {
+//     background-color: white; /* คงสีพื้นหลัง */
+//     color: black; /* คงสีตัวหนังสือ */
+//     opacity: 1; /* ทำให้ไม่มีความโปร่งแสง */
+// }
+
+.reduceHeadPad {
+    .mat-form-field {
+        margin-bottom: -16px !important;
+    }
+}

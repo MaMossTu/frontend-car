@@ -1,0 +1,104 @@
+<div class="w-full">
+    <!-- <h1  class="text-xl font-semibold mb-4" >เปลี่ยนสถานะ</h1> -->
+    <div mat-dialog-content class="overflow-y-auto ">
+        <form [formGroup]="formData">
+            <div class="md:flex flex-row mb-0">
+                <div class="md:w-1/4 px-2 mb-2 md:mb-0">
+                    <mat-form-field  class="w-full">
+                        <mat-label>วันที่เอกสาร</mat-label>
+                        <input matInput [matDatepicker]="picker" placeholder="วันที่" [formControlName]="'date'">
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+                </div>
+                <div class="md:w-1/4 px-2 mb-2 md:mb-0">
+                    <mat-form-field  class="w-full">
+                        <mat-label>เวลา</mat-label>
+                        <input matInput [placeholder]="'กรอกเวลา'" formControlName="time" mask="00:00">
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col w-1/2 px-2 mb-2 md:mb-0">
+                    <ngx-dropzone (change)="onSelect($event)"
+                    class="flex h-[200px] aspect-[1/1] overflow-hidden object-contain changeOnHover justify-center items-center">
+                        <ngx-dropzone-label *ngIf="files==null && formData.get('id')?.value==''"
+                            class="flex items-center justify-center outline-none">รูปภาพ</ngx-dropzone-label>
+                        <img *ngIf="files==null && formData.get('id')?.value!=''" [src]="formData.get('image_url')?.value"
+                            class="w-auto h-100*">
+                        <ngx-dropzone-image-preview class="w-auto h-full"
+                            *ngIf="files" [removable]="true" [file]="files" (removed)="onRemove(files)">
+                        </ngx-dropzone-image-preview>
+                        <div class="flex flex-row icon-container">
+                            <mat-icon [svgIcon]="'heroicons_outline:pencil-square'"></mat-icon>
+                            <span class="ml-2 mr-1">แก้ไขรูปภาพ</span>
+                        </div>
+                    </ngx-dropzone>
+                </div>
+            </div>
+            <div class="md:flex flex-row mb-0">
+                <div class="md:w-1/4 px-2 mb-2 md:mb-0">
+                    <mat-form-field class="w-full" >
+                        <mat-label>วิศวกร</mat-label>
+                        <mat-select [formControlName]="'engineer_id'" placeholder="เลือกวิศวกร">
+                            <mat-option *ngFor="let item of engineers" [value]="item.id">
+                                [{{item.code}}] {{item.first_name}} {{item.last_name}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="md:w-1/4 px-2 mb-2 md:mb-0">
+                    <mat-form-field  class="w-full">
+                        <mat-label>น้ำหนักรวมถังแก๊ส</mat-label>
+                        <input matInput [placeholder]="'น้ำหนักรวมถังแก๊ส'" formControlName="total_weight_gas">
+                    </mat-form-field>
+                </div>
+                <!-- <div class="md:w-1/2 px-2 mb-2 md:mb-0">
+                    <mat-form-field  class="w-full">
+                        <mat-label>หมายเลขถังก๊าซ</mat-label>
+                        <input matInput [placeholder]="'กรอกหมายเลขถังก๊าซ'" formControlName="no_gas">
+                    </mat-form-field>
+                </div> -->
+            </div>
+            <div class="md:flex flex-row mb-0">
+                <div class="md:w-1/4 px-2 mb-2 md:mb-0">
+                    <mat-form-field  class="w-full">
+                        <mat-label>เลขที่ตรวจ</mat-label>
+                        <input matInput [placeholder]="'กรอกเลขที่ตรวจ'" formControlName="service_or"
+                            >
+                    </mat-form-field>
+                </div>
+                <div class="md:w-1/4 px-2 mb-2 md:mb-0">
+                    <mat-form-field  class="w-full">
+                        <mat-label>เลขที่ติดตั้ง</mat-label>
+                        <input matInput [placeholder]="'กรอกเลขที่ติดตั้ง'" formControlName="install_no"
+                            >
+                    </mat-form-field>
+                </div>
+                <div class="md:w-2/4 px-2 mb-2 md:mb-0">
+                    <mat-form-field  class="w-full">
+                        <mat-label>เลขที่ตรวจถัง</mat-label>
+                        <mat-chip-list #chipList>
+                            <mat-chip *ngFor="let number of numberArray; let i = index" [removable]="true"
+                                (removed)="removeChip(i)">
+                                {{ number }}
+                                <button matChipRemove *ngIf="true">×</button>
+                            </mat-chip>
+                            <input placeholder="กรอกเลขที่ตรวจถัง" [formControl]="chipControl"
+                                [matChipInputFor]="chipList"
+                                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                (matChipInputTokenEnd)="addChip($event)" />
+                        </mat-chip-list>
+                    </mat-form-field>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- <div> check : {{this.form.value | json}}</div> -->
+    <div mat-dialog-actions class="flex justify-end">
+        <button class="px-6 ml-3" mat-flat-button [color]="'primary'" (click)="Submit()">
+            ตกลง
+        </button>
+        <button class="px-6 ml-3" mat-flat-button [color]="'accent'" (click)="onClose()">
+            ยกเลิก
+        </button>
+    </div>
+</div>

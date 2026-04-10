@@ -1,0 +1,197 @@
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div
+        class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">รายการหนี้</div>
+        <!-- Actions -->
+        <div class="flex space-x-2 reduceHeadPad">
+            <mat-form-field appearance="fill" class="w-50">
+                <mat-select value="default" placeholder="เอกสาร">
+                    <mat-option (click)="pdf()" class="" color="primary">
+                        <mat-icon svgIcon="pdf-icon"></mat-icon>
+                        <span class="ml-2 mr-1">รายการหนี้</span>
+                    </mat-option>
+                    <!-- <mat-option (click)="pdf()" class="" color="primary">
+                        <mat-icon svgIcon="excel-icon"></mat-icon>
+                        <span class="ml-2 mr-1">รายการหนี้</span>
+                    </mat-option> -->
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="fill" class="w-64" [formGroup]="formData">
+                <mat-date-range-input [rangePicker]="picker">
+                    <input matStartDate placeholder="Start date" formControlName="startDate"
+                        (dateChange)="onDateChange($event, 'startDate', formData)">
+                    <input matEndDate placeholder="End date" formControlName="endDate"
+                        (dateChange)="onDateChange($event, 'endDate', formData)">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="flex flex-auto overflow-hidden">
+        <!-- Products list -->
+        <div class="flex flex-col flex-auto p-5 overflow-hidden overflow-x-auto sm:overflow-y-auto sm:relative">
+            <!-- <div class="pl-5 text-2xl font-bold tracking-tight">รายการ</div> -->
+            <mat-tab-group #tabGroup [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="onTabChange($event)">
+                <ng-container >
+                    <mat-tab label="ทั้งหมด">
+                        <ng-template mat-tab-content>
+                        </ng-template>
+                    </mat-tab>
+                    <mat-tab label="เพิ่มหนี้">
+                        <ng-template mat-tab-content>
+                        </ng-template>
+                    </mat-tab>
+                    <mat-tab label="ลดหนี้">
+                        <ng-template mat-tab-content>
+                        </ng-template>
+                    </mat-tab>
+                    <mat-tab label="ปิดยอด">
+                        <ng-template mat-tab-content>
+                        </ng-template>
+                    </mat-tab>
+                </ng-container>
+            </mat-tab-group>
+            <div class="flex flex-col flex-auto min-w-full p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+                <table datatable [dtOptions]="dtOptions" class="table w-full row-border hover">
+                    <thead>
+                        <tr>
+                            <th class="w-5*">ลำดับ</th>
+                            <th class="">เลขบิล</th>
+                            <th class="">วันที่</th>
+                            <th class="">ทะเบียน</th>
+                            <th class="">วันที่จดทะเบียน</th>
+                            <th class="">ชื่อลูกค้า</th>
+                            <th class="">สถานะ</th>
+                            <th class="">ราคา</th>
+                            <th class="">จ่ายจริง</th>
+                            <th class="">
+                                <span *ngIf="this.type === '' || this.type === 'closedebt'">จ่ายเพิ่ม/คืน</span>
+                                <span *ngIf="this.type === 'adddebt'">จ่ายเพิ่ม</span>
+                                <span *ngIf="this.type === 'reducedebt'">จ่ายคืน</span>
+                            </th>
+                            <th class="">วันที่ชำระเงิน</th>
+                            <th class="w-0* text-center"  >จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody *ngIf="dataRow?.length != 0">
+                        <tr *ngFor="let item of dataRow; let i = index">
+                            <td class="">{{ pages.begin + (i + 1) ?? "-" }}</td>
+                            <td class="">{{ item.bill_number ?? '-' }}</td>
+                            <td class="">{{ (item.date| TH) ?? '-' }}</td>
+                            <td class="">{{ item.license_plate ?? '-' }}</td>
+                            <td class="">{{ (item.registration_date| TH) ?? '-' }}</td>
+                            <td class="">{{ item.customer_name ?? '-' }}</td>
+                            <td class="">
+                                <span *ngIf="item.transaction_status === 'adddebt'"
+                                class="px-2 py-1 text-sm font-semibold text-yellow-600 bg-yellow-100 rounded-md">เพิ่มหนี้</span>
+                                <span *ngIf="item.transaction_status === 'reducedebt'"
+                                class="p-1 text-sm font-semibold text-blue-500 bg-blue-100 rounded-md">ลดหนี้</span>
+                                <span *ngIf="item.transaction_status === 'closedebt'"
+                                class="p-1 text-sm font-semibold text-green-500 bg-green-200 rounded-md">ปิดงาน</span>
+                            </td>
+                            <td class="">{{ item.service_price ?? '-' }}</td>
+                            <td class="">{{ item.paytrue ?? '-' }}</td>
+                            <td class="">{{ item.payextra ?? '-' }}</td>
+                            <td class="">{{ (item.paid_date| TH) ?? '-' }}</td>
+                            <td class="flex items-center justify-center w-auto space-x-1"
+                                 >
+                                <button mat-button    (click)="openDialog(item, $event)">
+                                    <mat-icon svgIcon="heroicons_solid:pencil-square"></mat-icon>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody *ngIf="dataRow?.length == 0">
+                        <tr>
+                            <td colspan="11" class="text-center no-data-available">
+                                ไม่มีข้อมูล !
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">แก้ไขสถานะนี้</h2>
+            <mat-dialog-content>
+                <div class="flex flex-col w-full mt-2 lg:w-4/4">
+                    <mff class="w-100*" [label]="'สถานะ'" [fCN]="'result'" [pHold]="'ผ่าน / ไม่ผ่าน'"></mff>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;"
+                    class="border border-solid">ปิด</button>
+                <button mat-button (click)="update()" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template> -->
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">แก้ไขสถานะนี้</h2>
+            <mat-dialog-content>
+                <!-- แทนที่ส่วนเดิมด้วย mat-select -->
+                <div class="flex flex-col w-full mt-2 lg:w-4/4">
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>สถานะ</mat-label>
+                        <mat-select formControlName="transaction_status">
+                            <mat-option [value]="'adddebt'">เพิ่มหนี้</mat-option>
+                            <mat-option [value]="'reducedebt'">ลดหนี้</mat-option>
+                            <mat-option [value]="'closedebt'">ปิดงาน</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col w-full mt-2 lg:w-4/4">
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>ประเภทการจ่าย</mat-label>
+                        <mat-select formControlName="paid_type_debt">
+                            <mat-option [value]="'paid_cash'">เงินสด</mat-option>
+                            <mat-option [value]="'paid_tran'">เงินโอน</mat-option>
+                            <mat-option [value]="'credit'">เครดิต</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col w-full mt-2 lg:w-4/4">
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>วันที่ชำระเงิน</mat-label>
+                        <input
+                            matInput
+                            [matDatepicker]="paidDatePicker"
+                            formControlName="paid_date"
+                            (dateChange)="onDateChange($event, 'paid_date', formData)"
+                            (dateInput)="onDateInput($event)" />
+                        <mat-datepicker-toggle
+                            matSuffix
+                            [for]="paidDatePicker"></mat-datepicker-toggle>
+                        <mat-datepicker #paidDatePicker></mat-datepicker>
+                    </mat-form-field>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;" class="border border-solid">
+                    ปิด
+                </button>
+                <button mat-button (click)="update()" style="background-color: #1ca9df;" class="text-white">
+                    บันทึก
+                </button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>
+

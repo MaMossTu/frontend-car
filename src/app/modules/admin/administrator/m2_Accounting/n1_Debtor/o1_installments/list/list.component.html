@@ -1,0 +1,247 @@
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">แจ้งหนี้</div>
+        <!-- Actions -->
+        <div class="flex items-center mt-6 shrink-0 sm:mt-0 sm:ml-4" [formGroup]="formData">
+            <!-- Date range picker for month report -->
+            <div class="flex space-x-2 reduceHeadPad">
+                <mat-form-field appearance="fill" class="w-50">
+                    <mat-select value="default" placeholder="เอกสาร">
+                        <mat-option (click)="pdfDay()" class="" color="primary">
+                            <mat-icon svgIcon="pdf-icon"></mat-icon>
+                            <span class="ml-2 mr-1">สรุปรายวัน</span>
+                        </mat-option>
+                        <mat-option (click)="pdfMonth()" class="" color="primary">
+                            <mat-icon svgIcon="pdf-icon"></mat-icon>
+                            <span class="ml-2 mr-1">สรุปรายเดือน</span>
+                        </mat-option>
+                        <!-- <mat-option (click)="pdfDay()" class="" color="primary">
+                            <mat-icon svgIcon="excel-icon"></mat-icon>
+                            <span class="ml-2 mr-1">สรุปรายวัน</span>
+                        </mat-option>
+                        <mat-option (click)="pdfMonth()" class="" color="primary">
+                            <mat-icon svgIcon="excel-icon"></mat-icon>
+                            <span class="ml-2 mr-1">สรุปรายเดือน</span>
+                        </mat-option> -->
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="fill" class="w-64" [formGroup]="formData">
+                    <mat-date-range-input [rangePicker]="picker">
+                        <input
+                            matStartDate
+                            placeholder="Start date"
+                            formControlName="startDate"
+                            (dateChange)="onDateChange($event, 'startDate', formData)">
+                        <input
+                            matEndDate
+                            placeholder="End date"
+                            formControlName="endDate"
+                            (dateChange)="onDateChange($event, 'endDate', formData)">
+                    </mat-date-range-input>
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-date-range-picker #picker></mat-date-range-picker>
+                </mat-form-field>
+            </div>
+            <a routerLink="/bill_create/list" class="ml-4" mat-flat-button [color]="'primary'">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">สร้างบิล</span>
+            </a>
+        </div>
+    </div>
+    <div class="flex items-center justify-center float-none">
+        <div class="w-1/2 pt-5 rounded-lg">
+            <!-- <div class="search">
+                <input type="text" placeholder="search" class="w-full p-2 border border-gray-300 rounded">
+            </div>
+            <div class="flex flex-row flex-auto w-full p-3 sm:overflow-y-auto">
+                <label>ค้นจาก:</label>
+                <mat-radio-group class="pl-4">
+                    <mat-radio-button value="211">ชื่อ/นามสกุล</mat-radio-button>
+                    <mat-radio-button class="pl-4" value="212">ทะเบียน</mat-radio-button>
+                    <mat-radio-button class="pl-4" value="213">เบอร์โทร</mat-radio-button>
+                    <mat-radio-button class="pl-4" value="214">เลขที่</mat-radio-button>
+                    <mat-radio-button class="pl-4" value="215">เลขตัวถัง</mat-radio-button>
+                </mat-radio-group>
+                <mat-checkbox class="pl-2 text-red-600">
+                    ไม่แสดงบิลยกเลิก
+                </mat-checkbox>
+            </div> -->
+        </div>
+    </div>
+    <div class="flex flex-col flex-auto p-5 sm:overflow-y-auto ">
+        <table datatable [dtOptions]="dtOptions" class="table w-full text-center row-border hover">
+            <thead>
+                <tr>
+                    <!-- <th class="w-1 text-center" rowspan="2">#</th> -->
+                    <th class="" rowspan="2">เลขที่</th>
+                    <th class="" rowspan="2">วันที่</th>
+                    <th class="" rowspan="2">ทะเบียน</th>
+                    <th class="" rowspan="2">ชื่อลูกค้า</th>
+                    <th class="" colspan="9" class="text-center">บริการ</th>
+                    <th class="" rowspan="2">ส่วนลด</th>
+                    <th class="" rowspan="2">สุทธิ</th>
+                    <th class="w-1/12" rowspan="2">สถานะ</th>
+                    <th class="w-0* text-center" rowspan="2"  >จัดการ</th>
+                </tr>
+                <tr class="text-white bg-gray-700">
+                    <th class="">ตรวจ</th>
+                    <th class="">ภาษี</th>
+                    <th class="">พ.ร.บ.</th>
+                    <th class="">ประกัน</th>
+                    <th class="">แก๊ส</th>
+                    <th class="">หนังสือรับรองวิศวกร</th>
+                    <th class="">ขนส่ง</th>
+                    <th class="">อื่นๆ</th>
+                    <th class="">EMS</th>
+                </tr>
+            </thead>
+            <tbody *ngIf="dataRow?.length != 0">
+                <tr *ngFor="let item of dataRow; let i = index">
+                    <!-- <td style="width:5%">{{ pages.begin + (i + 1) }}</td> -->
+                    <td>{{ item.no ?? '-' }}</td>
+                    <td>{{ (item.date | TH) ?? '-'}}</td>
+                    <td>{{ item.inspection_vehicles[0]?.license_plate ?? '-' ?? '-'}}</td>
+                    <td>{{ item.customers ?.name ?? '-' }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0]?.vehicle_service_transaction,1) }}</td>
+                    <td>{{ getTexTotal(item.inspection_vehicles[0]?.vehicle_service_transaction) }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0]?.vehicle_service_transaction,2) }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0]?.vehicle_service_transaction,7) }}</td>
+                    <td>{{ getGasTotal(item.inspection_vehicles[0]?.vehicle_service_transaction) }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0]?.vehicle_service_transaction,13) }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0]?.vehicle_service_transaction,14) }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0]?.vehicle_service_transaction,15) }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0]?.vehicle_service_transaction,16) }}</td>
+                    <td>{{ item.discount != null ? (item.discount | number:'1.2-2') : '-' }}</td>
+                    <td>{{ item.total != null ? ((item.total - item.discount) | number:'1.2-2') : '-' }}</td>
+                    <td class="">
+                        <section>
+                            <div class="type">
+                                <select
+                                    [value]="item.status"
+                                    (change)="updateStatus(item, $event.target.value)"
+                                    [ngClass]="item.status"
+                                    class="status-dropdown">
+                                    <option value="open">เปิด</option>
+                                    <option value="finish">สำเร็จ</option>
+                                    <option value="overdue">แบ่งจ่าย</option>
+                                    <option value="unpaid">ค้างจ่าย</option>
+                                    <option value="cancel">ยกเลิก</option>
+                                </select>
+                            </div>
+                        </section>
+                    </td>
+                    <td class="flex items-center justify-center w-auto space-x-1"  >
+                        <button mat-button   (click)="openpaidType(item)">
+                            <mat-icon svgIcon="heroicons_solid:document-text"></mat-icon>
+                        </button>
+                        <!-- <button mat-button    (click)="update(item)">
+                            <mat-icon>edit</mat-icon>
+                        </button> -->
+                        <button mat-button   (click)="delete(item.id)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody *ngIf="dataRow?.length == 0">
+                <tr>
+                    <td colspan="16" class="text-center no-data-available">ไม่มีข้อมูล !</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<ng-template #paidType>
+    <div class="flex flex-col">
+        <form [formGroup]="formData_dialog">
+            <mat-dialog-content>
+                <mat-tab-group>
+                    <mat-tab label="ข้อมูลการทำรายการ">
+                        <div class="flex flex-auto overflow-hidden">
+                            <div class="flex flex-col flex-auto min-w-full overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+                                <!-- REPLACE TABLE -->
+                                <table class="table row-border hover w-100*">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">ลำดับ</th>
+                                            <th class="text-center">เวลา</th>
+                                            <th class="text-center">ยอดชำระ</th>
+                                            <th class="text-center">ยอดจ่าย</th>
+                                            <th class="text-center">ยอดค้าง</th>
+                                            <th class="text-center">ช่องทางชำระ</th>
+                                            <th class="text-center">ผู้รับเงิน</th>
+                                            <th class="text-center">หมายเหตุ</th>
+                                            <th class="text-center">พิมพ์</th>
+                                            <!-- <th class="w-0* text-center"  >จัดการ</th> -->
+                                        </tr>
+                                    </thead>
+                                    <tbody *ngIf="subdataRow?.length > 0">
+                                        <tr *ngFor="let item of subdataRow; let i = index">
+                                            <td class="text-center">{{ i + 1 }}</td>
+                                            <td class="text-center">{{ item.name ?? '-' }}</td>
+                                            <td class="text-center">{{ item.name ?? '-' }}</td>
+                                            <td class="text-center">{{ item.name }}</td>
+                                            <td class="text-center">{{ item.name ?? '-' }}</td>
+                                            <td class="text-center">{{ item.name ?? '-' }}</td>
+                                            <td class="text-center">{{ item.name }}</td>
+                                            <td class="text-center">{{ item.name ?? '-' }}</td>
+                                            <td class="text-center">{{ item.name ?? '-' }}</td>
+                                            <!-- <td class="w-10* text-center"  >
+                                                <button mat-button   (click)="openDialog(item, $event)">
+                                                    <mat-icon svgIcon="heroicons_solid:document-text"></mat-icon>
+                                                </button>
+                                            </td> -->
+                                        </tr>
+                                    </tbody>
+                                    <tbody *ngIf="subdataRow?.length == 0">
+                                        <tr>
+                                            <td colspan="4" class="text-center no-data-available">ไม่มีข้อมูล !</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <mat-tab label="พิมพ์เอกสาร">
+                        <div class="flex items-start justify-start w-full pt-5 space-x-12">
+                            <div class="w-50* flex flex-col flex-wrap space-y-4">
+                                <a class="justify-center">การจัดการบิล</a>
+                                <button (click)="printPDF1(formData_dialog.value.doc_id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ใบอนุญาต</span>
+                                </button>
+                                <button (click)="printPDF2(formData.value.vehicle_id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">รูปถ่าย LPG</span>
+                                </button>
+                                <button (click)="printPDF3(formData.value.vehicle_id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">Check List LPG</span>
+                                </button>
+                                <button (click)="printPDF4(formData.value.vehicle_id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ลอกลายถัง NGV</span>
+                                </button>
+                                <button (click)="printPDF5(formData.value.id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">แบบประเมิน NGV</span>
+                                </button>
+                                <button (click)="printallreceipt(billId)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ใบสำคัญรับเงิน</span>
+                                </button>
+                            </div>
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
+            </mat-dialog-content>
+        </form>
+    </div>
+</ng-template>

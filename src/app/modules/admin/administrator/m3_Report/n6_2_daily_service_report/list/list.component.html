@@ -1,0 +1,130 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between px-5 pt-5">
+        <div>
+            <h2 class="text-2xl font-extrabold leading-7 tracking-tight truncate md:text-xl sm:leading-10">
+                รายงานบริการ
+            </h2>
+        </div>
+        <div class="flex flex-row gap-2">
+            <button mat-flat-button [color]="'primary'" (click)="GetReport()">
+                <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:search'"></mat-icon>
+                <span class="ml-2"> ค้นหา</span>
+            </button>
+            <button class="bg-green-700 text-white" mat-flat-button (click)="export()">
+                <mat-icon class="text-white" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                <span class="ml-2 mr-1 text-white">Excel</span>
+            </button>
+        </div>
+
+    </div>
+    <form [formGroup]="form" class="px-5">
+        <div class="flex flex-col md:flex-row justify-start pb-2 my-2 gap-2 border-b-2 border-gray-400">
+            <mat-form-field [ngClass]="formFieldHelpers" class="w-1/4 fuse-mat-dense">
+                <mat-label>วันที่เริ่มต้น - วันที่สิ้นสุด</mat-label>
+                <mat-date-range-input [rangePicker]="picker1">
+                    <input matStartDate formControlName="date_start" placeholder="เริ่มต้น" (dateChange)="dateChange()">
+                    <input matEndDate formControlName="date_end" placeholder="สิ้นสุด" (dateChange)="dateChange()">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker1></mat-date-range-picker>
+            </mat-form-field>
+        </div>
+    </form>
+    <div class="flex flex-col flex-auto px-5 py-2 pb-30 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full" id="excel-table">
+        <table class="table row-border hover w-full border-2 border-slate-900 whitespace-nowrap">
+            <thead class="border-2 border-slate-900 ">
+                <tr class=" sticky -top-3 bg-white dark:bg-slate-900 dark:text-white border-2 border-slate-900 font-bold text-lg">
+                    <th class="border-2 border-slate-900">#</th>
+                    <th class="border-2 border-slate-900">รายการ</th>
+                    <th class="border-2 border-slate-900">จำนวน</th>
+                    <th class="border-2 border-slate-900">สุทธิ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngIf="dataRow?.length !== 0">
+                    <ng-container *ngIf="dataRow?.Inspections?.length !== 0">
+                        <tr class="border-2 border-slate-900">
+                            <td class="bg-[#78B3CE]" colspan="4">รายการบิล</td>
+                        </tr>
+
+                        <ng-container *ngFor="let inspection of dataRow?.Inspections; let i = index">
+                            <tr class="hover:bg-slate-100 bg-[#C9E6F0]">
+                                <td class="border-2 border-slate-900 text-center">{{ i + 1 }}</td>
+                                <td colspan="2" class="border-2 border-slate-900">{{ inspection.no }} - {{ inspection.customers.name }}</td>
+                                <td class="border-2 border-slate-900 text-center">{{ inspection.total | number:'1.2-2' }}</td>
+                            </tr>
+
+                            <!-- Loop through service items for each inspection -->
+                            <ng-container *ngFor="let vehicle of inspection.inspection_vehicles; let v = index">
+                                <ng-container *ngFor="let service of vehicle.vehicle_service_transaction; let s = index">
+                                    <tr>
+                                        <td class="border-2 border-slate-900 pl-8"></td>
+                                        <td class="border-2 border-slate-900">{{ service.service_name }}</td>
+                                        <td class="border-2 border-slate-900 text-center">1</td>
+                                        <td class="border-2 border-slate-900 text-right">{{ service.service_price | number:'1.2-2' }}</td>
+                                    </tr>
+                                </ng-container>
+                            </ng-container>
+                        </ng-container>
+                    </ng-container>
+                    <ng-container *ngIf="dataRow?.invoice?.length !== 0">
+                        <tr class="border-2 border-slate-900">
+                            <td class="bg-[#78B3CE]" colspan="4">รายการใบแจ้งหนี้</td>
+                        </tr>
+
+                        <ng-container *ngFor="let inv of dataRow?.invoice; let i = index">
+                            <tr class="hover:bg-slate-100 bg-[#C9E6F0]">
+                                <td class="border-2 border-slate-900 text-center">{{ i + 1 }}</td>
+                                <td colspan="2" class="border-2 border-slate-900">{{ inv.no }} - {{ inv.customer_name }}</td>
+                                <td class="border-2 border-slate-900 text-center">{{ inv.total_amount | number:'1.2-2' }}</td>
+                            </tr>
+
+                            <!-- Loop through service items for each invoice -->
+                            <ng-container *ngFor="let service of inv.invoice_services; let s = index">
+                                <tr>
+                                    <td class="border-2 border-slate-900 pl-8"></td>
+                                    <td class="border-2 border-slate-900">{{ service.service_name }}</td>
+                                    <td class="border-2 border-slate-900 text-center">{{ service.qty }}</td>
+                                    <td class="border-2 border-slate-900 text-right">{{ service.service_price | number:'1.2-2' }}</td>
+                                </tr>
+                            </ng-container>
+                        </ng-container>
+                    </ng-container>
+                    <ng-container *ngIf="dataRow?.taxinvoice?.length !== 0">
+                        <tr class="border-2 border-slate-900">
+                            <td class="bg-[#78B3CE]" colspan="4">รายการใบกำกับภาษ๊</td>
+                        </tr>
+
+                        <ng-container *ngFor="let tax of dataRow?.taxinvoice; let i = index">
+                            <tr class="hover:bg-slate-100 bg-[#C9E6F0]">
+                                <td class="border-2 border-slate-900 text-center">{{ i + 1 }}</td>
+                                <td colspan="2" class="border-2 border-slate-900">{{ tax.no }} - {{ tax.customer_name }}</td>
+                                <td class="border-2 border-slate-900 text-center">{{ tax.total_amount | number:'1.2-2' }}</td>
+                            </tr>
+
+                            <!-- Loop through service items for each tax invoice -->
+                            <ng-container *ngFor="let service of tax.tax_invoice_service; let s = index">
+                                <tr>
+                                    <td class="border-2 border-slate-900 pl-8"></td>
+                                    <td class="border-2 border-slate-900">{{ service.service_name }}</td>
+                                    <td class="border-2 border-slate-900 text-center">{{ service.qty }}</td>
+                                    <td class="border-2 border-slate-900 text-right">{{ service.service_price | number:'1.2-2' }}</td>
+                                </tr>
+                            </ng-container>
+                        </ng-container>
+                    </ng-container>
+                    <tr class="border-2 border-slate-900">
+                        <td class="bg-[#F96E2A]" colspan="3">ยอดสุทธิ</td>
+                        <td class="bg-[#F96E2A] text-center border-2 border-slate-900" >{{ (dataRow?.total | number : '1.2') }}</td>
+                    </tr>
+                </ng-container>
+            </tbody>
+            <tbody *ngIf="dataRow?.length == 0">
+                <tr>
+                    <td colspan="6" class="no-data-available text-center h-10">ไม่มีข้อมูล !</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

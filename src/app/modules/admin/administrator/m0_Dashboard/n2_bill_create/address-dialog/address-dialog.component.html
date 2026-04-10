@@ -1,0 +1,18 @@
+<div class="flex flex-col">
+    <form [formGroup]="addressForm">
+        <h2 mat-dialog-title>ที่อยู่ลูกค้า</h2>
+        <mat-dialog-content class="space-y-3">
+            <mff class="w-100* force1" [label]="'ที่อยู่'" [fCN]="'address'" [pHold]="'ที่อยู่'"></mff>
+            <mfs class="w-100* force1" [label]="'จังหวัด'" [fCN]="'province'" [KEY]="'name_th'" [sift]="filteredProvincesAddress"></mfs>
+            <mfs class="w-100* force1" [label]="'อำเภอ'" [fCN]="'districts'" [KEY]="'name_th'" [sift]="filteredDistricts"></mfs>
+            <mfs class="w-100* force1" [label]="'ตำบล'" [fCN]="'subdistricts'" [KEY]="'name_th'" [sift]="filteredSubDistricts"></mfs>
+            <mff class="w-100*" [label]="'รหัสไปรษณีย์'" [fCN]="'zip_code'" [pHold]="'ที่อยู่'"></mff>
+        </mat-dialog-content>
+        <mat-dialog-actions class="flex justify-end">
+            <button mat-button style="border-color: #1ca9df; color: #1ca9df;" class="border border-solid"
+                (click)="closeDialog()">ปิด</button>
+            <button mat-button style="background-color: #1ca9df;" class="text-white"
+                (click)="saveAddress()">บันทึก</button>
+        </mat-dialog-actions>
+    </form>
+</div>

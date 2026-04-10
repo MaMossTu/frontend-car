@@ -1,0 +1,132 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+      <!-- Loader -->
+      <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+        <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+      </div>
+      <!-- Title -->
+      <div class="text-4xl font-extrabold tracking-tight">จัดการภาษีรถ</div>
+    </div>
+
+    <!-- Main -->
+    <div class="flex flex-auto overflow-hidden" [formGroup]="formData" >
+      <!-- Products list -->
+      <div class="flex flex-col flex-auto p-5 overflow-hidden sm:overflow-y-auto sm:relative overflow-x-auto">
+
+        <!-- Mat Tab -->
+        <mat-tab-group #tabGroup (selectedTabChange)="onTabChange($event)">
+          <!-- ตรวจสอบ -->
+          <mat-tab label="ตรวจสอบ">
+            <div class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full"
+                *ngIf="selectedIndex === 0">
+                <table datatable [dtOptions]="dtOptions" class="table row-border hover w-full">
+                    <thead>
+                        <tr>
+                            <th>
+                                <mat-checkbox
+                                    [checked]="isAllSelected()"
+                                    [indeterminate]="isSomeSelected()"
+                                    (change)="toggleSelectAll($event.checked)">
+                                </mat-checkbox>
+                            </th>
+                            <th>เลือก</th>
+                            <th>เลขที่</th>
+                            <th>วันที่</th>
+                            <th>วันที่ยื่นภาษี</th>
+                            <th>ทะเบียนรถ</th>
+                            <th>สถานะ</th>
+                            <th>ชื่อ</th>
+                            <th>จังหวัด</th>
+                            <th>เตือนต่อภาษี</th>
+                            <th>ประเภทเอกสาร</th>
+                            <th>วันที่จดทะเบียน</th>
+                            <th>ประเภท พ.ร.บ.</th>
+                            <th>สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody *ngIf="dataRow?.length != 0">
+                        <tr *ngFor="let item of dataRow; let i = index">
+                            <td>
+                                <mat-checkbox
+                                    [checked]="formData.get('ids').value.includes(item.id)"
+                                    (change)="toggleSelect(item.id, $event.checked)">
+                                </mat-checkbox>
+                            </td>
+                            <td>{{ item.no ?? '-' }}</td>
+                            <td>{{ (item.date | TH) ?? '-' }}</td>
+                            <td>{{ (item.date | TH) ?? '-' }}</td>
+                            <td>{{ item.license_plate ?? '-' }}</td>
+                            <td>
+                                <div [ngSwitch]="item.status">
+                                    <ng-container *ngSwitchCase="'open'">
+                                        <span class="open-status">เปิด</span>
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'finish'">
+                                        <span class="finish-status">สำเร็จ</span>
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'overdue'">
+                                        <span class="late-status">แบ่งจ่าย</span>
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'unpaid'">
+                                        <span class="late-status">ค้างจ่าย</span>
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'cancel'">
+                                        <span class="cancel-status">ยกเลิก</span>
+                                    </ng-container>
+                                </div>
+                            </td>
+                            <td>{{ item.name ?? '-' }}</td>
+                            <td>{{ item.name_th ?? '-' }}</td>
+                            <td>{{ (item.notificate_tax | TH) ?? '-' }}</td>
+                            <td>
+                                <div [ngSwitch]="item.type_document">
+                                    <ng-container *ngSwitchCase="'real'">
+                                        <span class="open-status">เล่ม</span>
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'copy'">
+                                        <span class="finish-status">สำเนา</span>
+                                    </ng-container>
+                                </div>
+                            </td>
+                            <td>{{ (item.registration_date | TH) ?? '-' }}</td>
+                            <td>{{ item.inspection_type_name ?? '-' }}</td>
+                            <td>
+                                <mat-form-field appearance="fill" class="w-full">
+                                    <mat-select [(value)]="item.tax_vehicle" (selectionChange)="Changestatus(item.id, $event.value)">
+                                        <mat-option value="check">ตรวจสอบ</mat-option>
+                                        <mat-option value="wait">รอนำส่ง</mat-option>
+                                        <mat-option value="send">รายการนำส่ง</mat-option>
+                                        <mat-option value="complete">รอรับป้าย</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody *ngIf="dataRow?.length == 0">
+                        <tr>
+                            <td colspan="11" class="no-data-available text-center">ไม่มีข้อมูล !</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button mat-raised-button class="text-center text-xl w-100* mt-4" (click)="ChangeStatus('wait')">
+                เปลี่ยน {{ (this.formData.value.ids).length }} รายการเป็น 'รอนำส่ง'
+            </button>
+        </mat-tab>
+
+          <!-- รอนำส่ง -->
+          <mat-tab label="รอนำส่ง">
+          </mat-tab>
+
+          <!-- รายการนำส่ง -->
+          <mat-tab label="รายการนำส่ง">
+          </mat-tab>
+
+          <!-- รอรับป้าย -->
+          <mat-tab label="รอรับป้าย">
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </div>
+  </div>

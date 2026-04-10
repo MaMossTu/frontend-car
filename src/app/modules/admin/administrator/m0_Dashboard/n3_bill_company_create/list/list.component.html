@@ -1,0 +1,193 @@
+<div class="flex flex-col flex-auto w-100* min-w-0 sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent ">
+    <div class="flex flex-row flex-wrap w-full overflow-auto text-black" >
+        <!-- ข้อมูล บริษัท -->
+        <div class="flex flex-col justify-between w-full p-5 mx-5 border-2 border-blue-500 rounded-md " [formGroup]="formData">
+            <div class="pb-5 text-2xl font-medium tracking-tight text-blue-900">ข้อมูลบริษัท</div>
+            <div class="grid grid-cols-1 gap-y-1 gap-x-2 md:grid-cols-2">
+                <div class="flex items-center h-full col-span-1">
+                    <mat-label class="w-30 bill-label">ชื่อบริษัท *</mat-label>
+                    <mat-form-field appearance="fill" class="flex-grow h-full">
+                        <input type="text" matInput min="0" [matAutocomplete]="autoCompany" placeholder="ชื่อบริษัท" [formControlName]="'company_name'">
+                        <mat-autocomplete #autoCompany="matAutocomplete" (optionSelected)="onVehicleTypeChange($event.option.value)">
+                            <mat-option *ngFor="let company of filteredVehicles | async" [value]="company">
+                                {{ company.name }}
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                </div>
+                <div class="flex items-center h-full col-span-1">
+                    <mat-label class="w-30 bill-label">หมายเลขผู้เสียภาษี</mat-label>
+                    <mat-form-field appearance="fill" class="flex-grow h-full">
+                        <input matInput min="0" placeholder="หมายเลขผู้เสียภาษี" [formControlName]="'tax_id'" (keydown)="noNaN($event)">
+                    </mat-form-field>
+                </div>
+                <div class="flex items-center h-full col-span-1">
+                    <mat-label class="w-30 bill-label">เบอร์ติดต่อ *</mat-label>
+                    <mat-form-field appearance="fill" class="flex-grow h-full">
+                        <input matInput min="0" placeholder="เบอร์ติดต่อ" [formControlName]="'phone_number1'" (keydown)="noNaN($event)">
+                    </mat-form-field>
+                </div>
+                <div class="flex items-center h-full col-span-1">
+                    <mat-label class="w-30 bill-label">เบอร์ติดต่อสำรอง</mat-label>
+                    <mat-form-field appearance="fill" class="flex-grow h-full">
+                        <input matInput min="0" placeholder="เบอร์ติดต่อสำรอง" [formControlName]="'phone_number2'" (keydown)="noNaN($event)">
+                    </mat-form-field>
+                </div>
+                <div class="flex items-center h-full col-span-1">
+                    <mat-label class="w-30 bill-label">โน๊ต/ช่วยจดจำ ลูกค้า</mat-label>
+                    <mat-form-field appearance="fill" class="flex-grow h-full">
+                        <input matInput min="0" placeholder="โน๊ต" [formControlName]="'note'" (keydown)="noNaN($event)">
+                    </mat-form-field>
+                </div>
+                <div class="flex items-center h-full col-span-1">
+                    <mat-label class="w-30 bill-label">ที่อยู่</mat-label>
+                    <mat-form-field appearance="fill" class="flex-grow h-full">
+                        <input matInput min="0" (click)="openAddressDialog()" [formControlName]="'address'">
+                    </mat-form-field>
+                </div>
+                <div class="flex items-center h-full col-span-1">
+                    <mat-label class="w-30 bill-label">วันที่นัดรับ</mat-label>
+                    <mat-form-field appearance="fill" class="flex-grow">
+                        <input matInput min="0" [matDatepicker]="picker5" [formControlName]="'appointment'"
+                            (input)="onDateInput($event)"
+                            (dateChange)="onDateChange($event, 'appointment', formData)" placeholder="DD/MM/YYYY">
+                        <mat-datepicker-toggle matSuffix [for]="picker5"></mat-datepicker-toggle>
+                        <mat-datepicker #picker5></mat-datepicker>
+                    </mat-form-field>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col justify-between w-full p-5 m-5 border-2 border-blue-500 rounded-md " [formGroup]="formData">
+            <!-- ข้อมูลรถ -->
+            <div class="w-100* lg:w-2/3 p-5 border-2 border-blue-500 rounded-md">
+                <div class="pb-5 text-2xl font-medium tracking-tight text-blue-900">ข้อมูลรถ</div>
+                <!-- ประเภทรถ -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>ประเภทรถ</mat-label>
+                    <mat-select [formControlName]="'vehicle_inspection_types_id'" (selectionChange)="onVehicleTypeChange($event.value)">
+                        <mat-option *ngFor="let item of listVehicleInspection" [value]="item.id">
+                            <ng-container *ngIf="item?.type">[ {{ item.type }} </ng-container>
+                            <ng-container *ngIf="item?.code">{{ item.code }} ]</ng-container>
+                            {{ item.name ?? '-' }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- ประเภท พ.ร.บ. -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>ประเภท พ.ร.บ.</mat-label>
+                    <mat-select [formControlName]="'insurance_types_id'">
+                        <mat-option *ngFor="let item of filteredInsuranceTypes" [value]="item.id">
+                            <ng-container *ngIf="item?.code">[ {{ item.code }} ]</ng-container>
+                            {{ item.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- ป้ายทะเบียน -->
+                <mat-label>ป้ายทะเบียน</mat-label>
+                <div class="flex items-center space-x-2">
+                    <mat-form-field appearance="fill" class="w-1/2">
+                        <input matInput min="0" placeholder="ตัวอักษร" [formControlName]="'licenseLetters'">
+                    </mat-form-field>
+                    <span class="pb-4 text-3xl">-</span>
+                    <!-- <mat-form-field appearance="fill" class="w-1/2">
+                        <input matInput min="0" placeholder="เลขทะเบียน" [formControlName]="'licenseNumber'" [matAutocomplete]="autolicense">
+                        <mat-autocomplete #autolicense="matAutocomplete" (optionSelected)="onVehicleSelected($event.option.value)">
+                            <mat-option *ngFor="let vehicle of filteredVehicles | async" [value]="vehicle.license_plate.split('-')[1]">
+                                {{ vehicle.license_plate }}
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field> -->
+                </div>
+
+                <!-- จังหวัด -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <input matInput min="0" placeholder="จังหวัด" [formControlName]="'province'" [matAutocomplete]="autoProvince2">
+                    <mat-autocomplete #autoProvince2="matAutocomplete">
+                        <mat-option *ngFor="let province of filteredProvinces | async" [value]="province.name_th">
+                            {{ province.name_th }}
+                        </mat-option>
+                    </mat-autocomplete>
+                </mat-form-field>
+
+                <!-- วันที่จดทะเบียน -->
+                <mat-form-field appearance="fill" class="w-full reduceScreen">
+                    <mat-label>วันที่จดทะเบียน</mat-label>
+                    <input matInput min="0" [matDatepicker]="picker" [formControlName]="'regeister_date'" placeholder="DD/MM/YYYY">
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+
+                <!-- วันที่ออกบิล -->
+                <mat-form-field appearance="fill" class="w-full reduceScreen">
+                    <mat-label>วันที่ออกบิล</mat-label>
+                    <input matInput min="0" [matDatepicker]="picker2" [formControlName]="'date'" placeholder="DD/MM/YYYY">
+                    <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                    <mat-datepicker #picker2></mat-datepicker>
+                </mat-form-field>
+
+                <!-- เครื่องยนต์ (CC) -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>เครื่องยนต์ (CC)</mat-label>
+                    <input matInput min="0" type="number" [formControlName]="'cc'" placeholder="เครื่องยนต์ CC">
+                </mat-form-field>
+
+                <!-- น้ำหนักรถเปล่า (Kg.) -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>น้ำหนักรถเปล่า (Kg.)</mat-label>
+                    <input matInput min="0" type="number" [formControlName]="'weight'" placeholder="น้ำหนักรถ Kg">
+                </mat-form-field>
+
+                <!-- วันครบภาษี -->
+                <mat-form-field appearance="fill" class="w-full reduceScreen">
+                    <mat-label>วันครบภาษี</mat-label>
+                    <input matInput min="0" [matDatepicker]="picker3" [formControlName]="'tax_due_date'" placeholder="DD/MM/YYYY">
+                    <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
+                    <mat-datepicker #picker3></mat-datepicker>
+                </mat-form-field>
+
+                <!-- วันที่ยื่นภาษี -->
+                <mat-form-field appearance="fill" class="w-full reduceScreen">
+                    <mat-label>วันที่ยื่นภาษี</mat-label>
+                    <input matInput min="0" [matDatepicker]="picker4" [formControlName]="'tax_renewal_date'" placeholder="DD/MM/YYYY">
+                    <mat-datepicker-toggle matSuffix [for]="picker4"></mat-datepicker-toggle>
+                    <mat-datepicker #picker4></mat-datepicker>
+                </mat-form-field>
+
+                <!-- ชนิดเอกสาร -->
+                <div class="flex pb-1">
+                    <span [ngClass]="{
+                            'text-red-500': !formData.get('type_document')?.value,
+                            'text-black': formData.get('type_document')?.value
+                        }">ชนิดเอกสาร* :
+                    </span>
+                    <div class="pl-5">
+                        <mat-radio-group [formControlName]="'type_document'" class="flex">
+                            <mat-radio-button value="real">เล่ม</mat-radio-button>
+                            <mat-radio-button class="pl-5" value="copy">สำเนา</mat-radio-button>
+                        </mat-radio-group>
+                    </div>
+                </div>
+
+                <!-- ประเภทเครื่องยนต์ -->
+                <div class="flex pt-5">
+                    <div class="flex items-center pr-5 lg:pr-3 lgx:pr-5"><span>ประเภทเครื่องยนต์:</span></div>
+                    <!-- <div class="flex flex-col w-full space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0 lg:flex-col lg:space-x-0 lg:space-y-2">
+                        <div class="flex flex-row space-x-2">
+                            <button class="w-100px lg:w-100* button" type="button" (click)="setFuelType('gas')" [ngClass]="{'focused': selectedFuelType === 'gas', 'inactive': selectedFuelType !== 'gas'}">
+                                <span>EV/แก๊ส 100%</span>
+                            </button>
+                            <button class="w-100px lg:w-100* button" type="button" (click)="setFuelType('Hybrid')" [ngClass]="{'focused': selectedFuelType === 'Hybrid', 'inactive': selectedFuelType !== 'Hybrid'}">
+                                <span>Hybrid/CNG</span>
+                            </button>
+                        </div>
+                        <button class="button w-100px sm:w-auto" type="button" (click)="setCorporateStatus()" [ngClass]="{'focused': isCorporate}">
+                            <span>นิติบุคคล</span>
+                        </button>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

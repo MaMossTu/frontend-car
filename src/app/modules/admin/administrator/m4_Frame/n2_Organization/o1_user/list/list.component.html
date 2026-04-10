@@ -1,0 +1,112 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <div
+        class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">ข้อมูลผู้ใช้งาน</div>
+        <!-- Actions -->
+        <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+            <!-- Add user button -->
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <div class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full">
+            <!-- REPLACE TABLE -->
+            <table datatable [dtOptions]="dtOptions" class="table row-border hover w-100*">
+                <thead>
+                    <tr>
+                        <th class="w-5*">ลำดับ</th>
+                        <th class="">ชื่อพนักงาน</th>
+                        <th class="">อีเมล</th>
+                        <th class="">ตำแหน่ง</th>
+                        <th class="w-0* text-center">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="dataRow?.length != 0">
+                    <tr *ngFor="let item of dataRow; let i = index">
+                        <td class="">{{ pages.begin + (i + 1) }}</td>
+                        <td class="">{{ item.employees?.first_name ?? '-' }} {{ item.employees?.last_name ?? '' }}</td>
+                        <td class="">{{ item.email ?? '-' }}</td>
+                        <td class="">{{ item.user_position[item.user_position.length - 1]?.roles?.name ?? '-' }}</td>
+                        <td class="w-auto flex items-center justify-center space-x-1">
+                            <button mat-button (click)="openDialog(item, $event)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-button (click)="openDialogsetrole(item)">
+                                <mat-icon>manage_accounts</mat-icon>
+                            </button>
+                            <button mat-button (click)="delete(item.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="dataRow?.length == 0">
+                    <tr>
+                        <td colspan="10" class="no-data-available text-center">ไม่มีข้อมูล !</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">สร้างผู้ใช้งาน</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้ไขผู้ใช้งาน</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-col w-full lg:w-4/4 mt-2">
+                    <mff [class]="'w-full'" [label]="'ชื่อผู้ใช้งาน'" [fCN]="'username'" [pHold]="'ชื่อผู้ใช้งาน'"></mff>
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>เลือกพนักงาน</mat-label>
+                        <mat-select [formControlName]="'employees_id'">
+                            <mat-option *ngFor="let item of listEmployee" [value]="item.id">
+                                {{ item.first_name }} {{ item.last_name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mff [class]="'w-full'" [label]="'ชื่อแสดงผล'" [fCN]="'name'" [pHold]="'ชื่อแสดงผล'"></mff>
+                    <mff [class]="'w-full'" [label]="'อีเมล'" [fCN]="'email'" [pHold]="'อีเมล'"></mff>
+                    <div class="w-full">
+                        <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                            <mat-label>รหัสผ่าน {{ isEdit ? '(เว้นว่างได้)' : '' }}</mat-label>
+                            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+                            <button mat-icon-button matSuffix (click)="togglePasswordVisibility('password')">
+                                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                            </button>
+                        </mat-form-field>
+                    </div>
+                    <div class="w-full">
+                        <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                            <mat-label>ยืนยันรหัสผ่าน</mat-label>
+                            <input matInput [type]="hideConfirmPassword ? 'password' : 'text'"
+                                formControlName="confirmPassword">
+                            <button mat-icon-button matSuffix (click)="togglePasswordVisibility('confirmPassword')">
+                                <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                            </button>
+                        </mat-form-field>
+                        <mat-error *ngIf="formData.errors?.mismatch">รหัสผ่านไม่เหมือนกัน</mat-error>
+                    </div>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;"
+                    class="border-solid border">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

@@ -1,0 +1,181 @@
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <div
+        class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">เอกสาร</div>
+        <!-- Actions -->
+        <div class="flex items-center mt-6 shrink-0 sm:mt-0 sm:ml-4" *ngIf="form.get('status').value !== ''">
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <div class="flex flex-col flex-auto min-w-full p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+            <mat-tab-group (selectedTabChange)="onChangeType($event)">
+                <ng-container>
+                    <!-- <mat-tab *ngFor="let item of status" [label]="item.name"> -->
+                    <mat-tab [label]="'ทั้งหมด'">
+
+                    </mat-tab>
+                    <mat-tab [label]="'แก๊ส'">
+
+                    </mat-tab>
+                    <mat-tab [label]="'พรบ.'">
+
+                    </mat-tab>
+                    <mat-tab [label]="'ประกัน'">
+
+                    </mat-tab>
+                </ng-container>
+            </mat-tab-group>
+            <div class="w-full px-4">
+                <table datatable [dtOptions]="dtOptions" class="table w-full row-border hover">
+                    <thead>
+                        <tr>
+                            <th class="w-5*">ลำดับ</th>
+                            <th class="*">เลขเอกสาร</th>
+                            <th class="*">ชื่อเอกสาร</th>
+                            <th class="*" >ประเภทงาน</th>
+                            <th class="*" >ประเภทรถ</th>
+                            <th class="*" >ประเภทแก๊ส</th>
+                            <th class="*" >วิศวกร</th>
+                            <th class="*" >บริษัท</th>
+                            <th class="*" >สถานะบริษัท</th>
+                            <th class="w-5* text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody *ngIf="dataRow?.length != 0">
+                        <tr *ngFor="let item of dataRow; let i = index  ">
+                            <td class="">{{ pages.begin + (i + 1) }} </td>
+                            <td class="">{{ item.no }}</td>
+                            <td class="">{{ item.name }}</td>
+                            <td class="" >
+                                <span class="ml-auto text-right" [ngSwitch]="item.type_job">
+                                    <ng-container *ngSwitchCase="'check'">ตรวจสภาพ</ng-container>
+                                    <ng-container *ngSwitchCase="'Install'">ตรวจติดตั้ง</ng-container>
+                                    <ng-container *ngSwitchCase="'renew'">ตรวจต่ออายุ</ng-container>
+                                    <ng-container *ngSwitchDefault>-</ng-container>
+                                </span>
+                            </td>
+                            <td class="" >{{ item.type_vehicle }}</td>
+                            <td class="" >{{ item.type_gas }}</td>
+                            <td class="" >
+                                {{ item.engineer?.code ? item.engineer.code : null }}
+                                {{ item.engineer?.first_name ? item.engineer.first_name : null }}
+                                {{ item.engineer?.last_name ? item.engineer.last_name : '-' }}
+                            </td>
+                            <td >
+                                {{ item.insurance_name?.ins_code ? ('(' + item.insurance_name.ins_code + ')') :
+                                null }}
+                                {{ item.insurance_name?.name ? item.insurance_name.name : '-' }}
+                            </td>
+                            <td class="" >
+                                <span class="ml-auto text-right" [ngSwitch]="item.insurance_name?.is_use">
+                                    <ng-container *ngSwitchCase="'1'">ใช้งาน</ng-container>
+                                    <ng-container *ngSwitchCase="'0'">ปิด</ng-container>
+                                    <ng-container *ngSwitchDefault>-</ng-container>
+                                </span>
+                            </td>
+                            <td class="flex items-center justify-center w-auto space-x-1">
+                                <button mat-button (click)="openDialog(item)" *ngIf="form.get('status').value !== ''">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-button (click)="delete(item.id)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody *ngIf="dataRow?.length == 0">
+                        <tr>
+                            <td colspan="" class="text-center no-data-available">
+                                ไม่มีข้อมูล !
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">เพิ่มเอกสาร {{form.get('name').value}}</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้ไขเอกสาร {{form.get('name').value}}</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-col w-full mt-2 space-y-2 lg:w-4/4">
+                    <!-- <mff class="w-100*" [label]="'ประเภทเอกสาร'" [fCN]="'document_type_id'" [pHold]="''"></mff> -->
+                    <!-- <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>ประเภทเอกสาร*</mat-label>
+                        <mat-select [formControlName]="'document_type_id'">
+                            <mat-option *ngFor="let item of listDocType" [value]="item.id">
+                                {{ item.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field> -->
+                    <mff class="w-100*" [label]="'เลขเอกสาร'" [fCN]="'no'" [pHold]="''"></mff>
+                    <mff class="w-100*" [label]="'ชื่อเอกสาร'" [fCN]="'name'" [pHold]="''"></mff>
+                    <mat-form-field appearance="fill" class="w-full"
+                        *ngIf="form.get('status').value === 'gas' || form.get('status').value === ''">
+                        <mat-label>ประเภทงาน</mat-label>
+                        <mat-select [formControlName]="'type_job'">
+                            <mat-option [value]="'check'">ตรวจสภาพ</mat-option>
+                            <mat-option [value]="'Install'">ตรวจติดตั้ง</mat-option>
+                            <mat-option [value]="'renew'">ตรวจต่ออายุ</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill" class="w-full"
+                        *ngIf="form.get('status').value === 'gas' || form.get('status').value === ''">
+                        <mat-label>ประเภทรถ</mat-label>
+                        <mat-select [formControlName]="'type_vehicle'">
+                            <mat-option [value]="'รย.'">รย.</mat-option>
+                            <mat-option [value]="'ขส.'">ขส.</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill" class="w-full"
+                        *ngIf="form.get('status').value === 'gas' || form.get('status').value === ''">
+                        <mat-label>ประเภทแก๊ส</mat-label>
+                        <mat-select [formControlName]="'type_gas'">
+                            <mat-option [value]="'NGV'">NGV</mat-option>
+                            <mat-option [value]="'LPG'">LPG</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill" class="w-full"
+                        *ngIf="form.get('status').value === 'gas' || form.get('status').value === ''">
+                        <mat-label>วิศวกรผู้รับผิดชอบ</mat-label>
+                        <mat-select [formControlName]="'engineer_id'">
+                            <mat-option *ngFor="let item of listEngineer" [value]="item.id">
+                                {{ item.first_name }} {{ item.last_name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill" class="w-full" *ngIf="form.get('status').value !== 'gas' ">
+                        <mat-label>บริษัทประกัน</mat-label>
+                        <mat-select [formControlName]="'insurance_names_id'">
+                            <mat-option *ngFor="let item of listInsurance" [value]="item.id">
+                                {{ item.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;"
+                    class="border border-solid">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

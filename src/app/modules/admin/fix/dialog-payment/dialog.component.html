@@ -1,0 +1,119 @@
+<div>
+    <div class="mb-4 text-xl font-semibold">ใบแจ้งซ่อมเลขที่ : <span>{{this.data.workorderNo ?? '-'}}</span></div>
+
+    <mat-tab-group>
+        <!-- Tab 1: Make Payment -->
+        <mat-tab label="จ่ายเงิน">
+
+            <div mat-dialog-content class="overflow-y-auto md:max-h-180">
+                <form [formGroup]="form">
+                    <div class="flex-auto">
+                        <div class="flex flex-col mb-1 md:flex">
+                            <div class="md:w-full">
+                                <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                                    <mat-label>วันที่ชำระเงิน</mat-label>
+                                    <input matInput [matDatepicker]="paidDatePicker" [formControlName]="'date'">
+                                    <mat-datepicker-toggle matSuffix [for]="paidDatePicker"></mat-datepicker-toggle>
+                                    <mat-datepicker #paidDatePicker></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                            <div class="md:w-full">
+                                <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                                    <mat-label>เลือกช่องทางการชำระเงิน</mat-label>
+                                    <mat-select [formControlName]="'paid_type'" placholder="เลือกช่องทางการชำระเงิน">
+                                        <mat-option *ngFor="let item of payment;" [value]="item.value">
+                                            {{item.name}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div class="md:w-full">
+                                <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                                    <mat-label>จำนวนเงิน (บาท)</mat-label>
+                                    <input matInput placeholder="กรุณาระบุจำนวนเงิน" [formControlName]="'paid_price'">
+                                </mat-form-field>
+                            </div>
+                            <div class="md:w-full">
+                                <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                                    <mat-label>เหตุผล</mat-label>
+                                    <textarea matInput placeholder="ระบุเหตุผล" [formControlName]="'description'"
+                                        [rows]="3"></textarea>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </mat-tab>
+
+        <!-- Tab 2: Payment History -->
+        <mat-tab label="ประวัติการชำระเงิน">
+            <div mat-dialog-content class="overflow-y-auto md:max-h-180">
+                <div *ngIf="work_order_payment && work_order_payment.length > 0; else noPayments">
+                    <table class="w-full ">
+                        <thead>
+                            <tr>
+                                <th class="p-1 text-center border-2 border-black">ลำดับ</th>
+                                <th class="p-1 text-center border-2 border-black">เลขที่</th>
+                                <th class="p-1 text-center border-2 border-black">วันที่</th>
+                                <th class="p-2 text-center border-2 border-black">ยอดชำระ</th>
+                                <th class="p-2 text-center border-2 border-black">ยอดจ่าย</th>
+                                <th class="p-2 text-center border-2 border-black">ยอดค้าง</th>
+                                <th class="p-2 text-center border-2 border-black">ช่องทางชำระ</th>
+                                <th class="p-2 text-center border-2 border-black">หมายเหตุ</th>
+                                <th class="p-2 text-center border-2 border-black">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of work_order_payment; let i = index">
+                                <td class="py-1.5 text-center border-2 border-black">{{ i + 1 }}</td>
+                                <td class="text-center border-2 border-black">{{ item.no ?? '-'}}</td>
+                                <td class="text-center border-2 border-black">{{ item.date ?? '-'}}</td>
+                                <td class="text-center border-2 border-black">{{ item.before_price ?? '-'}}</td>
+                                <td class="text-center border-2 border-black">{{ item.paid_price ?? '-'}}</td>
+                                <td class="text-center border-2 border-black">{{ item.after_price ?? '-'}}</td>
+                                <td class="text-center border-2 border-black">
+                                    <span *ngIf="item.paid_type === 'paid_cash'"
+                                        class="px-2 py-1 text-sm font-semibold bg-yellow-200 rounded-md">เงินสด</span>
+                                    <span *ngIf="item.paid_type === 'paid_tran'"
+                                        class="p-1 text-sm font-semibold bg-green-200 rounded-md">เงินโอน</span>
+                                    <span *ngIf="item.paid_type === 'credit'"
+                                        class="p-1 text-sm font-semibold bg-red-200 rounded-md">เครดิต</span>
+                                </td>
+                                <td class="text-center border-2 border-black">{{ item.description ?? '-'}}</td>
+                                <td class="text-center border-2 border-black gap-2">
+                                    <!-- <button (click)="printreceipt(Id, item.id)" class=""
+                                    matTooltip="ใบเสร็จรับเงิน"
+                                    matTooltipClass="bg-gray-800 text-md text-white p-3 rounded-lg;">
+                                    <mat-icon
+                                        svgIcon="heroicons_outline:document-text"></mat-icon>
+                                </button> -->
+                                    <button (click)="deleteTransec(item.id)" class="" matTooltip="ลบข้อมูลการทำรายการ"
+                                        matTooltipClass="bg-gray-800 text-md text-white p-3 rounded-lg;">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Template for No Payments -->
+                <ng-template #noPayments>
+                    <p class="text-center border-2 border-black text-gray-500">ยังไม่มีประวัติการชำระเงิน</p>
+                </ng-template>
+            </div>
+        </mat-tab>
+
+    </mat-tab-group>
+    <!-- <div> check : {{this.form.value | json}}</div> -->
+    <div mat-dialog-actions class="flex justify-end">
+        <button *ngIf="currentTabIndex === 0" class="px-6 ml-3" mat-flat-button [color]="'primary'" (click)="Submit()">
+            ตกลง
+        </button>
+        <button class="px-6 ml-3" mat-flat-button [color]="'accent'" (click)="onClose()">
+            ยกเลิก
+        </button>
+    </div>
+</div>

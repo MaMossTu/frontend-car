@@ -1,0 +1,121 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">เงื่อนไขค่าบริการ</div>
+        <!-- Actions -->
+        <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+            <!-- Add product button -->
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <!-- Products list -->
+        <div class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full">
+            <table datatable [dtOptions]="dtOptions" class="table row-border hover w-100*">
+                <thead>
+                    <tr>
+                        <th class="w-0 text-center">ลำดับ</th>
+                        <th class="">บริการ</th>
+                        <th class="">ประเภทรถ</th>
+                        <th class="">น้ำหนัก</th>
+                        <th class="">ราคา</th>
+                        <th class="">ประเภท</th>
+                        <th class="text-center"  >จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="dataRow?.length != 0">
+                    <tr *ngFor="let item of dataRow; let i = index">
+                        <td class="">{{ pages.begin + (i + 1) }}</td>
+                        <td class="">{{ item.service?.name ?? '' }}</td>
+                        <td class="">{{ item.vehicle_inspection_types?.name ?? '' }}</td>
+                        <td class="">{{ item.weight ?? '' }}</td>
+                        <td class="">{{ item.price ?? '' }}</td>
+                        <td class="">{{ item.type ?? '' }}</td>
+                        <td class="w-auto flex items-center justify-center space-x-1"  >
+                            <button mat-button    (click)="openDialog(item.id)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-button   (click)="delete(item.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="dataRow?.length == 0">
+                    <tr>
+                        <td colspan="7" class="no-data-available text-center">ไม่มีข้อมูล !</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!Id">เพิ่มเงื่อนไขค่าบริการ</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้เงื่อนไขค่าบริการ</h2>
+            <mat-dialog-content>
+                <div class="flex flex-col w-full lg:w-4/4 mt-2">
+                    <div class="w-full px-2 mb-2 md:mb-0">
+                        <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                            <mat-label>บริการ</mat-label>
+                            <mat-select [formControlName]="'service_id'" placeholder="บริการ">
+                                <mat-option *ngFor="let item of service" [value]="item.id">
+                                    {{item.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="w-full px-2 mb-2 md:mb-0" *ngIf="formData.get('service_id').value !== 6">
+                        <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                            <mat-label>ประเภทรถพรบ.</mat-label>
+                            <mat-select [formControlName]="'vehicle_inspection_type_id'" placeholder="ประเภทรถ">
+                                <mat-option *ngFor="let item of vehicle_inspection_type" [value]="item.id">
+                                    {{item.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="px-2 mb-2 md:mb-0 w-full" *ngIf="formData.get('service_id').value !== 6">
+                        <mat-form-field class="w-full" >
+                            <mat-label>น้ำหนัก</mat-label>
+                            <input matInput placeholder="น้ำหนัก" [formControlName]="'weight'">
+                        </mat-form-field>
+                    </div>
+                    <div class="px-2 mb-2 md:mb-0 w-full" >
+                        <mat-form-field class="w-full" >
+                            <mat-label *ngIf="formData.get('service_id').value !== 6">ราคา</mat-label>
+                            <mat-label *ngIf="formData.get('service_id').value == 6">เปอร์เซ็น</mat-label>
+                            <input matInput placeholder="ราคา" [formControlName]="'price'">
+                        </mat-form-field>
+                    </div>
+                    <div class="px-2 mb-2 md:mb-0 w-full" *ngIf="[8, 9, 11, 12].includes(formData.get('service_id').value)">
+                        <div class="mat-form-field-wrapper">
+                          <label class="mat-label mr-2">ประเภทรถ</label>
+                          <mat-radio-group [formControlName]="'type'" class="d-flex flex-column">
+                            <mat-radio-button value="รย." class="mr-2">รย.</mat-radio-button>
+                            <mat-radio-button value="ขส.">ขส.</mat-radio-button>
+                          </mat-radio-group>
+                        </div>
+                      </div>
+
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;" class="border-solid border">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!Id" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="Id" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

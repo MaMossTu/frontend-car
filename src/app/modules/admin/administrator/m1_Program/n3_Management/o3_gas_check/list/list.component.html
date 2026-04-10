@@ -1,0 +1,233 @@
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <div class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">ตรวจแก๊ส</div>
+        <div class="flex space-x-2 reduceHeadPad">
+            <mat-form-field appearance="fill" class="w-50">
+                <mat-select value="default" placeholder="เอกสาร">
+                    <mat-option (click)="pdf()" class="" color="primary">
+                        <mat-icon svgIcon="pdf-icon"></mat-icon>
+                        <span class="ml-2 mr-1">สรุปรายวัน</span>
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="fill" class="w-64" [formGroup]="formData">
+                <mat-date-range-input [rangePicker]="picker">
+                    <input
+                        matStartDate
+                        placeholder="Start date"
+                        formControlName="startDate"
+                        (dateChange)="onDateChange($event, 'startDate', formData)">
+                    <input
+                        matEndDate
+                        placeholder="End date"
+                        formControlName="endDate"
+                        (dateChange)="onDateChange($event, 'endDate', formData)">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+            </mat-form-field>
+        </div>
+        <!-- Actions -->
+        <!-- <div class="flex items-center mt-6 shrink-0 sm:mt-0 sm:ml-4">
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div> -->
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <div class="flex flex-col flex-auto min-w-full p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+            <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="onTabChange()">
+                <mat-tab label="รายการบิล">
+                    <!-- REPLACE TABLE -->
+                    <div class="flex flex-col flex-auto min-w-full p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+                        <table datatable [dtOptions]="dtOptions1" class="table row-border hover w-100*">
+                            <thead>
+                                <tr>
+                                    <th class="w-5*">ลำดับ</th>
+                                    <th class="">เลขบิล</th>
+                                    <th class="">วันที่</th>
+                                    <th class="">ป้ายทะเบียน</th>
+                                    <th class="">จังหวัด</th>
+                                    <th class="">เลขที่ตรวจ</th>
+                                    <th class="">เลขใบติดตั้ง</th>
+                                    <th class="">เลขต่อถัง</th>
+                                    <th class="">ชื่อวิศวกร</th>
+                                    <!-- <th class="">รูป</th> -->
+                                    <th class="w-0* text-center"  >จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="dataRow1?.length != 0">
+                                <tr *ngFor="let item of dataRow1; let i = index">
+                                    <td class="">{{ pages1?.begin + (i + 1) }}</td>
+                                    <td class="">{{ item?.inspections_no ?? '-' }}</td>
+                                    <td class="">{{ (item?.date | TH) ?? '-' }}</td>
+                                    <td class="">{{ item?.license_plate ?? '-' }}</td>
+                                    <td class="">{{ item?.provinces ?? '-' }}</td>
+                                    <td class="">{{ item?.service_or ?? '-' }}</td>
+                                    <td class="">{{ '-' }}</td>
+                                    <td class="">{{ item?.CHA_NO ?? '-' }}</td>
+                                    <td class="">{{ item?.first_name }} {{ item?.last_name ?? '-' }}</td>
+                                    <!-- <td><img [src]="item.photo_vehicle_gas_url" alt="Item Image" style="width: 100px; height: auto;"></td> -->
+                                    <td class="flex items-center justify-center w-auto space-x-1"  >
+                                        <button mat-button    (click)="openDialog(item, $event)">
+                                            <!-- <mat-icon>edit</mat-icon> -->
+                                            <mat-icon svgIcon="heroicons_solid:pencil-square"></mat-icon>
+                                        </button>
+                                        <!-- <button mat-button   (click)="delete(item.id)">
+                                            <mat-icon>delete</mat-icon>
+                                        </button> -->
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="dataRow1?.length == 0">
+                                <td [attr.colspan]="(showEdit() || showDelete()) ? 10 : 9" class="text-center no-data-available">
+                                    ไม่มีข้อมูล !
+                                </td>
+                            </tbody>
+                        </table>
+                    </div>
+                </mat-tab>
+                <mat-tab label="ใส่ข้อมูลสำเร็จ">
+                    <div class="flex flex-col flex-auto min-w-full p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+                        <table datatable [dtOptions]="dtOptions2" class="table row-border hover w-100*">
+                            <thead>
+                                <tr>
+                                    <th class="w-5*">ลำดับ</th>
+                                    <th class="">เลขบิล</th>
+                                    <th class="">วันที่</th>
+                                    <th class="">ป้ายทะเบียน</th>
+                                    <th class="">จังหวัด</th>
+                                    <th class="">เลขที่ตรวจ</th>
+                                    <th class="">เลขใบติดตั้ง</th>
+                                    <th class="">เลขต่อถัง</th>
+                                    <th class="">ชื่อวิศวกร</th>
+                                    <th class="">รูป</th>
+                                    <th class="w-0* text-center"  >จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="dataRow2?.length != 0">
+                                <tr *ngFor="let item of dataRow2; let i = index">
+                                    <td class="">{{ pages2?.begin + (i + 1) }}</td>
+                                    <td class="">{{ item?.inspections_no ?? '-' }}</td>
+                                    <td class="">{{ (item?.date | TH) ?? '-' }}</td>
+                                    <td class="">{{ item?.license_plate ?? '-' }}</td>
+                                    <td class="">{{ item?.provinces ?? '-' }}</td>
+                                    <td class="">{{ item?.service_or ?? '-' }}</td>
+                                    <td class="">{{ '-' }}</td>
+                                    <td class="">{{ item?.CHA_NO ?? '-' }}</td>
+                                    <td class="">{{ item?.first_name }} {{ item?.last_name ?? '-' }}</td>
+                                    <td><img [src]="item.photo_vehicle_gas" alt="Item Image" style="width: 100px; height: auto;"></td>
+                                    <td class="flex items-center justify-center w-auto space-x-1"  >
+                                        <button mat-button    (click)="openDialog(item, $event)">
+                                            <!-- <mat-icon>edit</mat-icon> -->
+                                            <mat-icon svgIcon="heroicons_solid:pencil-square"></mat-icon>
+                                        </button>
+                                        <!-- <button mat-button   (click)="delete(item.id)">
+                                            <mat-icon>delete</mat-icon>
+                                        </button> -->
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="dataRow2?.length == 0">
+                                <tr>
+                                    <td [attr.colspan]="(showEdit() || showDelete()) ? 11 : 10" class="text-center no-data-available">
+                                        ไม่มีข้อมูล !
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">เพิ่มเลขต่อ พ.ร.บ.</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้ไขเลขต่อ พ.ร.บ.</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-row w-full mt-2 space-x-4 lg:w-4/4">
+                    <div class="flex flex-col w-30*">
+                        <ngx-dropzone (change)="onSelect($event)"
+                        class="flex h-[250px] aspect-[1/1] overflow-hidden object-contain changeOnHover justify-center items-center">
+                            <ngx-dropzone-label *ngIf="files==null && formData.get('id')?.value==''"
+                                class="flex items-center justify-center outline-none">รูปภาพ</ngx-dropzone-label>
+                            <img *ngIf="files==null && formData.get('id')?.value!=''" [src]="formData.get('image_url')?.value"
+                                class="w-auto h-100*">
+                            <!-- <img *ngIf="files!=null" [src]="imagePreview"
+                                class="w-auto h-100*"> -->
+                            <ngx-dropzone-image-preview class="w-auto h-full"
+                                *ngIf="files" [removable]="true" [file]="files" (removed)="onRemove(files)">
+                            </ngx-dropzone-image-preview>
+                            <div class="flex flex-row icon-container">
+                                <mat-icon [svgIcon]="'heroicons_outline:pencil-square'"></mat-icon>
+                                <span class="ml-2 mr-1">แก้ไขรูปภาพ</span>
+                            </div>
+                        </ngx-dropzone>
+                    </div>
+                    <div class="flex flex-col w-70*">
+                        <mat-form-field appearance="fill" class="w-full">
+                            <mat-label>พนักงานที่เป็นวิศวะกร</mat-label>
+                            <mat-select [formControlName]="'engineer_id'">
+                                <mat-option *ngFor="let item of listEngineer" [value]="item.id">
+                                    <ng-container *ngIf="item?.code">[{{ item.code }}] </ng-container>
+                                    <ng-container *ngIf="item?.first_name">{{ item.first_name }}</ng-container>
+                                    <ng-container *ngIf="item?.last_name"> {{ item.last_name }}</ng-container>
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div class="flex flex-row w-full pb-2 space-x-2 lg:w-4/4">
+                            <mff class="w-50*" [label]="'เลขที่ตรวจในใบออกแก๊ส'" [fCN]="'service_or'" [pHold]="'เลขที่ตรวจในใบออกแก๊ส'"></mff>
+                            <mff class="w-50*" [label]="'เลขต่อถัง'" [fCN]="'CHA_NO'" [pHold]="'เลขต่อถัง'"></mff>
+                        </div>
+
+                            <!-- <mat-form-field appearance="fill" class="w-50*">
+                                <mat-label>วันที่</mat-label>
+                                <input matInput [matDatepicker]="picker1" [formControlName]="'date'"
+                                    (input)="onDateInput($event)" (dateChange)="onDateChange($event, 'date', formData)"
+                                    placeholder="DD/MM/YYYY">
+                                <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                                <mat-datepicker #picker1></mat-datepicker>
+                            </mat-form-field> -->
+                            <div appearance="fill" class="w-full*">
+                                <mat-label>เลขใบติดตั้ง</mat-label>
+                                <div formArrayName="install_no" class="flex flex-col w-full mt-2 space-y-2">
+                                    <div *ngFor="let ctrl of installNoArray.controls; let i = index" class="flex items-center w-full px-2 pb-2 border border-gray-300 rounded">
+                                        <input matInput [formControlName]="i" placeholder="ระบุเลขใบติดตั้ง" >
+                                        <button mat-icon-button color="warn" (click)="removeInstallNo(i)">
+                                            <mat-icon>remove_circle</mat-icon>
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center justify-end w-full px-2 py-1 border border-gray-300 rounded">
+                                        <button mat-icon-button color="primary" (click)="addInstallNo()">
+                                            <mat-icon>add_circle</mat-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                       </div>
+                        <mat-form-field class="w-100*">
+                            <mat-label>หมายเหตุ</mat-label>
+                            <textarea matInput [formControlName]="'remark'"></textarea>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;" class="border border-solid">ปิด</button>
+                <!-- <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button> -->
+                <!-- <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button> -->
+                <button mat-button (click)="update()" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

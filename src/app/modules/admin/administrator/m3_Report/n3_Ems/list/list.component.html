@@ -1,0 +1,171 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div
+        class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">EMS</div>
+        <div class="ml-auto w-1/4 pt-3">
+            <mat-form-field class="w-full">
+                <mat-date-range-input [rangePicker]="picker">
+                    <input matStartDate placeholder="Start date">
+                    <input matEndDate placeholder="End date">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+            </mat-form-field>
+        </div>
+        <!-- Actions -->
+        <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+
+            <!-- Add product button -->
+
+
+        </div>
+    </div>
+
+    <!-- search -->
+    <!-- <div class="search-box relative flex flex-col flex-0 px-6 md:px-8 border-b mt-4">
+
+    </div> -->
+
+    <!-- Main -->
+    <div class="flex flex-auto overflow-hidden">
+
+        <!-- Products list -->
+        <div class="flex flex-col flex-auto p-5 overflow-hidden sm:overflow-y-auto sm:relative overflow-x-auto">
+            <!-- <div class="flex flex-row pl-5 text-xl space-x-5">
+                <button class="flex border-black border p-5 hover:bg-blue-600 hover:text-white "
+                [ngClass]="{'bg-blue-600 text-white': Button === 'table1'}"
+                (click)="loadTable()">
+                    จัดการ
+                </button>
+                <button class="flex border-black border p-5 hover:bg-blue-600 hover:text-white"
+                [ngClass]="{'bg-blue-600 text-white': Button === 'table2'}"
+                (click)="loadTable2()">
+                    จัดส่งแล้ว
+                </button>
+            </div> -->
+
+
+            <!-- Tabs -->
+            <!-- grid -->
+            <!-- Products list -->
+            <mat-tab-group #tabGroup (selectedTabChange)="onTabChange($event)">
+                <mat-tab label="รอนำส่ง">
+                    <div
+                    class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full"
+                    *ngIf="selectedIndex === 0">
+                    <table datatable [dtOptions]="dtOptions" class="table row-border hover w-full">
+                        <thead>
+                            <tr>
+                                <th class="w-5*">ลำดับ</th>
+                                <th class="">หมายเลข</th>
+                                <th class="">ทะเบียนรถ</th>
+                                <th class="">ประเภทพ.ร.บ.</th>
+                                <th class="">ชื่อลูกค้า</th>
+                                <th class="">ที่อยู่ผู้รับ</th>
+                                <th class="">เบอร์โทรผู้รับ</th>
+                                <th class="w-0* text-center"  >จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="dataRow?.length != 0">
+                            <tr *ngFor="let item of dataRow; let i = index">
+
+                                <td style="width: 5%">{{ pages.begin + (i + 1) }}</td>
+                                <td class="">{{ item.no ?? '-'}}</td>
+                                <td class="">{{ item.license_plate ?? '-'}}</td>
+                                <td class="">{{ item.inspection_type_name ?? '-'}}</td>
+                                <td class="">{{ item.customer_name ?? '-'}}</td>
+                                <td class="">{{ item.address ?? '-'}}</td>
+                                <td class="">{{ item.phone_number1 ?? '-'}}</td>
+                                <td style="width: 15%"  >
+                                    <button mat-button    (click)="edit(item.id)">
+                                        <mat-icon>home</mat-icon>
+                                    </button>
+                                    <button mat-button   (click)="deleteCategory(item.id)">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="dataRow?.length == 0">
+                            <tr>
+                                <td colspan="9" class="no-data-available text-center">
+                                    ไม่มีข้อมูล !
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+                </mat-tab>
+                <mat-tab label="จัดส่งแล้ว">
+                    <div
+                        class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full"
+                        *ngIf="selectedIndex === 1">
+                        <table datatable [dtOptions]="dtOptions2" class="table row-border hover w-full">
+                            <thead>
+                                <tr>
+                                    <th class="w-5*">ลำดับ</th>
+                                    <th class="">หมายเลข</th>
+                                    <th class="">ทะเบียนรถ</th>
+                                    <th class="">ประเภทพ.ร.บ.</th>
+                                    <th class="">ชื่อลูกค้า</th>
+                                    <th class="">ที่อยู่ผู้รับ</th>
+                                    <th class="">เบอร์โทรผู้รับ</th>
+                                    <th class="w-0* text-center"  >จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="dataRow2?.length != 0">
+                                <tr *ngFor="
+                                            let item of dataRow2;
+                                            let i = index
+                                        ">
+                                    <td style="width: 5%">
+                                        {{ pages.begin + (i + 1) }}
+                                    </td>
+                                    <td class="">{{ item.no }}</td>
+                                    <td class="">
+                                        {{ item.license_plate }}
+                                    </td>
+                                    <td class="">
+                                        {{ item.inspection_type_name }}
+                                    </td>
+                                    <td class="">
+                                        {{ item.customer_name }}
+                                    </td>
+                                    <td class="">
+                                        {{ item.address }}
+                                    </td>
+                                    <td class="">
+                                        {{ item.phone_number1 }}
+                                    </td>
+                                    <td style="width: 15%"  >
+                                        <button mat-button    (click)="edit(item.id)">
+                                            <mat-icon>home</mat-icon>
+                                        </button>
+                                        <button mat-button   (click)="deleteCategory(item.id)">
+                                            <mat-icon>delete</mat-icon>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="dataRow2?.length == 0">
+                                <tr>
+                                    <td colspan="9" class="no-data-available text-center">
+                                        ไม่มีข้อมูล !
+                                    </td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+        </div>
+    </div>
+</div>

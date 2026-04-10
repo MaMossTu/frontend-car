@@ -1,0 +1,62 @@
+<div class="w-full">
+    <div class="text-xl mb-4" >ตั้งค่าสิทธิ์ ของผู้ใช้งาน</div>
+    <div mat-dialog-content class="overflow-y-auto">
+        <form [formGroup]="form">
+            <div class="flex-auto">
+                <div class="flex flex-col md:flex mb-1">
+                    <div class="w-full flex flex-row gap-4 mb-4 border border-gray-300 rounded-md p-4">
+                        <div class="w-full flex flex-row">
+                            <div class="font-bold">ชื่อ:</div>
+                            <div class="w-full text-center"> {{ data?.value?.name }} </div>
+                        </div>
+                        <div class="w-full flex flex-row">
+                            <div class="font-bold">Email:</div>
+                            <div class="w-full  text-center"> {{ data?.value?.email }}</div>
+                        </div>
+                    </div>
+
+                    <div class="w-full">
+                        <mat-form-field class="w-full">
+                            <mat-label>ตำแหน่ง</mat-label>
+                            <mat-select [formControlName]="'role_id'">
+                                <mat-option *ngFor="let item of roles;" [value]="item.id">
+                                    {{item.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="w-full">
+                        <mat-form-field class="w-full">
+                            <mat-label>ฝ่าย</mat-label>
+                            <mat-select [formControlName]="'department_id'">
+                                <mat-option *ngFor="let item of departments;" [value]="item.id">
+                                    {{item.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="w-full">
+                        <mat-form-field class="w-full">
+                            <mat-label>แผนก</mat-label>
+                            <mat-select [formControlName]="'sub_department_id'">
+                                <mat-option *ngFor="let item of sub_departments;" [value]="item.id">
+                                    {{item.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+    <!-- <div> check : {{this.form.value | json}}</div> -->
+    <div mat-dialog-actions class="flex justify-end">
+        <button class="px-6 ml-3" mat-flat-button [color]="'primary'" (click)="Submit()">
+            ตกลง
+        </button>
+        <button class="px-6 ml-3" mat-flat-button [color]="'accent'" (click)="onClose()">
+            ยกเลิก
+        </button>
+    </div>
+</div>

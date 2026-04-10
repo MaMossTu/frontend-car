@@ -1,0 +1,112 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">รายงานประจำวัน</div>
+        <!-- Actions -->
+        <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+            <!-- Add product button -->
+            <!-- <a routerLink="../../d02.bill_manage/new" class="ml-4" mat-flat-button [color]="'primary'">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+            </a>
+            <a routerLink="../../d02.bill_manage/new" class="ml-1" mat-flat-button [color]="'primary'">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+            </a>
+            <mat-form-field class="ml-1 pt-4 w-40">
+                <input matInput [matDatepicker]="picker">
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field> -->
+              <div class="flex space-x-2 reduceHeadPad">
+                <!-- <mat-form-field appearance="fill" class="w-50">
+                    <mat-select value="default" placeholder="เอกสาร">
+                        <mat-option (click)="pdfDay()" class="" color="primary">
+                            <mat-icon svgIcon="pdf-icon"></mat-icon>
+                            <span class="ml-2 mr-1">สรุปรายวัน</span>
+                        </mat-option>
+                        <mat-option (click)="pdfMonth()" class="" color="primary">
+                            <mat-icon svgIcon="pdf-icon"></mat-icon>
+                            <span class="ml-2 mr-1">สรุปรายเดือน</span>
+                        </mat-option>
+                        <mat-option (click)="pdfDay()" class="" color="primary">
+                            <mat-icon svgIcon="excel-icon"></mat-icon>
+                            <span class="ml-2 mr-1">สรุปรายวัน</span>
+                        </mat-option>
+                        <mat-option (click)="pdfMonth()" class="" color="primary">
+                            <mat-icon svgIcon="excel-icon"></mat-icon>
+                            <span class="ml-2 mr-1">สรุปรายเดือน</span>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field> -->
+                <mat-form-field appearance="fill" class="w-64" [formGroup]="formData">
+                    <mat-date-range-input [rangePicker]="picker">
+                        <input
+                            matStartDate
+                            placeholder="Start date"
+                            formControlName="startDate"
+                            (dateChange)="onDateChange($event, 'startDate', formData)">
+                        <input
+                            matEndDate
+                            placeholder="End date"
+                            formControlName="endDate"
+                            (dateChange)="onDateChange($event, 'endDate', formData)">
+                    </mat-date-range-input>
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-date-range-picker #picker></mat-date-range-picker>
+                </mat-form-field>
+            </div>
+        </div>
+    </div>
+    <div class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full">
+        <table datatable [dtOptions]="dtOptions" class="table row-border hover w-full">
+            <thead>
+                <tr>
+                    <th class="w-*">ลำดับ</th>
+                    <th class="w-*">ชื่อ</th>
+                    <th class="w-*">อีเมล</th>
+                    <th class="w-*">รหัสสาขา</th>
+                    <th class="w-*">หมายเลขโทรศัพท์</th>
+                    <th class="w-*">ตรวจสภาพรถ</th>
+                    <th class="w-*">พ.ร.บ.</th>
+                    <th class="w-*">ภาษีประจำปี</th>
+                    <th class="w-*">ประกัน</th>
+                    <th class="w-*">ขนส่ง</th>
+                    <th class="w-*">ตรวจแก๊ส LPG</th>
+                    <th class="w-*">ตรวจแก๊ส NGV</th>
+                    <th class="w-*">หนังสือรับรองวิศวกร</th>
+                    <th class="w-*">อื่่นๆ</th>
+                    <th class="w-*">EMS</th>
+            </thead>
+            <tbody *ngIf="dataRow?.length != 0">
+                <tr *ngFor="let item of dataRow; let i = index">
+                    <td class="">{{ item.first_name ?? '-' }} {{ item.last_name ?? '-' }}</td>
+                    <td class="">{{ item.email ?? '-' }}</td>
+                    <td class="">{{ item.branch_id ?? '-' }}</td>
+                    <td class="">{{ item.phone_number ?? '-' }}</td>
+                    <td class="">{{ item.serviceSummary.vehicle_Inspection ?? '-' }}</td>
+                    <td class="">{{ item.serviceSummary.compulsory_Insurance ?? '-' }}</td>
+                    <td class="">{{ item.serviceSummary.annual_Tax ?? '-' }}</td>
+                    <td class="">{{ item.serviceSummary.insurance ?? '-' }}</td>
+                    <td class="">{{ item.serviceSummary.transportation ?? '-' }}</td>
+                    <td class="">{{ item.serviceSummary.LPG_inspection ?? '-' }}</td>
+                    <td class="">{{ item.serviceSummary.NGV_inspection ?? '-' }}</td>
+                    <td class="">{{ item.serviceSummary.engineer_certificate ?? '-' }}</td>
+                    <td class="">{{ item.serviceSummary.other ?? '-' }}</td>
+                    <td class="">{{ item.serviceSummary.EMS ?? '-' }}</td>
+                </tr>
+            </tbody>
+            <tbody *ngIf="dataRow?.length == 0">
+                <tr>
+                    <td colspan="9" class="no-data-available text-center">
+                        ไม่มีข้อมูล !
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+

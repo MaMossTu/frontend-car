@@ -1,0 +1,134 @@
+<div class="flex flex-col flex-auto w-100* min-w-0 sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent "></div>
+    <div class="flex flex-row flex-wrap w-full overflow-auto text-black" [formGroup]="formData">
+        <div class="flex flex-row w-full px-5 bg-white rounded-md">
+            <div class="flex flex-col w-full py-5 space-y-3 lg:flex-row lg:space-y-0 lg:space-x-3">
+                <!-- ข้อมูลบริษัท -->
+                <div class="w-100* lg:w-1/3 p-5 border-2 border-blue-500 rounded-md">
+                    <div class="pb-5 text-2xl font-medium tracking-tight text-blue-900">ข้อมูลบริษัท</div>
+                    <!-- Form Fields -->
+                    <div class="flex items-center w-full">
+                        <mat-label class="w-30* bill-label">ชื่อบริษัท *</mat-label>
+                        <mat-form-field appearance="fill" class="flex-grow">
+                            <input type="text" matInput min="0" [matAutocomplete]="autoCompany" placeholder="ชื่อบริษัท" [formControlName]="'company_name'">
+                            <mat-autocomplete #autoCompany="matAutocomplete" (optionSelected)="onVehicleTypeChange($event.option.value)">
+                                <mat-option *ngFor="let company of filteredVehicles | async" [value]="company">
+                                    {{ company.name }}
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                    <form [formGroup]="formData">
+                        <div class="flex items-center w-full">
+                            <mat-label class="w-30* bill-label">หมายเลขผู้เสียภาษี</mat-label>
+                            <mat-form-field appearance="fill" class="flex-grow">
+                                <input matInput min="0" placeholder="หมายเลขผู้เสียภาษี" [formControlName]="'tax_id'" (keydown)="noNaN($event)">
+                            </mat-form-field>
+                        </div>
+                        <div class="flex items-center w-full">
+                            <mat-label class="w-30* bill-label">เบอร์ติดต่อ *</mat-label>
+                            <mat-form-field appearance="fill" class="flex-grow">
+                                <input matInput min="0" placeholder="เบอร์ติดต่อ" [formControlName]="'phone_number'" (keydown)="noNaN($event)">
+                            </mat-form-field>
+                        </div>
+                        <div class="flex items-center w-full">
+                            <mat-label class="w-30* bill-label">ที่อยู่</mat-label>
+                            <mat-form-field appearance="fill" class="flex-grow">
+                                <input matInput min="0" (click)="openAddressDialog()" [formControlName]="'address'">
+                            </mat-form-field>
+                        </div>
+                    </form>
+                </div>
+                <!-- ข้อมูลรถ -->
+                <div class="w-100* lg:w-2/3 p-5 border-2 border-blue-500 rounded-md">
+                    <div class="pb-5 text-2xl font-medium tracking-tight text-blue-900">ข้อมูลรถหลายคัน</div>
+                    <form formArrayName="vehicles">
+                        <div *ngFor="let vehicle of vehiclesFormArray.controls; let i = index" [formGroupName]="i" class="p-4 mb-3 border border-gray-300 rounded-md">
+                            <div class="flex flex-row justify-between mb-3">
+                                <span class="text-lg font-semibold">รถคันที่ {{ i + 1 }}</span>
+                                <button type="button" mat-icon-button color="warn" (click)="removeVehicle(i)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                                <!-- ประเภทรถ -->
+                                <mat-form-field appearance="fill" class="w-full">
+                                    <mat-label>ประเภทรถ</mat-label>
+                                    <mat-select [formControlName]="'vehicle_inspection_types_id'" (selectionChange)="onVehicleTypeChange($event.value)">
+                                        <mat-option *ngFor="let item of listVehicleInspection" [value]="item.id">
+                                            <ng-container *ngIf="item?.type">[ {{ item.type }} </ng-container>
+                                            <ng-container *ngIf="item?.code">{{ item.code }} ]</ng-container>
+                                            {{ item.name ?? '-' }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <!-- ป้ายทะเบียน -->
+                                <mat-form-field appearance="fill" class="w-full">
+                                    <mat-label>ป้ายทะเบียน</mat-label>
+                                    <input matInput placeholder="ป้ายทะเบียน" [formControlName]="'license_plate'">
+                                </mat-form-field>
+                                <!-- จังหวัด -->
+                                <mat-form-field appearance="fill" class="w-full">
+                                    <mat-label>จังหวัด</mat-label>
+                                    <input matInput placeholder="จังหวัด" [formControlName]="'province'" [matAutocomplete]="autoProvince">
+                                    <mat-autocomplete #autoProvince="matAutocomplete">
+                                        <mat-option *ngFor="let province of filteredProvinces | async" [value]="province.name_th">
+                                            {{ province.name_th }}
+                                        </mat-option>
+                                    </mat-autocomplete>
+                                </mat-form-field>
+                            </div>
+                            <div class="grid grid-cols-1 gap-4 mt-4 lg:grid-cols-3">
+                                <!-- เครื่องยนต์ (CC) -->
+                                <mat-form-field appearance="fill" class="w-full">
+                                    <mat-label>เครื่องยนต์ (CC)</mat-label>
+                                    <input matInput type="number" placeholder="เครื่องยนต์ CC" [formControlName]="'cc'">
+                                </mat-form-field>
+                                <!-- น้ำหนักรถเปล่า (Kg.) -->
+                                <mat-form-field appearance="fill" class="w-full">
+                                    <mat-label>น้ำหนักรถเปล่า (Kg.)</mat-label>
+                                    <input matInput type="number" placeholder="น้ำหนักรถ Kg" [formControlName]="'weight'">
+                                </mat-form-field>
+                                <!-- วันครบภาษี -->
+                                <mat-form-field appearance="fill" class="w-full">
+                                    <mat-label>วันครบภาษี</mat-label>
+                                    <input matInput [matDatepicker]="taxDueDate" placeholder="DD/MM/YYYY" [formControlName]="'tax_due_date'">
+                                    <mat-datepicker-toggle matSuffix [for]="taxDueDate"></mat-datepicker-toggle>
+                                    <mat-datepicker #taxDueDate></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </form>
+                    <button type="button" class="w-full p-2 mt-4 text-white bg-blue-500 rounded-md" (click)="addVehicle()">
+                        <mat-icon class="mr-2">add</mat-icon> เพิ่มข้อมูลรถ
+                    </button>
+                </div>
+                <!-- ค่าบริการ -->
+                <div class="w-100* lg:w-1/3 flex flex-col text-black">
+                    <div class="p-5 border-2 border-blue-500 rounded-md">
+                        <div class="flex w-100* pb-5 text-2xl font-medium tracking-tight text-blue-900 justify-between">
+                            <span class="text-right">ค่าบริการ {{ formData.get('total').value | number:'1.2-2' }} บาท</span>
+                        </div>
+                        <form formArrayName="List_service_tran">
+                            <div *ngFor="let service of servicesFormArray.controls; let i = index" [formGroupName]="i">
+                                <div class="flex items-center custom" *ngIf="shouldDisplayService(i)" [ngClass]="'slide-in'">
+                                    <mat-label class="w-46* bill-label">{{ service.value.service_name }}</mat-label>
+                                    <button mat-icon-button *ngIf="shouldDisplayEditButton(i)" class="mb-[12px] ml-[-40px]" (click)="openServiceEdit(i)">
+                                        <mat-icon [svgIcon]="'heroicons_outline:pencil-square'"></mat-icon>
+                                    </button>
+                                    <div class="flex flex-col w-full">
+                                        <mat-form-field appearance="fill" class="w-full">
+                                            <input matInput min="0" type="text" placeholder="ระบุราคา" class="" [formControlName]="'service_price'" (input)="onInput($event, i, 'ex')">
+                                            <input *ngIf="i !== 3 && i !== 4" type="checkbox" class="flex items-end ml-auto ui-checkbox" [attr.disabled]="isCheckboxDisabled(i)" (change)="onCheckboxChange(service, i)">
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <button *ngIf="billId" class="w-40* mt-4 text-2xl text-white bg-blue-500 p-2 rounded-md" (click)="editBill()">แก้ไขข้อมูล</button>
+                    <button class="w-100* mt-4 text-2xl text-white bg-blue-500 p-2 rounded-md" (click)="create()">บันทึก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,100 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">รายงานประจำวัน</div>
+        <!-- Actions -->
+        <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+            <!-- Add product button -->
+            <a routerLink="../../d02.bill_manage/new" class="ml-4" mat-flat-button [color]="'primary'">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+            </a>
+            <a routerLink="../../d02.bill_manage/new" class="ml-1" mat-flat-button [color]="'primary'">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+            </a>
+            <mat-form-field class="ml-1 pt-4 w-40">
+                <input matInput [matDatepicker]="picker">
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+        </div>
+    </div>
+
+    <div class="flex float-none items-center justify-center">
+    <div class="pt-5 rounded-lg  w-1/2">
+        <div class="search">
+            <input type="text" placeholder="ค้นหา" class="w-full p-2 border border-gray-300 rounded">
+        </div>
+        <div class="flex flex-row flex-auto p-3 overflow-hidden sm:overflow-y-auto w-full text-center">
+            <label class="">ค้นจาก:</label>
+            <mat-radio-group [formControl]="" class="">
+                <mat-radio-button class="pl-4" value="211">ชื่อ/สกุล</mat-radio-button>
+                <mat-radio-button class="pl-4" value="212">ทะเบียน</mat-radio-button>
+                <mat-radio-button class="pl-4" value="214">เลขที่</mat-radio-button>
+            </mat-radio-group>
+        </div>
+    </div>
+    </div>
+    <div class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full">
+        <table datatable [dtOptions]="dtOptions" class="table row-border hover w-100*">
+            <thead>
+                <tr>
+                    <th class="" rowspan="2">ลำดับ</th>
+                    <th class="" rowspan="2">ชื่อ</th>
+                    <th class="" rowspan="2">รหัสพนักงาน</th>
+                    <th class="" rowspan="2">สาขา</th>
+                    <th class="w-2/5 text-center" colspan="6">รายการ</th>
+                    <th class="w-1/6 text-center" rowspan="2"  >จัดการ</th>
+                </tr>
+                <tr class="bg-gray-500 text-white">
+                    <th class="">ตรวจ</th>
+                    <th class="">ภาษี</th>
+                    <th class="">พ.ร.บ.</th>
+                    <th class="">ประกัน</th>
+                    <th class="">ขนส่ง</th>
+                    <th class="">อื่นๆ</th>
+                </tr>
+            </thead>
+            <tbody *ngIf="dataRow?.length != 0">
+                <tr *ngFor="let item of dataRow; let i = index">
+                    <td class="">{{ pages.begin + (i + 1) }}</td>
+                    <td class="">{{ item.first_name }} {{ item.last_name }}</td>
+                    <td class="">{{ item.branch_id }}</td>
+                    <td class="">{{ item.branch_id }}</td>
+                    <td class="">{{ item.branch_id }}</td>
+                    <td class="">{{ item.branch_id }}</td>
+                    <td class="">{{ item.branch_id }}</td>
+                    <td class="">{{ item.branch_id }}</td>
+                    <td class="">{{ item.branch_id }}</td>
+                    <td class="">{{ item.branch_id }}</td>
+                    <td class="w-auto flex items-center justify-center space-x-1"  >
+                        <button mat-button    (click)="edit(item.id)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-button   (click)="delete(item.id)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody *ngIf="dataRow?.length == 0">
+                <tr>
+                    <td colspan="9" class="no-data-available text-center">ไม่มีข้อมูล !</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="flex items-center justify-end w-full border-t px-8 py-4">
+            <div class="flex items-center justify-end">
+                <button class="px-6 ml-3 mat-primary" mat-flat-button>
+                    <mat-icon svgIcon="heroicons_solid:check"></mat-icon>
+                    1111
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+

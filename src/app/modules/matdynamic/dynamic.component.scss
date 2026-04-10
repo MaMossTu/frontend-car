@@ -1,0 +1,21 @@
+mat-form-field {
+    // To apply specific styles for the label
+    [label] { font-weight: 700 !important; }
+
+    // Adjust padding and margin based on previous styles
+    // If padding and margin are not directly transferable, you might need to adjust
+    width: 100%;
+
+    mat-label {
+        font-weight: 700 !important;
+    }
+
+    // display: inline;
+    // margin-bottom: 16px;
+}
+
+// Apply styles to buttons as needed
+button {
+    font-family: 'Prompt';
+}
+

@@ -1,0 +1,115 @@
+<div class="flex flex-col">
+    <h2 mat-dialog-title>ยืนยันการสร้างรายการใหม่</h2>
+    <mat-dialog-content>
+        <div class="flex flex-row w-full justify-between gap-2">
+            <!-- Vehicle Information -->
+            <div class="flex flex-col w-full border border-gray-300 p-4 rounded-md">
+                <h3>ข้อมูลรถ</h3>
+                <div class="flex flex-row justify-between">
+                    <span>ประเภทรถ:</span>
+                    <span>{{ data.vehicleType }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span class="whitespace-nowrap">ประเภท พ.ร.บ.:</span>
+                    <span>{{ data.insuranceType }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>ป้ายทะเบียน:</span>
+                    <span>{{ value.license_plate }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>จังหวัด:</span>
+                    <span>{{ data.province }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>เครื่องยนต์(CC):</span>
+                    <span>{{ value.cc }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>น้ำหนัก(kg):</span>
+                    <span>{{ value.weight }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>วันที่จดทะเบียน:</span>
+                    <span>{{ value.regeister_date | date: 'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>วันที่ออกบิล:</span>
+                    <span>{{ value.date | date: 'dd/MM/yyyy'}}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>วันที่ครบภาษี:</span>
+                    <span>{{ value.tax_due_date | date: 'dd/MM/yyyy'}}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>วันที่ยื่นภาษี:</span>
+                    <span>{{ value.tax_renewal_date | date: 'dd/MM/yyyy'}}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>วันที่นัดรับ:</span>
+                    <span>{{ value.appointment | date: 'dd/MM/yyyy'}}</span>
+                </div>
+            </div>
+            <!-- Customer Information -->
+            <div class="flex flex-col w-full border border-gray-300 p-4 rounded-md">
+                <h3>ข้อมูลลูกค้า</h3>
+                <div class="flex flex-row justify-between">
+                    <span>ประเภทลูกค้า</span>
+                    <span>{{ data.customerType }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>ชื่อลูกค้า:</span>
+                    <span>{{ value.name }} {{ value.lname }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>เลขประจำตัวผู้เสียภาษี:</span>
+                    <span>{{ value.tax_id }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>email:</span>
+                    <span>{{ value.email }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>เบอร์ติดต่อ:</span>
+                    <span>{{ value.phone_number1 }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span class="whitespace-nowrap">ที่อยู่:</span>
+                    <span class="text-right">{{ value.address }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                    <span>โน๊ต/ช่วยจดจำ ลูกค้า:</span>
+                    <span>{{ value.comments }}</span>
+                </div>
+            </div>
+            <!-- Service Information -->
+            <div class="flex flex-col w-full border border-gray-300 p-4 rounded-md">
+                <h3>ข้อมูลบริการ</h3>
+                <table class="w-full">
+                    <thead>
+                        <tr>
+                            <th class="text-left">รายการ</th>
+                            <th class="text-right">ราคา</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let service of getFilteredServices()">
+                            <td class="text-left">{{ service.service_name }}</td>
+                            <td class="text-right">{{ service.service_price }} บาท</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="border-t-2">
+                            <td class="font-bold">ยอดรวม</td>
+                            <td class="text-right">{{ value.total }} บาท</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </mat-dialog-content>
+    <mat-dialog-actions class="flex justify-end">
+        <button mat-button (click)="close('')">ยกเลิก</button>
+        <button mat-button (click)="close('confirmed')">ยืนยัน</button>
+    </mat-dialog-actions>
+</div>

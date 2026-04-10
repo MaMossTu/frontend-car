@@ -1,0 +1,219 @@
+<div class="customer-form-container w-full">
+  <div class="form-wrapper">
+    <form class="customer-form" [formGroup]="formData">
+      <div class="form-header">
+        <h2 class="form-title">
+          {{ Id ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มข้อมูลลูกค้า' }}
+        </h2>
+      </div>
+
+      <div class="form-section">
+        <div class="form-grid">
+          <!-- Customer Type -->
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>ประเภทผู้ใช้บริการ</mat-label>
+              <mat-select [formControlName]="'type'">
+                <mat-option value="personal">บุคคลธรรมดา</mat-option>
+                <mat-option value="vendor">นิติบุคคล</mat-option>
+                <mat-option value="agent">ตัวแทน</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Name Fields -->
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>ชื่อ</mat-label>
+              <input matInput placeholder="ชื่อ" [formControlName]="'name'">
+            </mat-form-field>
+          </div>
+
+          <div class="form-field"
+               *ngIf="formData.get('type')?.value === 'personal' || formData.get('type')?.value === 'agent'">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>นามสกุล</mat-label>
+              <input matInput placeholder="นามสกุล" [formControlName]="'lname'">
+            </mat-form-field>
+          </div>
+
+          <!-- Customer ID and Tax ID -->
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>รหัสลูกค้า</mat-label>
+              <input matInput placeholder="รหัสลูกค้า" [formControlName]="'no'">
+            </mat-form-field>
+          </div>
+
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>หมายเลขผู้เสียภาษี</mat-label>
+              <input matInput placeholder="หมายเลขผู้เสียภาษี" [formControlName]="'tax_id'">
+            </mat-form-field>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>อีเมล</mat-label>
+              <input matInput placeholder="อีเมล" [formControlName]="'email'">
+            </mat-form-field>
+          </div>
+
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>เบอร์โทรหลัก</mat-label>
+              <input matInput placeholder="เบอร์โทร" [formControlName]="'phone_number1'">
+            </mat-form-field>
+          </div>
+
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>เบอร์โทรรอง</mat-label>
+              <input matInput placeholder="เบอร์โทร" [formControlName]="'phone_number2'">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Headquarters Checkbox -->
+        <div *ngIf="formData.get('type')?.value === 'vendor'" class="checkbox-field">
+          <mat-checkbox [formControlName]="'is_headquarter'">สำนักงานใหญ่</mat-checkbox>
+        </div>
+      </div>
+
+      <!-- Address Section -->
+      <div *ngIf="Id" class="address-section">
+        <div class="section-header">
+          <h3 class="section-title">ที่อยู่ลูกค้า</h3>
+          <button mat-flat-button color="primary" (click)="openAddressDialog()" class="add-button">
+            <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+            <span>เพิ่มข้อมูล</span>
+          </button>
+        </div>
+
+        <div class="address-table-container">
+          <table class="address-table">
+            <thead>
+            <tr>
+              <th>ลำดับ</th>
+              <th>ที่อยู่</th>
+              <th>จังหวัด</th>
+              <th>อำเภอ</th>
+              <th>ตำบล</th>
+              <th>รหัสไปรษณีย์</th>
+              <th>ที่อยู่หลัก</th>
+              <th>จัดการ</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngIf="(item?.customer__addresses?.length || 0) === 0">
+              <td colspan="8" class="no-data">ไม่มีข้อมูล</td>
+            </tr>
+            <tr *ngFor="let it of item?.customer__addresses; let j = index" class="address-row">
+              <td>{{ j + 1 }}</td>
+              <td>{{ it?.address }}</td>
+              <td>{{ it?.provinces?.name_th }}</td>
+              <td>{{ it?.districts?.name_th }}</td>
+              <td>{{ it?.sub_districts?.name_th }}</td>
+              <td>{{ it?.zip_code }}</td>
+              <td>{{ it?.is_main === 1 ? 'หลัก' : 'รอง' }}</td>
+              <td class="action-buttons">
+                <button mat-icon-button (click)="openAddressDialog(it.id)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="deleteAddress(it.id)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button mat-stroked-button color="primary" (click)="backTo()" class="cancel-button">
+          ยกเลิก
+        </button>
+        <button mat-flat-button color="primary" (click)="Submit()" class="submit-button">
+          บันทึก
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Address Dialog Template -->
+<ng-template #AddressDialog>
+  <div class="dialog-container">
+    <form [formGroup]="formData_address">
+      <h2 mat-dialog-title class="dialog-title">ที่อยู่ลูกค้า</h2>
+
+      <mat-dialog-content class="dialog-content">
+        <div class="dialog-field">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>ที่อยู่</mat-label>
+            <input matInput placeholder="ที่อยู่" formControlName="address">
+          </mat-form-field>
+        </div>
+
+        <!-- Province -->
+        <div class="dialog-field">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>จังหวัด</mat-label>
+            <mat-select formControlName="province">
+              <mat-option *ngFor="let p of filteredProvinces" [value]="p.name_th">
+                {{ p.name_th }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- District -->
+        <div class="dialog-field">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>อำเภอ</mat-label>
+            <mat-select formControlName="districts">
+              <mat-option *ngFor="let d of filteredDistricts" [value]="d.name_th">
+                {{ d.name_th }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Subdistrict -->
+        <div class="dialog-field">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>ตำบล</mat-label>
+            <mat-select formControlName="subdistricts">
+              <mat-option *ngFor="let s of filteredSubDistricts" [value]="s.name_th">
+                {{ s.name_th }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="dialog-field">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>รหัสไปรษณีย์</mat-label>
+            <input matInput placeholder="รหัสไปรษณีย์" formControlName="zip_code">
+          </mat-form-field>
+        </div>
+
+        <div class="checkbox-field">
+          <mat-checkbox formControlName="is_main">ที่อยู่หลัก</mat-checkbox>
+        </div>
+      </mat-dialog-content>
+
+      <mat-dialog-actions class="dialog-actions">
+        <button mat-stroked-button color="primary" (click)="closeDialog(addressDialogRef)" class="dialog-button">
+          ปิด
+        </button>
+        <button mat-flat-button color="primary" (click)="saveAddress()" class="dialog-button primary">
+          บันทึก
+        </button>
+      </mat-dialog-actions>
+    </form>
+  </div>
+</ng-template>

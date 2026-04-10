@@ -1,0 +1,38 @@
+button { font-family: 'Prompt'; }
+mat-form-field, mff { display: inline; }
+
+$type-statuses: (
+    deposit: #10b981,
+    withdraw: #ef4444,
+);
+$type-width: 80px;
+
+.type {
+    @each $status, $color in $type-statuses {
+        .#{$status}-status {
+            background-color: $color;
+            color: white;
+            padding: 12px;
+            border-radius: 4px;
+            width: $type-width;
+            text-align: center;
+            display: inline-block;
+        }
+    }
+}
+
+.doc-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.customer-name {
+    margin-left: 8px;
+    color: #666;
+}
+
+.total-qty {
+    margin-left: 8px;
+    font-weight: bold;
+    color: #ff5722;
+}

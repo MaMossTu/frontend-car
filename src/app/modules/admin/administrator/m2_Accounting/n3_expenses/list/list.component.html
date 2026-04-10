@@ -1,0 +1,145 @@
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div
+        class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">รายงานรายรับ-รายจ่าย</div>
+        <!-- Actions -->
+        <div class="flex items-center mt-6 shrink-0 sm:mt-0 sm:ml-4"
+            *ngIf="currentStatus == 'expenses' || currentStatus == 'income'">
+            <button class="ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="flex flex-auto overflow-hidden">
+        <!-- Products list -->
+        <div class="flex flex-col flex-auto p-5 overflow-hidden overflow-x-auto sm:overflow-y-auto sm:relative">
+
+            <mat-tab-group (selectedTabChange)="onChangeType($event)">
+                <mat-tab *ngFor="let item of status" [label]="item.name">
+                    <ng-template mat-tab-content>
+                    </ng-template>
+                </mat-tab>
+            </mat-tab-group>
+            <!-- Tabs -->
+            <div class="flex flex-col flex-auto min-w-full p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+                <table datatable [dtOptions]="dtOptions" class="table w-full row-border hover">
+                    <thead>
+                        <tr>
+                            <th class="">ลำดับ</th>
+                            <th class="">วันที่</th>
+                            <th class="">รายการ</th>
+                            <th class="">ยอดเงิน</th>
+                            <th class="">จัดการโดย</th>
+                            <th class="">ประเภท</th>
+                            <th class="w-0* text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody *ngIf="dataRow?.length != 0">
+                        <tr *ngFor="let item of dataRow; let i = index">
+                            <td class="w-5*">{{ pages.begin + (i + 1) }}</td>
+                            <td>{{ item.date ? (item.date | TH) : '-' }}</td>
+                            <td class="">{{ item.name ?? '-' }}</td>
+                            <td class="">{{ item.price ?? '-' }}</td>
+                            <td class="">{{ item.employees?.first_name ?? '-' }} {{ item.employees?.last_name ?? '' }}</td>
+                            <td class="">
+                                <div [ngSwitch]="item.type">
+                                    <ng-container *ngSwitchCase="'expenses'">รายจ่าย</ng-container>
+                                    <ng-container *ngSwitchCase="'income'">รายรับ</ng-container>
+                                </div>
+                            </td>
+                            <td class="w-0* flex items-center justify-center space-x-1">
+                                <button mat-button (click)="openDialog(item, $event)">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-button (click)="delete(item.id)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody *ngIf="dataRow?.length == 0">
+                        <tr>
+                            <td colspan="9" class="text-center no-data-available">
+                                ไม่มีข้อมูล !
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit && this.formData.get('type').value =='income' ">เพิ่มค่าใช้จ่าย รายรับ
+            </h2>
+            <h2 mat-dialog-title *ngIf="isEdit && this.formData.get('type').value =='income'">แก้ไขค่าใช้จ่าย รายรับ
+            </h2>
+            <h2 mat-dialog-title *ngIf="!isEdit && this.formData.get('type').value =='expenses' ">เพิ่มค่าใช้จ่าย
+                รายจ่าย</h2>
+            <h2 mat-dialog-title *ngIf="isEdit && this.formData.get('type').value =='expenses'">แก้ไขค่าใช้จ่าย จ่าย
+            </h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-col w-full mt-2 lg:w-4/4">
+                    <mff class="w-full" [label]="'รายการ'" [fCN]="'name'" [pHold]="'รายการ'"></mff>
+                    <mff class="w-full" [label]="'ยอดเงิน'" [fCN]="'price'" [pHold]="'ยอดเงิน'" type="number" ></mff>
+                    <mat-form-field class="w-full">
+                        <mat-label>ประเภทค่าใช้จ่าย</mat-label>
+                        <mat-select [formControlName]="'expense_type_id'">
+                            <mat-option *ngFor="let item of expense_types_fillter" [value]="item.id">
+                                {{ item.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field class="w-full">
+                        <mat-label>ประเภทการชำระ</mat-label>
+                        <mat-select [formControlName]="'paid_type'">
+                            <mat-option [value]="'paid_cash'">เงินสด</mat-option>
+                            <mat-option [value]="'paid_tran'">เงินโอน</mat-option>
+                            <mat-option [value]="'credit'">เงินเครดิต</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>วันที่</mat-label>
+                        <input matInput [matDatepicker]="picker" [formControlName]="'date'">
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+                    <div class="md:w-full">
+                        <mat-form-field [ngClass]="formFieldHelpers" class="w-full md:w-4/4">
+                            <mat-label>จัดการโดย</mat-label>
+                            <input matInput [formControl]="employeesFilter"
+                                [matAutocomplete]="approverAutoComplete" placeholder="ชื่อ" />
+                            <mat-autocomplete #approverAutoComplete="matAutocomplete"
+                                (optionSelected)="onSelectemployees($event.option.value)">
+                                <mat-option *ngFor="let item of filteremployees | async" [value]="item">
+                                    {{item.first_name}} {{item.last_name}}
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;"
+                    class="border border-solid">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

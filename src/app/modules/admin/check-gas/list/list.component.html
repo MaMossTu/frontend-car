@@ -1,0 +1,136 @@
+<router-outlet></router-outlet>
+<div class="flex flex-col flex-auto min-w-0">
+    <div class="flex-auto p-4 m-4 overflow-x-auto rounded-md sm:p-10 bg-card">
+        <div class="flex flex-row justify-between pb-2 my-5">
+            <div class="w-full">
+                <div class="text-4xl font-extrabold tracking-tight">รายการตรวจแก๊ซ</div>
+            </div>
+            <div class="flex flex-col md:flex-row w-full md:gap-2 gap-1 justify-end">
+                <mat-form-field appearance="fill" class="w-50">
+                    <mat-select value="default" placeholder="เอกสาร">
+                        <mat-option (click)="pdf()" class="" color="primary">
+                            <mat-icon svgIcon="pdf-icon"></mat-icon>
+                            <span class="ml-2 mr-1">รายงานตรวจแก๊ส</span>
+                        </mat-option>
+                        <mat-option (click)="excel()" class="" color="primary">
+                            <mat-icon svgIcon="excel-icon"></mat-icon>
+                            <span class="ml-2 mr-1">รายงานตรวจแก๊ส</span>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="fill" class="w-64" [formGroup]="formData">
+                    <mat-date-range-input [rangePicker]="picker">
+                        <input matStartDate placeholder="Start date" formControlName="startDate"
+                            (dateChange)="onDateChange($event, 'startDate', formData)">
+                        <input matEndDate placeholder="End date" formControlName="endDate"
+                            (dateChange)="onDateChange($event, 'endDate', formData)">
+                    </mat-date-range-input>
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-date-range-picker #picker></mat-date-range-picker>
+                </mat-form-field>
+                <button mat-flat-button [color]="'primary'" (click)="opendialogAdd()">
+                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:plus-circle'"></mat-icon>
+                    <span class="ml-2"> เพิ่มรายการ</span>
+                </button>
+            </div>
+        </div>
+
+        <mat-tab-group (selectedTabChange)="onChangeType($event)">
+            <ng-container>
+                <mat-tab label="ยังไม่ใส่ข้อมูล">
+                </mat-tab>
+                <mat-tab label="ใส่ข้อมูลแล้ว">
+                </mat-tab>
+            </ng-container>
+        </mat-tab-group>
+        <div class="overflow-x-auto">
+            <table datatable [dtOptions]="dtOptions" class="table w-full bg-white row-border hover whitespace-nowrap">
+                <thead>
+                    <tr>
+                        <th class="w-[50px]">จัดการ</th>
+                        <th class="w-[10px]">ลำดับ</th>
+                        <th>รหัสบิล</th>
+                        <th>รหัสร้านค้า</th>
+                        <th>ชื่อลูกค้า</th>
+                        <th>เลขที่ตรวจ</th>
+                        <th>วันที่</th>
+                        <th>เวลา</th>
+                        <th>เลขทะเบียนวิศวกร</th>
+                        <th>หมายเลขทะเบียนรถ</th>
+                        <th>จังหวัด</th>
+                        <th>ยี่ห้อรถ</th>
+                        <!-- <th>ยี่ห้อถังก๊าซ</th> -->
+                        <!-- <th>หมายเลขถังก๊าซ</th> -->
+                        <th>เลขใบติดตั้ง</th>
+                        <th>เลขต่อถัง</th>
+
+                    </tr>
+                </thead>
+                <tbody *ngIf="dataRow?.length != 0">
+                    <tr *ngFor="let item of dataRow; let i = index">
+                        <td>
+                            <button mat-icon-button [matMenuTriggerFor]="menu">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_solid:cog"></mat-icon>
+                            </button>
+                            <mat-menu #menu="matMenu">
+                                <!-- <button mat-menu-item (click)="openDialogEdit(item.id)">
+                                    <mat-icon class="icon-size-5" svgIcon="heroicons_solid:pencil-square"></mat-icon>
+                                    <span>แก้ไข</span>
+                                </button> -->
+                                <button mat-menu-item (click)="openDialogEdit(item)">
+                                    <mat-icon class="icon-size-5" svgIcon="heroicons_solid:pencil-square"></mat-icon>
+                                    <span *ngIf="this.form.get('status').value == 0">ใส่ข้อมูลเลขแก๊ส</span>
+                                    <span *ngIf="this.form.get('status').value !== 0">แก้ไขข้อมูลเลขแก๊ส</span>
+                                </button>
+                                <button mat-menu-item (click)="clickDelete(item.id)">
+                                    <mat-icon class="icon-size-5" svgIcon="heroicons_solid:trash"></mat-icon>
+                                    <span>ลบ</span>
+                                </button>
+                                <button mat-menu-item (click)="printPDF1(item.vehicles_id)">
+                                    <mat-icon class="icon-size-5" svgIcon="heroicons_solid:document-text"></mat-icon>
+                                    <span>ใบอนุญาติ</span>
+                                </button>
+                                <button mat-menu-item (click)="printPDF2(item.id)">
+                                    <mat-icon class="icon-size-5" svgIcon="heroicons_solid:document-text"></mat-icon>
+                                    <span>รูปถ่าย LPG</span>
+                                </button>
+                                <button mat-menu-item (click)="printPDF3(item.id)">
+                                    <mat-icon class="icon-size-5" svgIcon="heroicons_solid:document-text"></mat-icon>
+                                    <span>check list ต่ออายุถัง</span>
+                                </button>
+                                <button mat-menu-item (click)="printPDF4(item.vehicles_id)">
+                                    <mat-icon class="icon-size-5" svgIcon="heroicons_solid:document-text"></mat-icon>
+                                    <span>ลอกลายถัง NGV รถ ขนส่ง</span>
+                                </button>
+                                <button mat-menu-item (click)="printPDF5(item.id)">
+                                    <mat-icon class="icon-size-5" svgIcon="heroicons_solid:document-text"></mat-icon>
+                                    <span>แบบประเมินติดตั้ง NGV</span>
+                                </button>
+                            </mat-menu>
+                        </td>
+                        <td>{{ pages.begin + (i + 1) }}</td>
+                        <td>{{ item.inspections_no ?? '-'}}</td>
+                        <td>{{ item.customer_no ?? '-'}}</td>
+                        <td>{{ item.customer_name ?? '-' }}</td>
+                        <td>{{ item.service_or ?? '-' }}</td>
+                        <td>{{ (item.date | date : 'dd/MM/yyyy') ?? '-' }}</td>
+                        <td>{{ item.time ?? '-' }}</td>
+                        <td>{{ item.engineer_no ?? '-' }}</td>
+                        <td>{{ item.license_plate ?? '-' }}</td>
+                        <td>{{ item.provinces ?? '-' }}</td>
+                        <td>{{ item.vehicle_brand_name ?? '-' }}</td>
+                        <!-- <td>{{ item.brand_gas ?? '-' }}</td> -->
+                        <!-- <td>{{ item.no_gas ?? '-' }}</td> -->
+                        <td>{{ item.install_no ?? '-' }}</td>
+                        <td>{{ chaNostring(item.cha_no) }}</td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="dataRow?.length == 0">
+                    <tr>
+                        <td colspan="14" class="text-center no-data-available">ไม่มีข้อมูล !</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+<div class="overflow-auto">
+    <table class="w-full text-md text-left rtl:text-right text-gray-500 dark:text-gray-400 border-2 border-black mb-10">
+        <thead class="text-md text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
+            <tr class="border-2 border-black">
+                <th scope="col" class="px-2 py-2 border-2 border-gray-900">จัดการ</th>
+                <th scope="col" class="px-2 py-2 border-2 border-gray-900">ที่อยู่</th>
+            </tr>
+        </thead>
+        <tbody>
+            <ng-container *ngFor="let item of address">
+                <tr class="font-bold">
+                    <td class="px-2 py-2 text-md border-2 border-gray-900">
+                        <button mat-icon-button color="accent" (click)="onSelect(item)">
+                            <mat-icon>check</mat-icon>
+                        </button>
+                    </td>
+                    <td class="px-2 py-2 text-md border-2 border-gray-900 ">
+                        {{
+                        item
+                        }}
+                    </td>
+                </tr>
+            </ng-container>
+        </tbody>
+    </table>
+</div>

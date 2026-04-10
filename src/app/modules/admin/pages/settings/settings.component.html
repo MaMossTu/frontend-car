@@ -1,0 +1,44 @@
+<div class="flex flex-col w-full min-w-0 sm:absolute sm:inset-0 sm:overflow-hidden">
+
+    <mat-drawer-container class="flex-auto sm:h-full">
+
+        <!-- Drawer content -->
+        <mat-drawer-content class="flex flex-col">
+
+            <!-- Main -->
+            <div class="flex-auto px-6 pt-9 pb-12 md:p-8 md:pb-12 lg:p-12 bg-white">
+
+                <!-- Panel header -->
+                <div class="flex items-center">
+
+                    <!-- Drawer toggle -->
+                    <button
+                        class="lg:hidden -ml-2"
+                        mat-icon-button
+                        (click)="drawer.toggle()">
+                        <mat-icon [svgIcon]="'heroicons_outline:menu'"></mat-icon>
+                    </button>
+
+                    <!-- Panel title -->
+                    <div class="ml-2 lg:ml-0 text-3xl font-extrabold tracking-tight leading-none">
+                        {{getPanelInfo(selectedPanel).title}}
+                    </div>
+                </div>
+
+                <!-- Load settings panel -->
+                <div class="flex flex-col w-full lg:w-4/4 mt-2">
+                    <ng-container [ngSwitch]="selectedPanel">
+                        <!-- Account -->
+                        <ng-container *ngSwitchCase="'account'">
+                            <settings-account></settings-account>
+                        </ng-container>
+                    </ng-container>
+                </div>
+
+            </div>
+
+        </mat-drawer-content>
+
+    </mat-drawer-container>
+
+</div>

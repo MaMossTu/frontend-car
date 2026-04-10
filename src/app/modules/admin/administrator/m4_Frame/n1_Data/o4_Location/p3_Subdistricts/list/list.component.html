@@ -1,0 +1,128 @@
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <div class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <div class="text-4xl font-extrabold tracking-tight">ตำบล / แขวง</div>
+        <div class="flex flex-wrap items-center gap-3 mt-4 sm:mt-0">
+            <!-- Filter: Province -->
+            <mat-form-field appearance="outline" class="min-w-48" style="margin-bottom: -1.25em;">
+                <mat-label>กรองตามจังหวัด</mat-label>
+                <mat-select [(ngModel)]="filterProvinceId" (ngModelChange)="onFilterProvinceChange()">
+                    <mat-option value="">-- ทั้งหมด --</mat-option>
+                    <mat-option *ngFor="let p of listProvinces" [value]="p.id">
+                        {{ p.name_th }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <!-- Filter: District (แสดงเมื่อเลือกจังหวัดแล้ว) -->
+            <mat-form-field appearance="outline" class="min-w-48" style="margin-bottom: -1.25em;" *ngIf="filterProvinceId">
+                <mat-label>กรองตามอำเภอ</mat-label>
+                <mat-select [(ngModel)]="filterDistrictId" (ngModelChange)="onFilterDistrictChange()">
+                    <mat-option value="">-- ทั้งหมด --</mat-option>
+                    <mat-option *ngFor="let d of filterDistrictList" [value]="d.id">
+                        {{ d.name_th }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <button mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <div class="flex flex-col flex-auto min-w-full p-5 overflow-x-auto sm:overflow-y-auto">
+            <table datatable [dtOptions]="dtOptions" class="table row-border hover w-100*">
+                <thead>
+                    <tr>
+                        <th class="w-10*">ลำดับ</th>
+                        <th>ชื่อตำบล (ไทย)</th>
+                        <th>ชื่อตำบล (อังกฤษ)</th>
+                        <th>อำเภอ</th>
+                        <th>จังหวัด</th>
+                        <th>รหัสไปรษณีย์</th>
+                        <th class="w-15* text-center">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="dataRow?.length != 0">
+                    <tr *ngFor="let item of dataRow; let i = index">
+                        <td>{{ pages.begin + (i + 1) }}</td>
+                        <td>{{ item.name_th ?? '-' }}</td>
+                        <td>{{ item.name_en ?? '-' }}</td>
+                        <td>{{ item.districts?.name_th ?? item.district?.name_th ?? '-' }}</td>
+                        <td>{{ item.districts?.provinces?.name_th ?? item.district?.province?.name_th ?? '-' }}</td>
+                        <td>{{ item.zip_code ?? '-' }}</td>
+                        <td class="flex items-center justify-center w-auto space-x-1">
+                            <button mat-button (click)="openDialog(item, $event)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-button (click)="delete(item.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="dataRow?.length == 0">
+                    <tr>
+                        <td colspan="7" class="text-center no-data-available">ไม่มีข้อมูล !</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">เพิ่มตำบล / แขวง</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้ไขตำบล / แขวง</h2>
+            <mat-dialog-content>
+                <div class="flex flex-col w-full mt-2 gap-2">
+                    <!-- Province (cascade trigger, ไม่ได้บันทึก) -->
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>จังหวัด</mat-label>
+                        <mat-select [(ngModel)]="selectedProvinceId" [ngModelOptions]="{standalone: true}"
+                                    (ngModelChange)="onProvinceChange($event)">
+                            <mat-option value="">-- เลือกจังหวัด --</mat-option>
+                            <mat-option *ngFor="let p of listProvinces" [value]="p.id">
+                                {{ p.name_th }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <!-- District -->
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>อำเภอ / เขต</mat-label>
+                        <mat-select formControlName="district_id">
+                            <mat-option value="">-- เลือกอำเภอ --</mat-option>
+                            <mat-option *ngFor="let d of listDistricts" [value]="d.id">
+                                {{ d.name_th }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <!-- Name TH -->
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>ชื่อตำบล (ไทย)</mat-label>
+                        <input matInput placeholder="เช่น สุเทพ" formControlName="name_th">
+                    </mat-form-field>
+                    <!-- Name EN -->
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>ชื่อตำบล (อังกฤษ)</mat-label>
+                        <input matInput placeholder="e.g. Suthep" formControlName="name_en">
+                    </mat-form-field>
+                    <!-- Zip Code -->
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>รหัสไปรษณีย์</mat-label>
+                        <input matInput placeholder="เช่น 50200" formControlName="zip_code">
+                    </mat-form-field>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;" class="border border-solid">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

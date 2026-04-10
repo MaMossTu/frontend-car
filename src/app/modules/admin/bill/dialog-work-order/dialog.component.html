@@ -1,0 +1,92 @@
+<div class="w-full p-8">
+    <div>
+        <div mat-dialog-title class="text-2xl font-semibold">สร้างใบกำกับภาษีจากงานซ่อม</div>
+    </div>
+    <div mat-dialog-content class="overflow-y-auto md:max-h-180">
+        <form [formGroup]="form">
+            <div class="flex-auto">
+                <div class="flex flex-col md:flex mb-1">
+                    <div class="md:w-full">
+                        <mat-form-field [ngClass]="formFieldHelpers" class="w-full md:w-4/4">
+                            <mat-label>เลือกงานซ่อม</mat-label>
+                            <input matInput [formControl]="Inspection_vatsFilter"
+                                [matAutocomplete]="approverAutoComplete" placeholder="เลขงาน" />
+                            <mat-autocomplete #approverAutoComplete="matAutocomplete"
+                                (optionSelected)="onSelectInspection_vats($event.option.value, 'manual')">
+                                <mat-option *ngFor="let item of filterInspection_vats | async" [value]="item">
+                                    {{item.no}}
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                    <div class="w-full">
+                        <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                            <mat-label>วันที่จ่าย</mat-label>
+                            <input matInput [matDatepicker]="picker" [formControlName]="'paid_date'"
+                                placeholder="เลือกวันที่จ่าย" />
+                            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
+                        </mat-form-field>
+                    </div>
+                    <div class="w-full">
+                        <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                            <mat-label>เงื่อนไขการชำระเงิน</mat-label>
+                            <mat-select [formControlName]="'paid_type'" placeholder="เลือกช่องทางการชำระเงิน">
+                                <mat-option *ngFor="let item of payment" [value]="item.value">
+                                    {{item.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="md:w-full px-2 mb-2 md:mb-0 w-full">
+                        <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                            <mat-label>สถานะ หักภาษี ณ ที่จ่าย </mat-label>
+                            <mat-select [formControlName]="'withholding_tax'" placeholder="เลือกสาขา">
+                                <mat-option [value]="'N'">
+                                    ไม่หักภาษี ณ ที่จ่าย
+                                </mat-option>
+                                <mat-option [value]="'Y'">
+                                    หักภาษี ณ ที่จ่าย
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="md:w-full px-2 mb-2 md:mb-0">
+                        <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                            <mat-label>จำนวน % ที่หัก ณ ที่จ่าย</mat-label>
+                            <mat-select [formControlName]="'withholding_tax_percent'" placeholder="เลือกสาขา">
+                                <mat-option [value]="0">
+                                    0%
+                                </mat-option>
+                                <mat-option [value]="1">
+                                    1%
+                                </mat-option>
+                                <mat-option [value]="2">
+                                    2%
+                                </mat-option>
+                                <mat-option [value]="3">
+                                    3%
+                                </mat-option>
+                                <mat-option [value]="4">
+                                    4%
+                                </mat-option>
+                                <mat-option [value]="5">
+                                    5%
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- <div> check : {{this.form.value | json}}</div> -->
+    <div mat-dialog-actions class="flex justify-end">
+        <button class="px-6 ml-3" mat-flat-button [color]="'primary'" (click)="Submit()">
+            ตกลง
+        </button>
+        <button class="px-6 ml-3" mat-flat-button [color]="'accent'" (click)="onClose()">
+            ยกเลิก
+        </button>
+    </div>
+</div>

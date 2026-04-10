@@ -1,0 +1,33 @@
+<div class="flex flex-col flex-auto min-w-0">
+  <div class="flex-auto  sm:p-10 bg-card m-4 p-4 rounded-md overflow-x-auto">
+    <div class="flex flex-row justify-between pb-2 my-5">
+      <div>
+        <h2 class="text-2xl md:text-xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+          รายการ{{checkStatus(type)}}
+        </h2>
+      </div>
+    </div>
+    <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="row-border hover w-full whitespace-nowrap">
+    </table>
+  </div>
+</div>
+<ng-template #btNg let-data="adtData">
+  <button mat-icon-button [color]="'primary'" [matMenuTriggerFor]="menu">
+    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:cog-8-tooth'"></mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="openDialogEdit(data.id)">
+      <mat-icon [svgIcon]="'heroicons_solid:pencil-square'"></mat-icon>
+      <span>แก้ไข</span>
+    </button>
+    <button mat-menu-item (click)="openDialogEdit(data.id)">
+      <mat-icon [svgIcon]="'heroicons_solid:pencil-square'"></mat-icon>
+      <span>ดูรายละเอียด</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="clickDelete(data.id)">
+      <mat-icon [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+      <span>ลบ</span>
+    </button>
+  </mat-menu>
+</ng-template>

@@ -1,0 +1,85 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 sm:overflow-auto bg-card dark:bg-transparent">
+
+    <!-- Header -->
+    <div
+        class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">รายการสาขา</div>
+        <!-- Actions -->
+        <div *ngIf="roleType == 'marketing'" class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+
+            <!-- Add product button -->
+            <button class="ml-4" mat-flat-button [color]="'primary'" (click)="addBranch()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มสาขาใหม่</span>
+            </button>
+
+        </div>
+    </div>
+
+    <!-- search -->
+
+
+    <!-- Main -->
+    <div class="flex flex-col flex-auto min-w-0 bg-gray-100 dark:bg-transparent">
+
+        <div class="flex flex-col p-3 sm:p-10">
+            <div class="overflow-auto  bg-white shadow sm:rounded-lg">
+                <!-- Products list -->
+
+                <div class="flex flex-col flex-auto p-5 overflow-auto sm:overflow-y-auto">
+                    <table datatable [dtOptions]="dtOptions"
+                        class="table row-border hover w-full text-lg text-left text-gray-900 dark:text-gray-900"
+                        style="width: 100%">
+                        <thead>
+                            <tr>
+                                <th>ลำดับ</th>
+                                <th>โลโก</th>
+                                <th>ชื่อ</th>
+                                <th>ชื่อธุรกิจ</th>
+                                <th>เบอร์โทร</th>
+                                <th>อีเมล</th>
+                                <th>หมายเลขใบอนุญาติ</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="dataRow?.length != 0">
+                            <tr *ngFor="let item of dataRow; let i = index" class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-2 text-center">{{ pages.begin + (i + 1) }}</td>
+                                <td class="px-4 py-2 text-center">
+                                    <img [src]="item.logo_url" alt="Item Image"
+                                        class="w-24 h-auto mx-auto rounded-md shadow" />
+                                </td>
+                                <td class="px-4 py-2">{{ item.name ?? '-' }}</td>
+                                <td class="px-4 py-2">{{ item.business_name ?? '-' }}</td>
+                                <td class="px-4 py-2">{{ item.phone ?? '-' }}</td>
+                                <td class="px-4 py-2">{{ item.email ?? '-' }}</td>
+                                <td class="px-4 py-2">{{ item.license_number ?? '-' }}</td>
+                                <td class="px-4 py-2 text-center">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800" (click)="editBranch(item.id)">
+                                            <mat-icon>edit</mat-icon>
+                                        </button>
+                                        <button (click)="delete(item.id)" class="text-red-600 hover:text-red-800">
+                                            <mat-icon>delete</mat-icon>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                        <tbody *ngIf="dataRow?.length == 0">
+                            <tr>
+                                <td colspan="6" class="no-data-available text-center">ไม่มีข้อมูล !</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

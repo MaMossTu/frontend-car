@@ -1,0 +1,108 @@
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">รายชื่อประกัน</div>
+        <!-- Actions -->
+        <div class="flex items-center mt-6 shrink-0 sm:mt-0 sm:ml-4">
+            <!-- Add product button -->
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <!-- Products list -->
+        <div class="flex flex-col flex-auto min-w-full p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+            <table datatable [dtOptions]="dtOptions" class="table row-border hover w-100*">
+                <thead>
+                    <tr>
+                        <th class="w-5*">ลำดับ</th>
+                        <th class="w-1/2">ชื่อ</th>
+                        <th class="w-1/4">ตัวย่อ</th>
+                        <!-- <th class="w-1/4">โลโก้</th> -->
+                        <!-- <th class="w-1/4">สาขา</th> -->
+                        <th class="w-1/4">โลโก้</th>
+                        <th class="w-0* text-center"  >จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="dataRow?.length != 0">
+                    <tr *ngFor="let item of dataRow; let i = index">
+                        <td class="">{{ pages.begin + (i + 1) }}</td>
+                        <td class="">{{ item.name ?? '-' }}</td>
+                        <td class="">{{ item.ins_code ?? '-' }}</td>
+                        <!-- <td class="">{{ item.logo ?? '-' }}</td> -->
+                        <!-- <td class="">{{ item.is_use ?? '-' }}</td> -->
+                        <td><img [src]="item.logo_url" alt="Item Image" style="width: 100px; height: auto;"></td>
+                        <td class="flex items-center justify-center w-auto space-x-1"  >
+                            <button mat-button    (click)="openDialog(item, $event)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-button   (click)="delete(item.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="dataRow?.length == 0">
+                    <tr>
+                        <td colspan="4" class="text-center no-data-available">ไม่มีข้อมูล !</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">เพิ่มประกันภัย</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้ไขประกันภัย</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-row w-full mt-2 space-x-4 lg:w-4/4">
+                    <div class="flex flex-col w-30*">
+                        <ngx-dropzone (change)="onSelect($event)"
+                        class="flex h-[auto] aspect-[1/1] overflow-hidden object-contain changeOnHover justify-center items-center">
+                            <ngx-dropzone-label *ngIf="files==null && formData.get('id')?.value==''"
+                                class="flex items-center justify-center outline-none">รูปภาพ</ngx-dropzone-label>
+                            <img *ngIf="files==null && formData.get('id')?.value!=''" [src]="formData.get('logo_url')?.value"
+                                class="w-auto h-100*">
+                            <!-- <img *ngIf="files!=null" [src]="imagePreview"
+                                class="w-auto h-100*"> -->
+                            <ngx-dropzone-image-preview class="w-auto h-full"
+                                *ngIf="files" [removable]="true" [file]="files" (removed)="onRemove(files)">
+                            </ngx-dropzone-image-preview>
+                            <div class="flex flex-row icon-container">
+                                <mat-icon [svgIcon]="'heroicons_outline:pencil-square'"></mat-icon>
+                                <span class="ml-2 mr-1">แก้ไขรูปภาพ</span>
+                            </div>
+                        </ngx-dropzone>
+                    </div>
+                    <div class="flex flex-col w-70*">
+                        <mat-form-field appearance="fill" class="w-full">
+                            <mat-label>สถานะ</mat-label>
+                            <mat-select [formControlName]="'is_use'">
+                                <mat-option value="1">ใช้งาน</mat-option>
+                                <mat-option value="0">ยกเลิก</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mff class="w-full" [label]="'ชื่อประเภทประกันภัย'" [fCN]="'name'" [pHold]="'ชื่อประเภทประกันภัย'"></mff>
+                        <mff class="w-full" [label]="'ตัวย่อ'" [fCN]="'ins_code'" [pHold]="'ตัวย่อ'"></mff>
+                    </div>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;" class="border border-solid">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

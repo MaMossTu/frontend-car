@@ -1,0 +1,248 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">รายงานประจำวัน</div>
+        <!-- Actions -->
+        <!-- <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+            <a routerLink="../../product-category/add" class="ml-4" mat-flat-button [color]="'primary'">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มใหม่</span>
+            </a>
+        </div> -->
+        <form [formGroup]="formData">
+            <mat-form-field appearance="fill" class="w-[200px]">
+                <input matInput [matDatepicker]="actPeriodSDate" [formControlName]="'day'"
+                    (input)="onDateInput($event)" (dateChange)="onDateChange($event, 'day', formData)"
+                    placeholder="DD/MM/YYYY">
+                <mat-datepicker-toggle matSuffix [for]="actPeriodSDate"></mat-datepicker-toggle>
+                <mat-datepicker #actPeriodSDate></mat-datepicker>
+            </mat-form-field>
+        </form>
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <!-- Products list -->
+        <div class="flex flex-col flex-auto p-5 overflow-hidden sm:overflow-y-auto sm:relative overflow-x-auto">
+            <div class="w-100* flex flex-row pb-8 px-5 space-x-8">
+                <mat-card class="w-1/4" appearance="outlined">
+                    <mat-card-header>
+                        <mat-card-title class="text-left text-xl">ยอดผู้ใช้งานรายวัน</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div class="text-center text-blue-500 py-8">
+                            <div class="text-8xl">{{ this.dashboardDay?.total_inspections ?? '0' }}</div>
+                            <div class="text-3xl pt-6">ผู้เข้าใช้วันนี้</div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+                <mat-card class="w-1/4" appearance="outlined">
+                    <mat-card-header>
+                        <mat-card-title class="text-left">บิลที่สำเร็จ</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div class="text-center text-green-500 py-8">
+                            <div class="text-8xl">{{ this.dashboardDay?.succeed ?? '0' }}</div>
+                            <div class="text-3xl pt-6">รายการ</div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+                <mat-card class="w-1/4" appearance="outlined">
+                    <mat-card-header>
+                        <mat-card-title class="text-left">บิลค้างชำระ</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div class="text-center text-red-500 py-8">
+                            <div class="text-8xl">{{ this.dashboardDay?.overdue ?? '0' }}</div>
+                            <div class="text-3xl pt-6">รายการ</div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+                <mat-card class="w-1/4" appearance="outlined">
+                    <mat-card-header>
+                        <mat-card-title class="text-left">บิลที่ยกเลิก</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div class="text-center text-red-500 py-8">
+                            <div class="text-8xl">{{ this.dashboardDay?.cancel ?? '0' }}</div>
+                            <div class="text-3xl pt-6">รายการ</div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+            <!-- <div id="chart" class="pl-4 pr-5">
+                <apx-chart class=""
+                    [series]="chartOptions.series"
+                    [chart]="chartOptions.chart"
+                    [xaxis]="chartOptions.xaxis"
+                    [dataLabels]="chartOptions.dataLabels"
+                    [grid]="chartOptions.grid"
+                    [stroke]="chartOptions.stroke"
+                    [title]="chartOptions.title"
+                ></apx-chart>
+            </div> -->
+            <div id="wrapper" class="rounded">
+                <!-- <div id="chart-line">
+                    <apx-chart
+                        [series]="chartOptions1.series"
+                        [chart]="chartOptions1.chart"
+                        [xaxis]="chartOptions1.xaxis"
+                        [dataLabels]="chartOptions1.dataLabels"
+                        [colors]="chartOptions1.colors"
+                        [fill]="chartOptions1.fill"
+                        [markers]="chartOptions1.markers"
+                        [stroke]="chartOptions1.stroke"
+                    ></apx-chart>
+                </div>
+                <div id="chart-line2">
+                    <apx-chart
+                        [series]="chartOptions2.series"
+                        [chart]="chartOptions2.chart"
+                        [xaxis]="chartOptions2.xaxis"
+                        [colors]="chartOptions2.colors"
+                        [fill]="chartOptions2.fill"
+                        [yaxis]="chartOptions2.yaxis"
+                    ></apx-chart>
+                </div> -->
+                <apx-chart
+                    [series]="chartOptions1.series"
+                    [chart]="chartOptions1.chart"
+                    [xaxis]="chartOptions1.xaxis"
+                    [stroke]="chartOptions1.stroke"
+                    [tooltip]="chartOptions1.tooltip"
+                    [dataLabels]="chartOptions1.dataLabels"
+                    [legend]="chartOptions1.legend"
+                    [markers]="chartOptions1.markers"
+                    [grid]="chartOptions1.grid"
+                    [yaxis]="chartOptions1.yaxis"
+                    [title]="chartOptions1.title"
+                ></apx-chart>
+            </div>
+            <div class="w-100* mt-7 flex flex-row">
+                <div id="chart" class="w-60* border rounded p-4">
+                    <apx-chart
+                        [series]="chartOptions3.series"
+                        [chart]="chartOptions3.chart"
+                        [dataLabels]="chartOptions3.dataLabels"
+                        [plotOptions]="chartOptions3.plotOptions"
+                        [yaxis]="chartOptions3.yaxis"
+                        [xaxis]="chartOptions3.xaxis"
+                        [fill]="chartOptions3.fill"
+                        [title]="chartOptions3.title"
+                    ></apx-chart>
+                </div>
+                <mat-tab-group class="w-40* h-100* flex">
+                    <!-- First -->
+                    <mat-tab label="ข้อมูลรายเดือน">
+                        <div class="w-100* flex flex-col space-y-4">
+                            <div class="w-100* flex flex-row space-x-4">
+                                <mat-card class="w-100*" appearance="outlined">
+                                    <mat-card-header>
+                                        <mat-card-title class="text-left text-lg">ยอดผู้ใช้งาน</mat-card-title>
+                                    </mat-card-header>
+                                    <mat-card-content>
+                                        <div class="text-center text-blue-500 py-8">
+                                            <div class="text-8xl">{{ this.dashboardMonth?.total_inspections ?? '0' }}</div>
+                                            <div class="text-3xl pt-6">ผู้เข้าใช้</div>
+                                        </div>
+                                    </mat-card-content>
+                                </mat-card>
+                                <mat-card class="w-100*" appearance="outlined">
+                                    <mat-card-header>
+                                        <mat-card-title class="text-left">บิลที่สำเร็จ</mat-card-title>
+                                    </mat-card-header>
+                                    <mat-card-content>
+                                        <div class="text-center text-green-500 py-8">
+                                            <div class="text-8xl">{{ this.dashboardMonth?.succeed ?? '0' }}</div>
+                                            <div class="text-3xl pt-6">รายการ</div>
+                                        </div>
+                                    </mat-card-content>
+                                </mat-card>
+                            </div>
+                            <div class="w-100* flex flex-row space-x-4">
+                                <mat-card class="w-50*" appearance="outlined">
+                                    <mat-card-header>
+                                        <mat-card-title class="text-left">บิลค้างชำระ</mat-card-title>
+                                    </mat-card-header>
+                                    <mat-card-content>
+                                        <div class="text-center text-red-500 py-8">
+                                            <div class="text-8xl">{{ this.dashboardMonth?.overdue ?? '0' }}</div>
+                                            <div class="text-3xl pt-6">รายการ</div>
+                                        </div>
+                                    </mat-card-content>
+                                </mat-card>
+                                <mat-card class="w-50*" appearance="outlined">
+                                    <mat-card-header>
+                                        <mat-card-title class="text-left">บิลที่ยกเลิก</mat-card-title>
+                                    </mat-card-header>
+                                    <mat-card-content>
+                                        <div class="text-center text-red-500 py-8">
+                                            <div class="text-8xl">{{ this.dashboardMonth?.cancel ?? '0' }}</div>
+                                            <div class="text-3xl pt-6">รายการ</div>
+                                        </div>
+                                    </mat-card-content>
+                                </mat-card>
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <!-- Second -->
+                    <mat-tab label="ข้อมูลรายปี">
+                        <div class="w-100* flex flex-col space-y-4">
+                            <div class="w-100* flex flex-row space-x-4">
+                                <mat-card class="w-100*" appearance="outlined">
+                                    <mat-card-header>
+                                        <mat-card-title class="text-left text-lg">ยอดผู้ใช้งาน</mat-card-title>
+                                    </mat-card-header>
+                                    <mat-card-content>
+                                        <div class="text-center text-blue-500 py-8">
+                                            <div class="text-8xl">{{ this.dashboardYear?.total_inspections ?? '0' }}</div>
+                                            <div class="text-3xl pt-6">ผู้เข้าใช้</div>
+                                        </div>
+                                    </mat-card-content>
+                                </mat-card>
+                                <mat-card class="w-100*" appearance="outlined">
+                                    <mat-card-header>
+                                        <mat-card-title class="text-left">บิลที่สำเร็จ</mat-card-title>
+                                    </mat-card-header>
+                                    <mat-card-content>
+                                        <div class="text-center text-green-500 py-8">
+                                            <div class="text-8xl">{{ this.dashboardYear?.succeed ?? '0' }}</div>
+                                            <div class="text-3xl pt-6">รายการ</div>
+                                        </div>
+                                    </mat-card-content>
+                                </mat-card>
+                            </div>
+                            <div class="w-100* flex flex-row space-x-4">
+                                <mat-card class="w-50*" appearance="outlined">
+                                    <mat-card-header>
+                                        <mat-card-title class="text-left">บิลค้างชำระ</mat-card-title>
+                                    </mat-card-header>
+                                    <mat-card-content>
+                                        <div class="text-center text-red-500 py-8">
+                                            <div class="text-8xl">{{ this.dashboardYear?.overdue ?? '0' }}</div>
+                                            <div class="text-3xl pt-6">รายการ</div>
+                                        </div>
+                                    </mat-card-content>
+                                </mat-card>
+                                <mat-card class="w-50*" appearance="outlined">
+                                    <mat-card-header>
+                                        <mat-card-title class="text-left">บิลที่ยกเลิก</mat-card-title>
+                                    </mat-card-header>
+                                    <mat-card-content>
+                                        <div class="text-center text-red-500 py-8">
+                                            <div class="text-8xl">{{ this.dashboardYear?.cancel ?? '0' }}</div>
+                                            <div class="text-3xl pt-6">รายการ</div>
+                                        </div>
+                                    </mat-card-content>
+                                </mat-card>
+                            </div>
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
+            </div>
+        </div>
+    </div>
+</div>

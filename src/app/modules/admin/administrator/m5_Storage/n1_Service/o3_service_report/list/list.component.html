@@ -1,0 +1,157 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <div
+        class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <div class="text-4xl font-extrabold tracking-tight">รายงานซ่อมบำรุง</div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="GetReport()">
+        <div class="flex flex-col md:flex-row mx-6 pb-2 px-4 md:px-0 my-5 gap-2">
+            <mat-form-field class="w-full md:w-1/4" [ngClass]="formFieldHelpers">
+                <mat-label>เลือกลูกค้า</mat-label>
+                <input
+                    matInput
+                    [formControl]="customerFilter"
+                    [matAutocomplete]="customer"
+                    placeholder="ค้นหาลูกค้า" />
+                <mat-autocomplete #customer="matAutocomplete" (optionSelected)="selectCustomer($event)">
+                    <mat-option *ngFor="let item of filterCustomer | async" [value]="item.name">
+                        <span class="product-name">{{ item.name }}</span>
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+
+            <mat-form-field [ngClass]="formFieldHelpers" class="w-full md:w-1/4">
+                <mat-label>เบอร์ติดต่อลูกค้า</mat-label>
+                <input
+                    matInput
+                    placeholder="ระบุเบอร์ติดต่อลูกค้า"
+                    formControlName="customer_phone"
+                    type="text">
+            </mat-form-field>
+
+            <mat-form-field [ngClass]="formFieldHelpers" class="w-full md:w-1/4">
+                <mat-label>ทะเบียนรถ</mat-label>
+                <input
+                    matInput
+                    placeholder="ระบุทะเบียนรถ"
+                    formControlName="license_plate"
+                    type="text">
+            </mat-form-field>
+
+            <mat-form-field [ngClass]="formFieldHelpers" class="w-full md:w-1/4">
+                <mat-label>วันที่เริ่มต้น</mat-label>
+                <input
+                    matInput
+                    [matDatepicker]="startPicker"
+                    formControlName="start_date"
+                    placeholder="เลือกวันที่เริ่มต้น">
+                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field [ngClass]="formFieldHelpers" class="w-full md:w-1/4">
+                <mat-label>วันที่สิ้นสุด</mat-label>
+                <input
+                    matInput
+                    [matDatepicker]="endPicker"
+                    formControlName="end_date"
+                    placeholder="เลือกวันที่สิ้นสุด">
+                <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                <mat-datepicker #endPicker></mat-datepicker>
+            </mat-form-field>
+
+            <div class="flex flex-row justify-end gap-2 mt-6">
+                <button type="submit" mat-flat-button color="primary" [disabled]="isLoading">
+                    <mat-icon svgIcon="heroicons_outline:search"></mat-icon>
+                    <span class="ml-2 mr-1">ค้นหา</span>
+                </button>
+                <button type="button" mat-flat-button (click)="clearData()">
+                    <mat-icon svgIcon="heroicons_outline:x-mark"></mat-icon>
+                    <span class="ml-2 mr-1">ล้างค่า</span>
+                </button>
+                <button
+                    type="button"
+                    class="bg-green-700 text-white"
+                    mat-flat-button
+                    (click)="export()"
+                    [disabled]="items.length === 0">
+                    <mat-icon class="text-white" svgIcon="heroicons_outline:document"></mat-icon>
+                    <span class="ml-2 mr-1 text-white">Excel</span>
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div class="overflow-auto mx-6 border-t-[1px] border-gray-900">
+        <table
+            id="excel-table"
+            class="w-full text-md text-left rtl:text-right text-gray-500 dark:text-gray-400 border-[1px] border-black mb-10 border-t-0">
+            <thead class="text-md text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
+                <tr class="border-[1px] border-black">
+                    <th scope="col" class="px-2 py-2 w-2/10 border-[1px] border-gray-900">ลำดับ</th>
+                    <th scope="col" class="px-2 py-2 w-2/10 border-[1px] border-gray-900">วันที่</th>
+                    <th scope="col" class="px-2 py-2 w-2/10 border-[1px] border-gray-900">เลขที่ทำรายการ</th>
+                    <th scope="col" class="px-2 py-2 w-2/10 border-[1px] border-gray-900">ทะเบียน</th>
+                    <th scope="col" class="px-2 py-2 w-2/10 border-[1px] border-gray-900">ยี่ห้อ</th>
+                    <th scope="col" class="px-2 py-2 w-2/10 border-[1px] border-gray-900">รุ่น</th>
+                    <th scope="col" class="px-2 py-2 w-2/10 border-[1px] border-gray-900">หมายเหตุ</th>
+                    <th scope="col" class="px-2 py-2 w-2/10 border-[1px] border-gray-900">ยอดสุทธิ</th>
+                    <th scope="col" class="px-2 py-2 w-2/10 border-[1px] border-gray-900">สถานะ</th>
+                    <th scope="col" class="px-2 py-2 w-2/10 border-[1px] border-gray-900 text-center">เอกสาร</th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let item of items">
+                    <tr class="bg-yellow-100 font-semibold" *ngIf="item.work_orders?.length > 0">
+                        <td class="px-2 py-2 text-md border-[1px] border-gray-900 border-l-0" colspan="90">{{ item.name }}</td>
+                    </tr>
+                    <ng-container *ngFor="let work of item.work_orders; let i = index">
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-2 py-2 text-md border-[1px] border-gray-900">{{ i + 1 }}</td>
+                            <td class="px-2 py-2 text-md border-[1px] border-gray-900">{{ (work.date | date : 'dd/MM/yyyy') ?? '' }}</td>
+                            <td class="px-2 py-2 text-md border-[1px] border-gray-900">{{ work.no ?? '' }}</td>
+                            <td class="px-2 py-2 text-md border-[1px] border-gray-900">{{ work.license_plate ?? '' }}</td>
+                            <td class="px-2 py-2 text-md border-[1px] border-gray-900">{{ work.brand_name ?? '' }}</td>
+                            <td class="px-2 py-2 text-md border-[1px] border-gray-900">{{ work.model_name ?? '' }}</td>
+                            <td class="px-2 py-2 text-md border-[1px] border-gray-900">{{ work.remark ?? '' }}</td>
+                            <td class="px-2 py-2 text-md border-[1px] border-gray-900">{{ (work.total | number) ?? '' }}</td>
+                            <td class="px-2 py-2 text-md border-[1px] border-gray-900">
+                                <div>
+                                    <span
+                                        *ngIf="work.status === 'open'"
+                                        class="px-2 py-1 text-sm font-semibold text-yellow-500 bg-yellow-200 rounded-md">เปิดงาน</span>
+                                    <span
+                                        *ngIf="work.status === 'wait'"
+                                        class="p-1 text-sm font-semibold text-orange-500 bg-orange-100 rounded-md">รอซ่อม</span>
+                                    <span
+                                        *ngIf="work.status === 'repairing'"
+                                        class="p-1 text-sm font-semibold text-blue-500 bg-blue-200 rounded-md">กำลังซ่อม</span>
+                                    <span
+                                        *ngIf="work.status === 'success'"
+                                        class="p-1 text-sm font-semibold text-green-500 bg-green-200 rounded-md">เสร็จสิ้น</span>
+                                    <span
+                                        *ngIf="work.status === 'cancel'"
+                                        class="p-1 text-sm font-semibold text-red-500 bg-red-200 rounded-md">ยกเลิก</span>
+                                </div>
+                            </td>
+                            <td class="px-2 py-2 text-md border-[1px] border-gray-900 text-center">
+                                <button type="button" mat-icon-button (click)="exportPDF(work.id)">
+                                    <mat-icon class="icon-size-5" svgIcon="heroicons_solid:document"></mat-icon>
+                                </button>
+                            </td>
+                        </tr>
+                    </ng-container>
+                </ng-container>
+
+                <ng-container *ngIf="items.length === 0">
+                    <tr>
+                        <td class="px-2 py-2 text-md border-[1px] border-gray-900 text-center" colspan="10">ไม่มีข้อมูล</td>
+                    </tr>
+                </ng-container>
+            </tbody>
+        </table>
+    </div>
+</div>

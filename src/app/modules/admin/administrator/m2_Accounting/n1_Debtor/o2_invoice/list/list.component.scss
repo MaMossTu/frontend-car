@@ -1,0 +1,84 @@
+.inventory-grid {
+    grid-template-columns: 48px auto 40px;
+
+    @screen sm {
+        grid-template-columns: 48px auto 112px 72px;
+    }
+
+    @screen md {
+        grid-template-columns: 48px 112px auto 112px 72px;
+    }
+
+    @screen lg {
+        grid-template-columns: 30px 142px 142px 142px 142px auto 120px 30px 30px 30px;
+    }
+}
+
+.inventory-grid-2 {
+    grid-template-columns: 48px auto 40px;
+
+    @screen sm {
+        grid-template-columns: 48px auto 112px 72px;
+    }
+
+    @screen md {
+        grid-template-columns: 48px 112px auto 112px 72px;
+    }
+
+    @screen lg {
+        grid-template-columns: 30px 112px 112px 132px 112px auto 30px;
+    }
+}
+
+// .btn-none-bg {
+//     border-radius: 5px !important;
+//     background:#ffffff !important;
+//     border:2px solid #F43F5E !important;
+//     color:#F43F5E !important;
+// }
+
+.bg-gray-50 {
+    background: #FEEDEE !important;
+    font-weight: bold !important;
+}
+
+.bg-select {
+    background: #F6F6F5 !important;
+}
+
+table {
+    width: 100%;
+}
+
+.type {
+    .open-status {
+        background-color: #f59e0b;
+        color: white;
+        padding: 12px 16px;
+        border-radius: 4px;
+    }
+    .complete-status {
+        background-color: #10b981;
+        color: white;
+        padding: 12px 16px;
+        border-radius: 4px;
+    }
+    .late-status {
+        background-color: #fb923c;
+        color: white;
+        padding: 12px 16px;
+        border-radius: 4px;
+    }
+    .cancel-status {
+        background-color: #ef4444;
+        color: white;
+        padding: 12px 16px;
+        border-radius: 4px;
+    }
+}
+
+.reduceHeadPad {
+    .mat-form-field {
+        margin-bottom: -16px!important;
+    }
+}

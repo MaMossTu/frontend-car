@@ -1,0 +1,75 @@
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <div class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">ประเภทเอกสาร</div>
+        <!-- Actions -->
+        <div class="flex items-center mt-6 shrink-0 sm:mt-0 sm:ml-4">
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <div class="flex flex-col flex-auto min-w-full p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+            <!-- REPLACE TABLE -->
+            <table datatable [dtOptions]="dtOptions" class="table w-full row-border hover">
+                <thead>
+                    <tr>
+                        <th class="w-5*">ลำดับ</th>
+                        <th class="*">ชื่อ</th>
+                        <th class="*">รายละเอียด</th>
+                        <th class="w-0* text-center"  >จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="dataRow?.length != 0">
+                    <tr *ngFor="let item of dataRow; let i = index">
+                        <td class="">{{ pages.begin + (i + 1) }} </td>
+                        <td class="">{{ item.name }}</td>
+                        <td class="">{{ item.description }}</td>
+                        <td class="flex items-center justify-center w-auto space-x-1"  >
+                            <button mat-button    (click)="openDialog(item, $event)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-button   (click)="delete(item.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="dataRow?.length == 0">
+                    <tr>
+                        <td colspan="9" class="text-center no-data-available">
+                            ไม่มีข้อมูล !
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">เพิ่มประเภทเอกสาร</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้ไขประเภทเอกสาร</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-col w-full mt-2 space-y-2 lg:w-4/4">
+                    <mff class="w-100*" [label]="'ชื่อเอกสาร'" [fCN]="'name'" [pHold]="''"></mff>
+                    <mff class="w-100*" [label]="'ประเภทเอกสาร'" [fCN]="'description'" [pHold]="''"></mff>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;" class="border border-solid">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

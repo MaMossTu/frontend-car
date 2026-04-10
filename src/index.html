@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Environment Variables -->
+        <script src="assets/env.js"></script>
+        <title>ระบบตรอ.</title>
+        <meta charset="utf-8" />
+        <meta
+            name="description"
+            content="Admin Template and Starter Kit with Angular, Angular Material Components and TailwindCSS"
+        />
+        <meta
+            name="keywords"
+            content="Fuse,HTML,CSS,Angular,Angular 2,Angular 11,Angular 12,Angular 13,Material,Material 2,Angular Components,Tailwind,Tailwind CSS,TailwindCSS,Admin Template,Admin Starter Kit"
+        />
+        <meta
+            name="viewport"
+            content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0"
+        />
+
+        <base href="/" />
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="assets/images/logo/logo2.png" />
+        <link rel="icon" type="image/png" href="assets/images/logo/logo2.png" />
+
+        <!-- Fonts -->
+        <link href="assets/fonts/inter/inter.css" rel="stylesheet" />
+
+        <link href="https://fonts.gstatic.com" rel="preconnect" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+            rel="stylesheet"
+        />
+
+        <!-- Icon fonts -->
+        <link
+            href="https://fonts.googleapis.com/icon?family=Material+Icons"
+            rel="stylesheet"
+        />
+
+        <!-- Splash screen styles -->
+        <link href="assets/styles/splash-screen.css" rel="stylesheet" />
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Prompt&display=swap");
+
+            body.h1,
+            h2,
+            h3,
+            h4,
+            h4,
+            p,
+            b,
+            a,
+            th,
+            td,
+            tbody,
+            div,
+            .mat-tab-label-content {
+                font-family: "Prompt", sans-serif !important;
+            }
+        </style>
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            html,
+            body {
+                height: auto !important;
+            }
+
+            /* ===== ROLLBACK & FIX ===== */
+
+            /* 1) ให้เบราเซอร์คำนวณความกว้างคอลัมน์จากเนื้อหา (ไม่ fixed) */
+            table[datatable] {
+                table-layout: auto !important;
+                /* <<< ปล่อยให้คอลัมน์ขยายตาม content */
+                width: 100%;
+            }
+
+            /* 2) อย่าบีบคอมโพเนนต์ภายในเซลล์ (ยกเลิกที่เคยตัด w-full) */
+            table[datatable] td .w-full {
+                width: 100% !important;
+                /* คืนค่าเดิม */
+            }
+
+            /* 3) ทั่วไป: ให้ cell โตตามเนื้อหาได้ตามปกติ */
+            table[datatable] th,
+            table[datatable] td {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                max-width: none;
+                /* ไม่ล็อกความกว้าง cell */
+                padding: 10px 12px;
+                vertical-align: middle;
+            }
+
+            /* 4) จำกัด "เฉพาะ" คอลัมน์ที่มีฟิลด์/ select ไม่ให้กินทั้งแถว */
+            table[datatable] td:has(> .mat-form-field),
+            table[datatable] td:has(> mat-select) {
+                width: 1%;
+                /* ให้แคบเท่าที่จำเป็น (ตามเนื้อหาของฟิลด์) */
+            }
+
+            table[datatable] td:has(> .mat-form-field) .mat-mdc-form-field {
+                max-width: 220px;
+                /* ปรับได้ 200–260 แล้วแต่ดีไซน์ */
+            }
+
+            table[datatable] .mat-mdc-select-value {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            /* 5) คอลัมน์เช็คบ็อกซ์ให้พอดี */
+            table[datatable] th:first-child,
+            table[datatable] td:first-child {
+                width: 44px;
+                text-align: center;
+            }
+
+            /* 6) header ติดบน + แถบอ่านง่าย (คงไว้—ไม่เกี่ยวกับการบีบคอลัมน์) */
+            table[datatable] thead th {
+                position: sticky;
+                top: 0;
+                z-index: 2;
+                background: #fff;
+                font-weight: 600;
+            }
+
+            table[datatable] tbody tr:nth-child(even) td {
+                background: rgba(0, 0, 0, 0.015);
+            }
+
+            table[datatable] tbody tr:hover td {
+                background: rgba(25, 118, 210, 0.06);
+            }
+
+            /* 7) หน้าจอแคบ: เปิดสกรอลล์แนวนอน แทนการบีบคอลัมน์ */
+            .dataTables_wrapper,
+            .datatable-container {
+                overflow-x: auto;
+            }
+        </style>
+    </head>
+
+    <body class="mat-typography">
+        <!-- Splash screen -->
+        <fuse-splash-screen>
+            <img src="assets/images/logo/logo3.png" alt="logo" />
+            <div class="spinner">
+                <div class="bounce1"></div>
+                <div class="bounce2"></div>
+                <div class="bounce3"></div>
+            </div>
+        </fuse-splash-screen>
+
+        <!-- App root -->
+        <app-root></app-root>
+    </body>
+</html>

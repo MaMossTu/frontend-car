@@ -1,0 +1,174 @@
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg m-จ  bg-white" *ngIf="data.type === 'LIST'">
+    <div class="flex flex-col flex-auto p-5  sm:overflow-y-auto">
+        <table datatable [dtOptions]="dtOptions" class="table row-border hover w-full bg-white whitespace-nowrap">
+            <thead>
+                <tr>
+                    <th class="w-[100px]">จัดการ</th>
+                    <th class="w-[10px]">ลำดับ</th>
+                    <th>ยี่ห้อ</th>
+                    <th>รุ่น</th>
+                    <th>ทะเบียนรถ</th>
+                    <th>จังหวัด</th>
+                    <th>ลูกค้า</th>
+                </tr>
+            </thead>
+            <tbody *ngIf="dataRow?.length != 0">
+                <tr *ngFor="let item of dataRow; let i = index">
+                    <td>
+                        <button mat-icon-button color="accent" (click)="onSelect(item)">
+                            <mat-icon>check</mat-icon>
+                        </button>
+                    </td>
+                    <td>{{ pages.begin + (i + 1) }}</td>
+                    <td>{{ item.vehicle_brands ? item.vehicle_brands?.name : "-"}}</td>
+                    <td>{{ item.vehicle_models ? item.vehicle_models?.name : "-"}}</td>
+                    <td>{{ item.license_plate ? item.license_plate : "-"}}</td>
+                    <td>{{ item.provinces ? item.provinces?.name_th : "-"}}</td>
+                    <td>{{ item.customers ? item.customers.name : "-"}}</td>
+                </tr>
+            </tbody>
+            <tbody *ngIf="dataRow?.length == 0">
+                <tr>
+                    <td colspan="7" class="no-data-available text-center">ไม่มีข้อมูล !</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="flex-auto" *ngIf="this.data.type === 'NEW'">
+    <div class="grid gap-4 w-full sm:grid-cols-1">
+        <form class="overflow-hidden px-4 pb-8 mb-4 flex flex-col my-2" [formGroup]="form">
+            <span
+                class="text-xl md:text-xl font-bold tracking-tight leading-7 sm:leading-10 truncate text-gray-500 border-b-2 border-gray-300 mb-3">
+                เพิ่มรถ
+            </span>
+            <div class="-mx-3 md:flex mb-6">
+                <div class="md:w-full px-3">
+                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                        <mat-label>วันที่จดทะเบียน</mat-label>
+                        <input matInput [matDatepicker]="picker" placeholder="วันที่"
+                            [formControlName]="'registration_date'">
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="-mx-3 md:flex mb-6">
+                <div class="md:w-1/2 px-3">
+                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                        <mat-label>เลขทะเบียน</mat-label>
+                        <input matInput [placeholder]="'กรุณากรอกทะเบียนรถ'" formControlName="license_plate">
+                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                    </mat-form-field>
+                </div>
+                <div class="md:w-1/2 px-3">
+                    <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                        <mat-label>จังหวัด</mat-label>
+                        <input matInput [formControl]="provinceFilter" [matAutocomplete]="province"
+                            placeholder="ค้นหาจังหวัด" />
+                        <mat-autocomplete #province="matAutocomplete" (optionSelected)="selectProvince($event)">
+                            <mat-option *ngFor="let item of filterProvince | async" [value]="item.name_th">
+                                <span class="product-name">{{item.name_th}}</span>
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="-mx-3 md:flex mb-6">
+                <div class="md:w-1/2 px-3">
+                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                        <mat-label>ประเภทรถ</mat-label>
+                        <mat-select [formControlName]="'vehicle_inspection_types_id'">
+                            <mat-option *ngFor="let item of listVehicleInspection" [value]="item.id">
+                                <ng-container *ngIf="item?.type">[ {{ item.type }} </ng-container>
+                                <ng-container *ngIf="item?.code">{{ item.code }} ]</ng-container>
+                                {{ item.name ?? '-' }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="md:w-1/2 px-3">
+                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                        <mat-label>ประเภท พ.ร.บ.</mat-label>
+                        <mat-select [formControlName]="'insurance_types_id'">
+                            <mat-option *ngFor="let item of filteredInsuranceTypes" [value]="item.id">
+                                <ng-container *ngIf="item?.code">[ {{ item.code }} ]</ng-container>
+                                {{ item.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="-mx-3 md:flex mb-6">
+                <div class="md:w-1/2 px-3">
+                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                        <mat-label>ยี่ห้อรถ</mat-label>
+                        <mat-select [formControlName]="'brand_id'"
+                            (selectionChange)="onBrandChange()">
+                            <mat-option value="">--เลือกยี่ห้อรถ--</mat-option>
+                            <mat-option *ngFor="let item of brands"
+                                [value]="item.id">
+                                {{ item.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="md:w-1/2 px-3">
+                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                        <mat-label>รุ่นรถ</mat-label>
+                        <mat-select [formControlName]="'model_id'"
+                            [disabled]="!isBrandSelected">
+                            <mat-option value="">--เลือกรุ่นรถ--</mat-option>
+                            <mat-option *ngFor="let item of models"
+                                [value]="item.id">
+                                {{ item.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="-mx-3 md:flex mb-6">
+                <div class="md:w-1/2 px-3">
+                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                        <mat-label>เลขตัวถัง</mat-label>
+                        <input matInput [placeholder]="'กรอกเลขตัวถัง'" formControlName="chassis_number">
+                    </mat-form-field>
+                </div>
+                <div class="md:w-1/2 px-3">
+                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                        <mat-label>เลขเครื่องยนต์</mat-label>
+                        <input matInput [placeholder]="'กรอกเลขเครื่องยนต์'" formControlName="engine_number">
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="-mx-3 md:flex mb-6">
+                <div class="md:w-1/3 px-3">
+                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                        <mat-label>ซีซี</mat-label>
+                        <input matInput [placeholder]="'กรอกซีซี'" formControlName="cc">
+                    </mat-form-field>
+                </div>
+                <div class="md:w-1/3 px-3">
+                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                        <mat-label>ประเภทน้ำมัน</mat-label>
+                        <input matInput [placeholder]="'กรอกเลขเครื่องยนต์'" formControlName="fuel_type">
+                    </mat-form-field>
+                </div>
+                <div class="md:w-1/3 px-3">
+                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                        <mat-label>น้ำหนัก</mat-label>
+                        <input matInput [placeholder]="'กรอกเลขเครื่องยนต์'" formControlName="weight">
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="flex justify-center mt-2">
+                <button class="px-6 ml-3" mat-flat-button [color]="'primary'" (click)="onSaveClick()">
+                    บันทึก
+                </button>
+                <button class="px-6 ml-3" mat-flat-button [color]="'accent'" (click)="onCancelClick()">
+                    ยกเลิก
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,281 @@
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div
+        class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">ประวัติเอกสารของสาขา</div>
+        <!-- Actions -->
+        <div class="flex items-center mt-6 shrink-0 sm:mt-0 sm:ml-4">
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+    <!-- Main -->
+    <div class="flex flex-auto overflow-hidden">
+        <!-- Products list -->
+        <div class="flex flex-col flex-auto p-5 overflow-hidden overflow-x-auto sm:overflow-y-auto sm:relative">
+            <mat-tab-group (selectedTabChange)="onTabChange($event)">
+                <mat-tab label="ทั้งหมด">
+                    <div class="flex flex-auto overflow-hidden">
+                        <div
+                            class="flex flex-col flex-auto min-w-full overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+                            <table datatable [dtOptions]="dtOptions" class="table w-full row-border hover">
+                                <thead>
+                                    <tr>
+                                        <th class="w-5*">ลำดับ</th>
+                                        <th class="w-10*">หมายเลขเอกสาร</th>
+                                        <th class="w-10*">ชื่อเอกสาร</th>
+                                        <th class="w-10*">สาขา</th>
+                                        <th class="w-10*">วันที่</th>
+                                        <th class="w-10*">สถานะ</th>
+                                        <!-- <th class="w-7*">ยอดก่อนหน้า</th> -->
+                                        <th class="w-7*">ยอดหัก</th>
+                                        <th class="w-5*">คงเหลือ</th>
+                                        <th class="w-5*">หมายเหตุ</th>
+                                        <th class="w-5* text-center">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody *ngIf="dataRow?.length != 0">
+                                    <tr *ngFor="let item of dataRow; let i = index">
+                                        <td class="">{{ pages.begin + (i + 1) }} </td>
+                                        <td class="">{{ item.doc?.no ? item.doc.no : '-' }}</td>
+                                        <td class="">{{ item.doc?.name ? item.doc.name : '-' }}</td>
+                                        <td class="">{{ item.branches?.business_name ? item.branches?.business_name : '-' }}</td>
+                                        <td class="">{{ (item.date | TH) }}</td>
+                                        <td class="">
+                                            <section [ngSwitch]="item.transaction_type" class="type">
+                                                <ng-container *ngSwitchCase="'Deposit'">
+                                                    <span class="deposit-status">รับเข้า</span>
+                                                </ng-container>
+                                                <ng-container *ngSwitchCase="'Withdraw'">
+                                                    <span class="withdraw-status">ถอน</span>
+                                                </ng-container>
+                                            </section>
+                                        </td>
+                                        <!-- <td class="">{{ item.stock }}</td> -->
+                                        <td class="">{{ item.quantity }}</td>
+                                        <td class="">{{ item.balance }}</td>
+                                        <td class="">{{ item.remark }}</td>
+                                        <td class="flex items-center justify-center w-auto space-x-1">
+                                            <button mat-button (click)="openDialog(item, $event)">
+                                                <mat-icon>edit</mat-icon>
+                                            </button>
+                                            <button mat-button (click)="delete(item.id)">
+                                                <mat-icon>delete</mat-icon>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody *ngIf="dataRow?.length == 0">
+                                    <tr>
+                                        <td colspan="9" class="text-center no-data-available">
+                                            ไม่มีข้อมูล !
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </mat-tab>
+                <mat-tab label="รับเข้า">
+                    <div class="flex flex-auto overflow-hidden">
+                        <div
+                            class="flex flex-col flex-auto min-w-full overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+                            <table datatable [dtOptions]="dtOptions" class="table w-full row-border hover">
+                                <thead>
+                                    <tr>
+                                        <th class="w-5*">ลำดับ</th>
+                                        <th class="w-10*">หมายเลขเอกสาร</th>
+                                        <th class="w-10*">ชื่อเอกสาร</th>
+                                        <th class="w-10*">สาขา</th>
+                                        <th class="w-10*">วันที่</th>
+                                        <th class="w-10*">สถานะ</th>
+                                        <!-- <th class="w-7*">ยอดก่อนหน้า</th> -->
+                                        <th class="w-7*">ยอดหัก</th>
+                                        <th class="w-5*">คงเหลือ</th>
+                                        <th class="w-5*">หมายเหตุ</th>
+                                        <th class="w-5* text-center">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody *ngIf="dataRow?.length != 0">
+                                    <tr *ngFor="let item of dataRow; let i = index">
+                                        <td class="">{{ pages.begin + (i + 1) }} </td>
+                                        <td class="">{{ item.doc?.no ? item.doc.no : '-' }}</td>
+                                        <td class="">{{ item.doc?.name ? item.doc.name : '-' }}</td>
+                                        <td class="">{{ item.branches?.business_name ? item.branches?.business_name : '-' }}</td>
+                                        <td class="">{{ (item.date | TH) }}</td>
+                                        <td class="">
+                                            <section [ngSwitch]="item.transaction_type" class="type">
+                                                <ng-container *ngSwitchCase="'Deposit'">
+                                                    <span class="deposit-status">รับเข้า</span>
+                                                </ng-container>
+                                                <ng-container *ngSwitchCase="'Withdraw'">
+                                                    <span class="withdraw-status">ถอน</span>
+                                                </ng-container>
+                                            </section>
+                                        </td>
+                                        <!-- <td class="">{{ item.stock }}</td> -->
+                                        <td class="">{{ item.quantity }}</td>
+                                        <td class="">{{ item.balance }}</td>
+                                        <td class="">{{ item.remark }}</td>
+                                        <td class="flex items-center justify-center w-auto space-x-1">
+                                            <button mat-button (click)="openDialog(item, $event)">
+                                                <mat-icon>edit</mat-icon>
+                                            </button>
+                                            <button mat-button (click)="delete(item.id)">
+                                                <mat-icon>delete</mat-icon>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody *ngIf="dataRow?.length == 0">
+                                    <tr>
+                                        <td colspan="9" class="text-center no-data-available">
+                                            ไม่มีข้อมูล !
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </mat-tab>
+                <mat-tab label="ถอน">
+                    <div class="flex flex-auto overflow-hidden">
+                        <div
+                            class="flex flex-col flex-auto min-w-full overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+                            <table datatable [dtOptions]="dtOptions" class="table w-full row-border hover">
+                                <thead>
+                                    <tr>
+                                        <th class="w-5*">ลำดับ</th>
+                                        <th class="w-10*">หมายเลขเอกสาร</th>
+                                        <th class="w-10*">ชื่อเอกสาร</th>
+                                        <th class="w-10*">สาขา</th>
+                                        <th class="w-10*">วันที่</th>
+                                        <th class="w-10*">สถานะ</th>
+                                        <!-- <th class="w-7*">ยอดก่อนหน้า</th> -->
+                                        <th class="w-7*">ยอดหัก</th>
+                                        <th class="w-5*">คงเหลือ</th>
+                                        <th class="w-5*">หมายเหตุ</th>
+                                        <th class="w-5* text-center">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody *ngIf="dataRow?.length != 0">
+                                    <tr *ngFor="let item of dataRow; let i = index">
+                                        <td class="">{{ pages.begin + (i + 1) }} </td>
+                                        <td class="">{{ item.doc?.no ? item.doc.no : '-' }}</td>
+                                        <td class="">{{ item.doc?.name ? item.doc.name : '-' }}</td>
+                                        <td class="">{{ item.branches?.business_name ? item.branches?.business_name : '-' }}</td>
+                                        <td class="">{{ (item.date | TH) }}</td>
+                                        <td class="">
+                                            <section [ngSwitch]="item.transaction_type" class="type">
+                                                <ng-container *ngSwitchCase="'Deposit'">
+                                                    <span class="deposit-status">รับเข้า</span>
+                                                </ng-container>
+                                                <ng-container *ngSwitchCase="'Withdraw'">
+                                                    <span class="withdraw-status">ถอน</span>
+                                                </ng-container>
+                                            </section>
+                                        </td>
+                                        <!-- <td class="">{{ item.stock }}</td> -->
+                                        <td class="">{{ item.quantity }}</td>
+                                        <td class="">{{ item.balance }}</td>
+                                        <td class="">{{ item.remark }}</td>
+                                        <td class="flex items-center justify-center w-auto space-x-1">
+                                            <button mat-button (click)="openDialog(item, $event)">
+                                                <mat-icon>edit</mat-icon>
+                                            </button>
+                                            <button mat-button (click)="delete(item.id)">
+                                                <mat-icon>delete</mat-icon>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody *ngIf="dataRow?.length == 0">
+                                    <tr>
+                                        <td colspan="9" class="text-center no-data-available">
+                                            ไม่มีข้อมูล !
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">เพิ่มประวัติ</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้ไขประวัติ</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-col w-full mt-2 space-y-2 lg:w-4/4">
+                    <!-- <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>เอกสารลูกค้า</mat-label>
+                        <mat-select [formControlName]="'doc_customers_id'">
+                            <mat-option *ngFor="let item of listDocCustomerData" [value]="item.id">
+                                <ng-container>
+                                    <span class="doc-name">{{ item.doc?.name }}</span>
+                                    <span class="customer-name">{{ item.customer?.name }}</span>
+                                    <span class="total-qty">[{{ item.total_qty }}]</span>
+                                </ng-container>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field> -->
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>เอกสาร</mat-label>
+                        <input type="text" matInput [formControl]="docControl" [matAutocomplete]="auto">
+                        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onDocSelected($event)">
+                            <mat-option *ngFor="let item of filteredDoc | async" [value]="item">
+                                <ng-container>
+                                    <span class="doc-name">{{ item?.no }}</span>
+                                    <span class="customer-name">{{ item?.name }}</span>
+                                </ng-container>
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                    <div class="w-100* flex flex-row space-x-2">
+                        <mat-form-field appearance="fill" class="w-full reduceScreen">
+                            <mat-label>วันที่</mat-label>
+                            <input matInput [matDatepicker]="picker2" [formControlName]="'date'"
+                                (input)="onDateInput($event)" (dateChange)="onDateChange($event, 'date', formData)"
+                                placeholder="DD/MM/YYYY">
+                            <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                            <mat-datepicker #picker2></mat-datepicker>
+                        </mat-form-field>
+                        <mat-form-field appearance="fill" class="w-full">
+                            <mat-label>สถานะเอกสาร</mat-label>
+                            <mat-select [formControlName]="'transaction_type'">
+                                <mat-option value="Deposit">รับเข้า</mat-option>
+                                <mat-option value="Withdraw">ถอนออก</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mff class="w-100*" [label]="'จำนวนเอกสาร'" [fCN]="'quantity'" [pHold]="''"></mff>
+                    </div>
+                    <mat-form-field class="w-100*">
+                        <mat-label>หมายเหตุ</mat-label>
+                        <textarea matInput formControlName="remark"></textarea>
+                    </mat-form-field>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;"
+                    class="border border-solid">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

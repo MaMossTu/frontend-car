@@ -1,0 +1,506 @@
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">ข้อมูลรถ</div>
+        <!-- Actions -->
+        <div class="flex items-center mt-6 shrink-0 sm:mt-0 sm:ml-4">
+            <!-- Add user button -->
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <!-- Users list -->
+        <div class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+            <!-- REPLACE TABLE -->
+            <table datatable [dtOptions]="dtOptions" class="table w-full row-border hover">
+                <thead>
+                    <tr>
+                        <th class="w-5*">ลำดับ</th>
+                        <th class="">ทะเบียน</th>
+                        <th class="">ประเภท</th>
+                        <th class="w-1/12">ลูกค้า</th>
+                        <th class="">วันที่จดทะเบียน</th>
+                        <th class="">ยี่ห้อ</th>
+                        <th class="">รุ่น</th>
+                        <th class="">ประเภทเชื้อเพลิง</th>
+                        <th class="">ขนาด (CC)</th>
+                        <th class="">น้ำหนัก</th>
+                        <th class="w-0* text-center"  >จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="dataRow?.length != 0">
+                    <tr *ngFor="let item of dataRow; let i = index">
+                        <td class="">{{ pages.begin + (i + 1) }} </td>
+                        <td class="">{{ item?.license_plate}}</td>
+                        <td class="">{{ item?.vehicle_inspection_types?.type }}{{ item.vehicle_inspection_types?.code }}</td>
+                        <td class="">{{ item?.customers?.name || '-' }} {{ item?.customers?.lname || '' }}</td>
+                        <td class="">{{ item?.registration_date | TH }}</td>
+                        <td class="">{{ item?.vehicle_brands?.name || '-'}}</td>
+                        <td class="">{{ item?.vehicle_models?.name || '-' }}</td>
+                        <td class="">
+                            <div [ngSwitch]="item?.fuel_type">
+                                <ng-container *ngSwitchCase="'oil'"><span >น้ำมัน</span></ng-container>
+                                <ng-container *ngSwitchCase="'gas'"><span >EV/แก๊ส 100%</span></ng-container>
+                                <ng-container *ngSwitchCase="'Hybrid'"><span >Hybrid/CNG</span></ng-container>
+                            </div>
+                        </td>
+                        <td class="">{{ item?.cc }}</td>
+                        <td class="">{{ item?.weight }}</td>
+                        <td class="flex items-center justify-center w-auto space-x-1"  >
+                            <button mat-button    (click)="openDialog(item, $event)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-button   (click)="delete(item.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="dataRow?.length == 0">
+                    <tr>
+                        <td colspan="9" class="text-center no-data-available">
+                            ไม่มีข้อมูล !
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title>ข้อมูลรถ</h2>
+            <mat-dialog-content>
+                <mat-tab-group>
+                    <mat-tab label="ข้อมูลรถ">
+                        <div class="flex flex-wrap flex-auto -mb-6 -pb-6">
+                            <div class="flex flex-row w-full mt-6 space-x-2 lg:w-4/4 sm:py-4">
+                                <div class="w-50* flex flex-row space-x-2">
+                                    <div class="md:w-1/2 mb-2 md:mb-0">
+                                        <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                                            <mat-label>ลูกค้า</mat-label>
+                                            <input matInput [formControl]="customerFilter" [matAutocomplete]="customer" placeholder="ค้นหาลูกค้า" />
+                                            <mat-autocomplete #customer="matAutocomplete"
+                                                (optionSelected)="onOptionCustomer($event)">
+                                                <mat-option *ngFor="let item of filterCustomer | async" [value]="item.name">
+                                                    <span class="product-name">{{item.name}} {{item?.lname ?? ''}}</span>
+                                                </mat-option>
+                                            </mat-autocomplete>
+                                        </mat-form-field>
+                                    </div>
+                                    <mat-form-field appearance="fill" class="w-50*">
+                                        <mat-label>วันที่จดทะเบียน</mat-label>
+                                        <input matInput [matDatepicker]="registrationdate" [formControlName]="'registration_date'"
+                                            (input)="onDateInput($event)" (dateChange)="onDateChange($event, 'registration_date', formData)"
+                                            placeholder="DD/MM/YYYY">
+                                        <mat-datepicker-toggle matSuffix [for]="registrationdate"></mat-datepicker-toggle>
+                                        <mat-datepicker #registrationdate></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                                <div class="w-50* flex flex-row space-x-2">
+                                    <mff class="w-50*" [label]="'เลขทะเบียน'" [fCN]="'license_plate'" [pHold]="''"></mff>
+                                    <mat-form-field class="w-50*">
+                                        <mat-label>จังหวัด</mat-label>
+                                        <mat-select [formControlName]="'province_id'">
+                                            <mat-option value="">--เลือกจังหวัด--</mat-option>
+                                            <mat-option *ngFor="let item of listProvinces" [value]="item.id">
+                                                {{ item.name_th }}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+
+                            </div>
+                            <!-- ประเภท -->
+                            <div class="flex flex-row w-full space-x-2 lg:w-4/4 sm:py-4">
+                                <mat-form-field appearance="fill" class="w-50*">
+                                    <mat-label>ประเภทรถ</mat-label>
+                                    <mat-select [formControlName]="'vehicle_inspection_types_id'">
+                                        <mat-option *ngFor="let item of listInspection" [value]="item.id">
+                                            <ng-container *ngIf="item?.type">[ {{ item.type }}</ng-container>
+                                            <ng-container *ngIf="item?.code">{{ item.code }} ]</ng-container>
+                                            {{ item.name ?? '-' }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <mat-form-field appearance="fill" class="w-50*">
+                                    <mat-label>ประเภท พ.ร.บ</mat-label>
+                                    <mat-select [formControlName]="'vehicle_inspection_types_id'">
+                                        <mat-option value="">--เลือกประเภท--</mat-option>
+                                        <mat-option *ngFor="let item of listInsurance" [value]="item.id">
+                                            <ng-container *ngIf="item?.code">[ {{ item.code }} ]</ng-container>
+                                            {{ item.name ?? '-' }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <!-- ยี่ห้อรถ/รุ่นรถ/เลขตัวรถ -->
+                            <div class="flex flex-row w-full mt-6 space-x-2 lg:w-4/4 sm:py-4">
+                                <div class="w-1/2 flex flex-row space-x-2">
+                                    <mat-form-field class="w-50*">
+                                        <mat-label>ยี่ห้อรถ</mat-label>
+                                        <mat-select [formControlName]="'brand_id'" (selectionChange)="onBrandChange()">
+                                            <mat-option value="">--เลือกยี่ห้อรถ--</mat-option>
+                                            <mat-option *ngFor="let item of listBrands" [value]="item.id">
+                                                {{ item.name }}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                    <mat-form-field class="w-50*">
+                                        <mat-label>รุ่นรถ</mat-label>
+                                        <mat-select [formControlName]="'model_id'" [disabled]="!isBrandSelected">
+                                            <mat-option value="">--เลือกรุ่นรถ--</mat-option>
+                                            <mat-option *ngFor="let item of listModels" [value]="item.id">
+                                                {{ item.name }}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <mff class="w-1/4" [label]="'เลขตัวรถ'" [fCN]="'chassis_number'" [pHold]="''"></mff>
+                                <mat-form-field class="w-1/4">
+                                    <mat-label>ประเภทเชื้อเพลิง</mat-label>
+                                    <mat-select [formControlName]="'fuel_type'">
+                                        <mat-option [value]="'oil'">น้ำมัน</mat-option>
+                                        <mat-option [value]="'gas'">EV/แก๊ส 100%</mat-option>
+                                        <mat-option [value]="'Hybrid'">Hybrid/CNG</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <!-- เลขเครื่องยนต์/เชื้อเพลิง/ซีซี -->
+                            <div class="flex flex-row w-full space-x-2 lg:w-4/4 sm:py-4">
+                                <mff class="w-1/4" [label]="'เลขเครื่องยนต์'" [fCN]="'engine_number'" [pHold]="''"></mff>
+                                <mat-form-field class="w-1/4">
+                                    <mat-label>ชนิดเชื้อเพลิง</mat-label>
+                                    <mat-select [formControlName]="'fuel'">
+                                        <mat-option  [value]="'เบนซิน'">เบนซิน</mat-option>
+                                        <mat-option  [value]="'ดีเซล'">ดีเซล</mat-option>
+                                        <mat-option  [value]="'ไฟฟ้า'">ไฟฟ้า</mat-option>
+                                        <mat-option  [value]="'เบนซินไฟฟ้า'">เบนซินไฟฟ้า</mat-option>
+                                        <mat-option  [value]="'ดีเซลไฟฟ้า'">ดีเซลไฟฟ้า</mat-option>
+                                        <mat-option  [value]="'ก๊าซอย่างเดียว'">ก๊าซอย่างเดียว</mat-option>
+                                        <mat-option  [value]="'เบนซินสลับก๊าซ'">เบนซินสลับก๊าซ</mat-option>
+                                        <mat-option  [value]="'เบนซินไฟฟ้าสลับก๊าซ'">เบนซินไฟฟ้าสลับก๊าซ</mat-option>
+                                        <mat-option  [value]="'ดีเซลรวมก๊าซ'">ดีเซลรวมก๊าซ</mat-option>
+                                        <mat-option  [value]="'ดีเซลไฟฟ้ารวมก๊าซ'">ดีเซลไฟฟ้ารวมก๊าซ</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <mff class="w-1/4" [label]="'ซีซี'" [fCN]="'cc'" [pHold]="''"></mff>
+                                <mff class="w-1/4" [label]="'ไมล์'" [fCN]="'mileage'" [pHold]="''"></mff>
+                            </div>
+                            <!-- น้ำหนักรถ/น้ำหนักบรรทุก/จำนวนที่นั่ง -->
+                            <div class="flex flex-row w-full space-x-2 lg:w-4/4 sm:py-4">
+                                <mff class="w-1/5" [label]="'น้ำหนักรถ'" [fCN]="'weight'" [pHold]="''"></mff>
+                                <mff class="w-1/5" [label]="'น้ำหนักบรรทุก'" [fCN]="'weight_loaded'" [pHold]="''"></mff>
+                                <mff class="w-1/5" [label]="'จำนวนที่นั่ง'" [fCN]="'seat_count'" [pHold]="''"></mff>
+                                <mff class="w-1/5" [label]="'รายละเอียด'" [fCN]="'description'" [pHold]="''"></mff>
+                                <mff class="w-1/5" [label]="'เลขที่ รย.'" [fCN]="'rynumber'" [pHold]="''"></mff>
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <mat-tab label="ข้อมูลถัง">
+                        <div class="flex flex-auto overflow-hidden">
+                            <div
+                                class="flex flex-col flex-auto min-w-full overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+                                <table class="table row-border hover w-100* border border-collapse">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center border border-black px-2">ลำดับ</th>
+                                            <th class="text-center border border-black px-2">ชนิดถัง</th>
+                                            <th class="text-center border border-black px-2">ตำแหน่งที่ติดตั้ง</th>
+                                            <th class="text-center border border-black px-2">ยี่ห้อ</th>
+                                            <th class="text-center border border-black px-2">เลข</th>
+                                            <th class="text-center border border-black px-2">น้ำหนัก</th>
+                                            <th class="text-center border border-black px-2">ความหนา</th>
+                                            <th class="text-center border border-black px-2">ความจุ</th>
+                                            <th class="text-center border border-black px-2">วันที่ผลิตถัง</th>
+                                            <th class="text-center border border-black px-2">วันหมดอายุ</th>
+                                            <th class="w-0* text-center border border-black px-2"  >
+                                                จัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody *ngIf="formData.value.vehicle_gas?.length != 0" class="text-gray-600">
+                                        <tr *ngFor="let item of formData.value.vehicle_gas; let j = index"
+                                            class="border-b hover:bg-gray-100">
+                                            <td class="text-center border border-black">{{ (j + 1) }} </td>
+                                            <td class="text-center border border-black">{{ item.gas_type }}</td>
+                                            <td class="text-center border border-black">{{ item.gas_position }}</td>
+                                            <td class="text-center border border-black">{{ item.gas_brand }}</td>
+                                            <td class="text-center border border-black">{{ item.gas_number }}</td>
+                                            <td class="text-center border border-black">{{ item.gas_weight }}</td>
+                                            <td class="text-center border border-black">{{ item.gas_thick }}</td>
+                                            <td class="text-center border border-black">{{ item.gas_capacity }}</td>
+                                            <td class="text-center border border-black">{{ item.gas_create | TH }}</td>
+                                            <td class="text-center border border-black">{{ item.gas_expire | TH }}</td>
+                                            <td class="text-center border border-black"
+                                                 >
+                                                <button mat-button
+                                                    (click)="openGasEdit(item)">
+                                                    <mat-icon>edit</mat-icon>
+                                                </button>
+                                                <button mat-button
+                                                    (click)="deleteGas(item.id)">
+                                                    <mat-icon>delete</mat-icon>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tbody *ngIf="formData.value.vehicle_gas?.length == 0">
+                                        <tr>
+                                            <td colspan="12" class="text-center text-gray-500 border border-black">
+                                                ไม่มีข้อมูล !
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button mat-raised-button class="w-100* mt-7 bg-gray-200 text-xl"
+                                    (click)="openAddGasDialog()">
+                                    <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                                    <span class="ml-2 mr-1">เพิ่มข้อมูลถัง</span>
+                                </button>
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <!-- <mat-tab label="เพิ่มข้อมูลตัวถัง">
+                        <form [formGroup]="formGas_Add">
+                            <div formArrayName="gas">
+                                <div class="flex flex-row" *ngFor="let group of gas.controls; let i = index" [formGroupName]="i">
+                                    <mat-card class="w-100* bg-gray-200 mb-4" appearance="outlined">
+                                        <mat-card-content>
+                                            <a class="flex justify-between text-3xl">{{ 'รายงานชุดที่ ' + (i + 1) }}<span class="ml-auto text-right">
+                                                <button mat-raised-button class="text-right text-white bg-red-500"
+                                                (click)="removeGroup(i)">ลบกลุ่ม</button></span>
+                                            </a>
+                                            <div class="flex flex-row w-100* space-x-2">
+                                                <div class="w-60* flex flex-row space-x-2">
+                                                    <mffa class="w-1/3" [label]="'ชนิดถัง'" [fCN]="group.get('gas_type')" form="gas"></mffa>
+                                                    <mffa class="w-1/3" [label]="'ตำแหน่งที่ติดตั้ง'" [fCN]="group.get('gas_position')" form="gas"></mffa>
+                                                    <mffa class="w-1/3" [label]="'ยี่ห้อ'" [fCN]="group.get('gas_brand')" form="gas"></mffa>
+                                                </div>
+                                                <div class="w-40* flex flex-row space-x-2">
+                                                    <mffa class="w-100*" [label]="'เลขถัง'" [fCN]="group.get('gas_number')" form="gas"></mffa>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-row w-100* space-x-2">
+                                                <div class="w-60* flex flex-row space-x-2">
+                                                    <mffa class="w-1/3" [label]="'มวล'" [fCN]="group.get('gas_weight')" form="gas"></mffa>
+                                                    <mffa class="w-1/3" [label]="'ความหนา'" [fCN]="group.get('gas_thick')" form="gas"></mffa>
+                                                    <mffa class="w-1/3" [label]="'ความจุ'" [fCN]="group.get('gas_capacity')" form="gas"></mffa>
+                                                </div>
+                                                <div class="w-40* flex flex-row space-x-2">
+                                                    <mat-form-field appearance="fill" class="w-50* pt-7">
+                                                        <mat-label>วันที่ผลิตถัง</mat-label>
+                                                        <input matInput [matDatepicker]="gascreateAdd" formControlName="gas_create"
+                                                            (input)="onDateInput($event)"
+                                                            (dateChange)="onDateChange($event, 'gas_create', gas, i)" placeholder="DD/MM/YYYY">
+                                                        <mat-datepicker-toggle matSuffix [for]="gascreateAdd"></mat-datepicker-toggle>
+                                                        <mat-datepicker #gascreateAdd></mat-datepicker>
+                                                    </mat-form-field>
+                                                    <mat-form-field appearance="fill" class="w-50* pt-7">
+                                                        <mat-label>วันหมดอายุ</mat-label>
+                                                        <input matInput [matDatepicker]="gasexpireAdd" formControlName="gas_expire"
+                                                            (input)="onDateInput($event)"
+                                                            (dateChange)="onDateChange($event, 'gas_expire', gas, i)" placeholder="DD/MM/YYYY">
+                                                        <mat-datepicker-toggle matSuffix [for]="gasexpireAdd"></mat-datepicker-toggle>
+                                                        <mat-datepicker #gasexpireAdd></mat-datepicker>
+                                                    </mat-form-field>
+                                                </div>
+                                            </div>
+                                        </mat-card-content>
+                                    </mat-card>
+                                </div>
+                            </div>
+                            <button mat-raised-button class="w-100* mt-7 bg-gray-200 text-xl"
+                                (click)="addGroup()">
+                                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                                <span class="ml-2 mr-1">เพิ่มกลุ่ม</span>
+                            </button>
+                        </form>
+                    </mat-tab> -->
+                </mat-tab-group>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog(dialogRef1)" style="border-color: #1ca9df; color: #1ca9df;"
+                    class="border border-solid">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #HullDialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formGas_Edit">
+            <h2 mat-dialog-title>แก้ไขข้อมูลตัวถัง</h2>
+            <mat-dialog-content>
+                <div class="flex flex-row w-full mt-8 space-x-2 lg:w-4/4 sm:py-4">
+                    <div class="w-60* flex flex-row space-x-2">
+                        <mff class="w-1/3" [label]="'ชนิดถัง'" [fCN]="'gas_type'" [pHold]="''"></mff>
+                        <mff class="w-1/3" [label]="'ตำแหน่งที่ติดตั้ง'" [fCN]="'gas_position'" [pHold]="''"></mff>
+                        <mff class="w-1/3" [label]="'ยี่ห้อ'" [fCN]="'gas_brand'" [pHold]="''"></mff>
+                    </div>
+                    <div class="w-40* flex flex-row space-x-2">
+                        <mff class="w-100*" [label]="'เลขถัง'" [fCN]="'gas_number'" [pHold]="''"></mff>
+                    </div>
+                </div>
+                <div class="flex flex-row w-full space-x-2 lg:w-4/4 sm:py-4">
+                    <div class="w-60* flex flex-row space-x-2">
+                        <mff class="w-1/3" [label]="'มวล'" [fCN]="'gas_weight'" [pHold]="''"></mff>
+                        <mff class="w-1/3" [label]="'ความหนา'" [fCN]="'gas_thick'" [pHold]="''"></mff>
+                        <mff class="w-1/3" [label]="'ความจุ'" [fCN]="'gas_capacity'" [pHold]="''"></mff>
+                    </div>
+                    <div class="w-40* flex flex-row space-x-2">
+                        <mat-form-field appearance="fill" class="w-50*">
+                            <mat-label>วันที่ผลิตถัง</mat-label>
+                            <input matInput [matDatepicker]="gascreateEdit" formControlName="gas_create"
+                                (input)="onDateInput($event)"
+                                (dateChange)="onDateChange($event, 'gas_create', formGas_Edit)" placeholder="DD/MM/YYYY">
+                            <mat-datepicker-toggle matSuffix [for]="gascreateEdit"></mat-datepicker-toggle>
+                            <mat-datepicker #gascreateEdit></mat-datepicker>
+                        </mat-form-field>
+                        <mat-form-field appearance="fill" class="w-50*">
+                            <mat-label>วันหมดอายุ</mat-label>
+                            <input matInput [matDatepicker]="gasexpireEdit" formControlName="gas_expire"
+                                (input)="onDateInput($event)"
+                                (dateChange)="onDateChange($event, 'gas_expire', formGas_Edit)" placeholder="DD/MM/YYYY">
+                            <mat-datepicker-toggle matSuffix [for]="gasexpireEdit"></mat-datepicker-toggle>
+                            <mat-datepicker #gasexpireEdit></mat-datepicker>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog(dialogRef2)" style="border-color: #1ca9df; color: #1ca9df;"
+                class="border border-solid">ปิด</button>
+                <button mat-button (click)="updateGas()" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #AddGasDialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formGas_Add">
+            <h2 mat-dialog-title>เพิ่มข้อมูลถัง</h2>
+            <mat-dialog-content>
+                <div formArrayName="gas">
+                    <div class="flex flex-row" *ngFor="let group of gas.controls; let i = index" [formGroupName]="i">
+                        <mat-card class="w-100* bg-gray-200 mb-4" appearance="outlined">
+                            <mat-card-content>
+                                <a class="flex justify-between text-3xl">{{ 'รายงานชุดที่ ' + (i + 1) }}<span
+                                        class="ml-auto text-right">
+                                        <button mat-raised-button class="text-right text-white bg-red-500"
+                                            (click)="removeGroup(i)">ลบถัง</button></span>
+                                </a>
+                                <div class="flex flex-row w-100* space-x-2">
+                                    <div class="w-60* flex flex-row space-x-2">
+                                        <!-- <mffa class="w-1/3" [label]="'ชนิดถัง'" [fCN]="group.get('gas_type')" form="gas"></mffa> -->
+                                        <mat-form-field class="w-1/3">
+                                            <mat-label>ชนิดถัง</mat-label>
+                                            <mat-select [formControl]="group.get('gas_type')">
+                                                <mat-option value="LPG1">LPG แคปซูล</mat-option>
+                                                <mat-option value="LPG2">LPG ยางรถยนต์</mat-option>
+                                                <mat-option value="CNG1">CNG1</mat-option>
+                                                <mat-option value="CNG2">CNG2</mat-option>
+                                                <mat-option value="CNG3">CNG3</mat-option>
+                                                <mat-option value="CNG4">CNG4</mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                        <!-- <mffa class="w-1/3" [label]="'ตำแหน่งที่ติดตั้ง'" [fCN]="group.get('gas_position')" form="gas"></mffa> -->
+                                        <mat-form-field class="w-1/3">
+                                            <mat-label>ตำแหน่งที่ติดตั้ง</mat-label>
+                                            <mat-select [formControl]="group.get('gas_position')">
+                                                <mat-option value="ภายในตัวรถ">ภายในตัวรถ</mat-option>
+                                                <mat-option value="ใต้ท้องรถ">ใต้ท้องรถ</mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                        <!-- <mffa class="w-1/3" [label]="'ยี่ห้อ'" [fCN]="group.get('gas_brand')" form="gas"></mffa> -->
+                                        <mat-form-field class="w-1/3">
+                                            <mat-label>ยี่ห้อ</mat-label>
+                                            <mat-select [formControl]="group.get('gas_brand')">
+                                                <mat-option *ngFor="let brand_gas of listGasBrands"
+                                                    [value]="brand_gas.name">
+                                                    {{ brand_gas.name }}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                        <!-- <mat-form-field class="w-1/3">
+                                            <mat-label>ยี่ห้อ</mat-label>
+                                            <input type="text" matInput [formControl]="group.get('gas_brand')" [matAutocomplete]="auto">
+                                            <mat-autocomplete #auto="matAutocomplete">
+                                                <mat-option *ngFor="let brand_gas of filteredBrands | async" [value]="brand_gas.name">
+                                                    {{ brand_gas.name }}
+                                                </mat-option>
+                                            </mat-autocomplete>
+                                        </mat-form-field> -->
+                                    </div>
+                                    <div class="w-40* flex flex-row space-x-2">
+                                        <mffa class="w-100*" [label]="'เลขถัง'" [fCN]="group.get('gas_number')"
+                                            form="gas"></mffa>
+                                    </div>
+                                </div>
+                                <div class="flex flex-row w-100* space-x-2">
+                                    <div class="w-60* flex flex-row space-x-2">
+                                        <mffa class="w-1/3" [label]="'น้ำหนัก'" [fCN]="group.get('gas_weight')"
+                                            form="gas"></mffa>
+                                        <mffa class="w-1/3" [label]="'ความหนา'" [fCN]="group.get('gas_thick')"
+                                            form="gas"></mffa>
+                                        <mffa class="w-1/3" [label]="'ความจุ'" [fCN]="group.get('gas_capacity')"
+                                            form="gas"></mffa>
+                                    </div>
+                                    <div class="w-40* flex flex-row space-x-2">
+                                        <mat-form-field appearance="fill" class="w-50*">
+                                            <mat-label>วันที่ผลิตถัง</mat-label>
+                                            <input matInput min="0" [matDatepicker]="gascreateAdd"
+                                                formControlName="gas_create" (input)="onDateInput($event)"
+                                                (dateChange)="onDateChange($event, 'gas_create', gas)"
+                                                placeholder="DD/MM/YYYY">
+                                            <mat-datepicker-toggle matSuffix
+                                                [for]="gascreateAdd"></mat-datepicker-toggle>
+                                            <mat-datepicker #gascreateAdd></mat-datepicker>
+                                        </mat-form-field>
+                                        <mat-form-field appearance="fill" class="w-50*">
+                                            <mat-label>วันหมดอายุ</mat-label>
+                                            <input matInput [matDatepicker]="gasexpireAdd" formControlName="gas_expire"
+                                                (input)="onDateInput($event)"
+                                                (dateChange)="onDateChange($event, 'gas_expire', gas)"
+                                                placeholder="DD/MM/YYYY">
+                                            <mat-datepicker-toggle matSuffix
+                                                [for]="gasexpireAdd"></mat-datepicker-toggle>
+                                            <mat-datepicker #gasexpireAdd></mat-datepicker>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            </mat-card-content>
+                        </mat-card>
+                    </div>
+                </div>
+                <button mat-raised-button class="w-100* mt-7 bg-gray-200 text-xl" (click)="addGroup()">
+                    <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                    <span class="ml-2 mr-1">เพิ่มถัง</span>
+                </button>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button style="border-color: #1ca9df; color: #1ca9df;" class="border border-solid"
+                    (click)="closeDialog(addGasDialogRef)">ปิด</button>
+                <button mat-button style="background-color: #1ca9df;" class="text-white"
+                    (click)="create()" *ngIf="!isEdit">บันทึก</button>
+                <button mat-button style="background-color: #1ca9df;" class="text-white"
+                    (click)="createGas(this.vechicle_id)" *ngIf="isEdit">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

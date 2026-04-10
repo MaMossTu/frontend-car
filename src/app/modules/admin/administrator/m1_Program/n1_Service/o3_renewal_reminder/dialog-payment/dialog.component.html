@@ -1,0 +1,42 @@
+<div>
+    <h1 class="mb-4 text-xl font-semibold">บันทึกข้อมูล</h1>
+
+    <div mat-dialog-content class="overflow-y-auto md:max-h-180">
+        <form [formGroup]="form">
+            <div class="flex-auto">
+                <!-- Date and Time Picker -->
+                <div class="flex flex-col mb-1 md:flex md:flex-row md:gap-4">
+                    <div class="w-full">
+                        <mat-label>วันที่จ่ายเงิน</mat-label>
+                        <input
+                            class="form-control fc-datepicker hasDatepicker w-full bg-slate-200 h-12 rounded-md px-2 mt-1"
+                            placeholder="MM/DD/YYYY" type="datetime-local" formControlName="call_log" />
+                    </div>
+                </div>
+
+                <!-- Details Textarea -->
+                <div class="flex flex-col mb-1 md:flex">
+                    <div class="md:w-full">
+                        <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                            <mat-label>ระบุรายละเอียด</mat-label>
+                            <textarea matInput formControlName="call_log_details" [rows]="5"></textarea>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- <div>
+        ข้อมูลที่จะบันทึก: call_log: "{{form.get('call_log').value}}", call_log_details: "{{form.get('call_log_details').value}}"
+    </div> -->
+
+    <div mat-dialog-actions class="flex justify-end">
+        <button class="px-6 ml-3" mat-flat-button [color]="'primary'" (click)="Submit()" [disabled]="form.invalid">
+            ตกลง
+        </button>
+        <button class="px-6 ml-3" mat-flat-button [color]="'accent'" (click)="onClose()">
+            ยกเลิก
+        </button>
+    </div>
+</div>

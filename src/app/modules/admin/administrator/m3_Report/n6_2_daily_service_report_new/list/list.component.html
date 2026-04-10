@@ -1,0 +1,215 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between px-5 pt-5">
+        <div>
+            <h2 class="text-2xl font-extrabold leading-7 tracking-tight truncate md:text-xl sm:leading-10">
+                รายงานบริการ
+            </h2>
+        </div>
+        <div class="flex flex-row gap-2">
+            <button mat-flat-button [color]="'primary'" (click)="GetReport()">
+                <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:search'"></mat-icon>
+                <span class="ml-2"> ค้นหา</span>
+            </button>
+            <button class="bg-green-700 text-white" mat-flat-button (click)="export()">
+                <mat-icon class="text-white" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                <span class="ml-2 mr-1 text-white">Excel</span>
+            </button>
+        </div>
+
+    </div>
+    <form [formGroup]="form" class="px-5">
+        <div class="flex flex-col md:flex-row justify-start pb-2 my-2 gap-2 border-b-2 border-gray-400">
+            <mat-form-field [ngClass]="formFieldHelpers" class="w-1/4 fuse-mat-dense">
+                <mat-label>วันที่เริ่มต้น - วันที่สิ้นสุด</mat-label>
+                <mat-date-range-input [rangePicker]="picker1">
+                    <input matStartDate formControlName="date_start" placeholder="เริ่มต้น" (dateChange)="dateChange()">
+                    <input matEndDate formControlName="date_end" placeholder="สิ้นสุด" (dateChange)="dateChange()">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker1></mat-date-range-picker>
+            </mat-form-field>
+        </div>
+    </form>
+    <div class="flex flex-col flex-auto px-5 py-2 pb-30 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full" id="excel-table">
+        <table class="table row-border hover w-full border-2 border-slate-900 whitespace-nowrap">
+            <thead class="border-2 border-slate-900">
+                <tr class=" bg-white dark:bg-slate-900 dark:text-white border-2 border-slate-900 font-bold text-lg">
+                    <th class="border-2 border-slate-900" rowspan="2">#</th>
+                    <th class="border-2 border-slate-900" rowspan="2">เลขที่</th>
+                    <th class="border-2 border-slate-900" rowspan="2">วันที่</th>
+                    <th class="border-2 border-slate-900" rowspan="2">ทะเบียน</th>
+                    <th class="border-2 border-slate-900" rowspan="2">ชื่อลูกค้า</th>
+                    <th class="border-2 border-slate-900" [attr.colspan]="lengthsummaryhead">บริการ</th>
+                    <th class="border-2 border-slate-900" rowspan="2">ภาษี</th>
+                    <th class="border-2 border-slate-900" rowspan="2">สุทธิ</th>
+                </tr>
+                <tr class="sticky -top-3 bg-white dark:bg-slate-900 dark:text-white border-2 border-slate-900 font-bold text-lg">
+                    <ng-container *ngFor="let head of serviceTypes">
+                        <th class="border-2 border-slate-900">{{ head.name }}</th>
+                    </ng-container>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngIf="dataRow?.length !== 0">
+                    <ng-container *ngIf="dataRow?.Inspections?.length !== 0">
+                        <tr class="border-2 border-slate-900">
+                            <td class="bg-[#78B3CE]" [attr.colspan]="lengthsummary">รายการบิล</td>
+                        </tr>
+                        <tr class="hover:bg-slate-100 bg-[#C9E6F0]">
+                            <td class="bg-[#C9E6F0]" [attr.colspan]="lengthsummary"> รายการ non-vat</td>
+                        </tr>
+                        <ng-container *ngFor="let inspection of dataRow?.inspections; let i = index">
+                            <tr class="hover:bg-slate-100">
+                                <td class="border-2 border-slate-900 text-center">{{ i + 1 }}</td>
+                                <td class="border-2 border-slate-900">{{ inspection.no ?? '-'}} </td>
+                                <td class="border-2 border-slate-900">{{(inspection.date | date : 'dd/MM/yyyy') ?? '-'  }} </td>
+                                <td class="border-2 border-slate-900 text-center">{{ inspection.license_plate ?? '-'}}</td>
+                                <td class="border-2 border-slate-900 text-center">{{ inspection.customer_name ?? '-'}}</td>
+                                <ng-container *ngFor="let head of serviceTypes">
+                                    <td class="border-2 border-slate-900 text-right">
+                                        {{ getIncomeByType(inspection.summary, head.id) | number:'1.2-2' }}
+                                    </td>
+                                </ng-container>
+
+                                <td class="border-2 border-slate-900 text-right">{{ (inspection.tax | number:'1.2-2') ?? '-' }}</td>
+                                <td class="border-2 border-slate-900 text-right">{{ (inspection.total_income | number:'1.2-2') ?? '-' }}</td>
+                            </tr>
+                        </ng-container>
+                        <ng-container *ngIf="dataRow?.inspections_summary_total?.length !== 0">
+                            <tr class="hover:bg-slate-100 bg-[#FBF8EF]">
+                                <td class="border-2 border-slate-900 text-right " colspan="5">รวม</td>
+                                <ng-container *ngFor="let head of dataRow?.inspections_summary_total">
+                                    <td class="border-2 border-slate-900 text-right">
+                                        {{ dataRow?.inspections_summary_total[(head.service_type_id) - 1]?.total_income || 0 | number:'1.2-2' }}
+                                    </td>
+                                </ng-container>
+                                <td class="border-2 border-slate-900 text-right " >-</td>
+                                <td class="border-2 border-slate-900 text-right " >{{ dataRow?.inspections_total | number:'1.2-2' }}</td>
+                            </tr>
+                        </ng-container>
+                        <tr class="hover:bg-slate-100 bg-[#C9E6F0]">
+                            <td class="bg-[#C9E6F0]" [attr.colspan]="lengthsummary">รายการ vat</td>
+                        </tr>
+                        <ng-container *ngFor="let inspection of dataRow?.inspections_vat; let i = index">
+                            <tr class="hover:bg-slate-100">
+                                <td class="border-2 border-slate-900 text-center">{{ i + 1 }}</td>
+                                <td class="border-2 border-slate-900">{{ inspection.no ?? '-'}} </td>
+                                <td class="border-2 border-slate-900">{{(inspection.date | date : 'dd/MM/yyyy') ?? '-'  }} </td>
+                                <td class="border-2 border-slate-900 text-center">{{ inspection.license_plate ?? '-'}}</td>
+                                <td class="border-2 border-slate-900 text-center">{{ inspection.customer_name ?? '-'}}</td>
+                                <ng-container *ngFor="let head of serviceTypes">
+                                    <td class="border-2 border-slate-900 text-right">
+                                        {{ getIncomeByType(inspection.summary, head.id) | number:'1.2-2' }}
+                                    </td>
+                                </ng-container>
+
+                                <td class="border-2 border-slate-900 text-right">{{ (inspection.tax | number:'1.2-2') ?? '-' }}</td>
+                                <td class="border-2 border-slate-900 text-right">{{ (inspection.total_income | number:'1.2-2') ?? '-' }}</td>
+                            </tr>
+                        </ng-container>
+                        <ng-container *ngIf="dataRow?.inspections_summary_total_vat?.length !== 0">
+                            <tr class="hover:bg-slate-100 bg-[#FBF8EF]">
+                                <td class="border-2 border-slate-900 text-right " colspan="5">รวม</td>
+                                <ng-container *ngFor="let head of dataRow?.inspections_summary_total_vat">
+                                    <td class="border-2 border-slate-900 text-right">
+                                        {{ head?.total_income || 0 | number:'1.2-2' }}
+                                    </td>
+                                </ng-container>
+                                <td class="border-2 border-slate-900 text-right " >-</td>
+                                <td class="border-2 border-slate-900 text-right " >{{ dataRow?.inspections_total_vat | number:'1.2-2' }}</td>
+                            </tr>
+                        </ng-container>
+                    </ng-container>
+                    <ng-container *ngIf="dataRow?.invoices?.length !== 0">
+                        <tr class="border-2 border-slate-900">
+                            <td class="bg-[#78B3CE]" [attr.colspan]="lengthsummary">รายการใบแจ้งหนี้</td>
+                        </tr>
+                        <ng-container *ngFor="let invoices of dataRow?.invoices; let i = index">
+                            <tr class="hover:bg-slate-100">
+                                <td class="border-2 border-slate-900 text-center">{{ i + 1 }}</td>
+                                <td class="border-2 border-slate-900">{{ invoices.no ?? '-'}} </td>
+                                <td class="border-2 border-slate-900">{{(invoices.date | date : 'dd/MM/yyyy') ?? '-'  }} </td>
+                                <td class="border-2 border-slate-900 text-center">{{ invoices.license_plate ?? '-'}}</td>
+                                <td class="border-2 border-slate-900 text-center">{{ invoices.customer_name ?? '-'}}</td>
+                                <ng-container *ngFor="let head of serviceTypes">
+                                    <td class="border-2 border-slate-900 text-right">
+                                        {{ getIncomeByType(invoices.summary, head.id) | number:'1.2-2' }}
+                                    </td>
+                                </ng-container>
+
+                                <td class="border-2 border-slate-900 text-right">{{ (invoices.tax | number:'1.2-2') ?? '-' }}</td>
+                                <td class="border-2 border-slate-900 text-right">{{ (invoices.total_income | number:'1.2-2') ?? '-' }}</td>
+                            </tr>
+                        </ng-container>
+                        <ng-container *ngIf="dataRow?.invoices_summary_total?.length !== 0">
+                            <tr class="hover:bg-slate-100 bg-[#FBF8EF]">
+                                <td class="border-2 border-slate-900 text-right " colspan="5">รวม</td>
+                                <ng-container *ngFor="let head of dataRow?.invoices_summary_total">
+                                    <td class="border-2 border-slate-900 text-right">
+                                        {{ head?.total_income || 0 | number:'1.2-2' }}
+                                    </td>
+                                </ng-container>
+                                <td class="border-2 border-slate-900 text-right " >{{ dataRow?.invoices_tax_total | number:'1.2-2' }}</td>
+                                <td class="border-2 border-slate-900 text-right " >{{ dataRow?.invoices_total | number:'1.2-2' }}</td>
+                            </tr>
+                        </ng-container>
+                    </ng-container>
+                    <ng-container *ngIf="dataRow?.tax_invoices?.length !== 0">
+                        <tr class="border-2 border-slate-900">
+                            <td class="bg-[#78B3CE]" [attr.colspan]="lengthsummary">รายการใบกำกับภาษี</td>
+                        </tr>
+                        <ng-container *ngFor="let tax_invoices of dataRow?.tax_invoices; let i = index">
+                            <tr class="hover:bg-slate-100">
+                                <td class="border-2 border-slate-900 text-center">{{ i + 1 }}</td>
+                                <td class="border-2 border-slate-900">{{ tax_invoices.no ?? '-'}} </td>
+                                <td class="border-2 border-slate-900">{{(tax_invoices.date | date : 'dd/MM/yyyy') ?? '-'  }} </td>
+                                <td class="border-2 border-slate-900 text-center">{{ tax_invoices.license_plate ?? '-'}}</td>
+                                <td class="border-2 border-slate-900 text-center">{{ tax_invoices.customer_name ?? '-'}}</td>
+                                <ng-container *ngFor="let head of serviceTypes">
+                                    <td class="border-2 border-slate-900 text-right">
+                                        {{ getIncomeByType(tax_invoices.summary, head.id) | number:'1.2-2' }}
+                                    </td>
+                                </ng-container>
+
+                                <td class="border-2 border-slate-900 text-right">{{ (tax_invoices.tax | number:'1.2-2') ?? '-' }}</td>
+                                <td class="border-2 border-slate-900 text-right">{{ (tax_invoices.total_income | number:'1.2-2') ?? '-' }}</td>
+                            </tr>
+                        </ng-container>
+                        <ng-container *ngIf="dataRow?.tax_invoices_summary_total?.length !== 0">
+                            <tr class="hover:bg-slate-100 bg-[#FBF8EF]">
+                                <td class="border-2 border-slate-900 text-right " colspan="5">รวม</td>
+                                <ng-container *ngFor="let head of dataRow?.tax_invoices_summary_total">
+                                    <td class="border-2 border-slate-900 text-right">
+                                        {{ head?.total_income || 0 | number:'1.2-2' }}
+                                    </td>
+                                </ng-container>
+                                <td class="border-2 border-slate-900 text-right " >{{ dataRow?.tax_invoices_tax_total | number:'1.2-2' }}</td>
+                                <td class="border-2 border-slate-900 text-right " >{{ dataRow?.tax_invoices_total | number:'1.2-2' }}</td>
+                            </tr>
+                        </ng-container>
+                    </ng-container>
+                    <ng-container *ngIf="dataRow?.summary?.length !== 0">
+                        <tr class="bg-[#F96E2A]">
+                            <td class="border-2 border-slate-900" colspan="5">รวม</td>
+                            <ng-container *ngFor="let head of dataRow?.summary">
+                                <td class="border-2 border-slate-900 text-right">
+                                    {{ head?.total_income || 0 | number:'1.2-2' }}
+                                </td>
+                            </ng-container>
+                            <td class="border-2 border-slate-900 text-right " >{{ dataRow?.total_tax_income | number:'1.2-2' }}</td>
+                            <td class="border-2 border-slate-900 text-right " >{{ dataRow?.total_income | number:'1.2-2' }}</td>
+                        </tr>
+                    </ng-container>
+
+
+                </ng-container>
+            </tbody>
+            <tbody *ngIf="dataRow?.length == 0">
+                <tr>
+                    <td colspan="8" class="no-data-available text-center h-10">ไม่มีข้อมูล !</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

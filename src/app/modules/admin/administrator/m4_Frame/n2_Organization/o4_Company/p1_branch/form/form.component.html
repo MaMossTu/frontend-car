@@ -1,0 +1,284 @@
+<div class="flex flex-col flex-auto min-w-0  bg-gray-100  dark:bg-transparent">
+    <style>
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+    <!-- Header -->
+    <div
+        class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-6 sm:py-8 sm:px-10 border-b bg-card dark:bg-transparent">
+        <div class="flex-1 min-w-0">
+            <!-- Title -->
+            <div *ngIf="!this.itemId" class="mt-2">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                    เพิ่มสาขา
+                </h2>
+            </div>
+            <div *ngIf="this.itemId" class="mt-2">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                    แก้ไขสาขา
+                </h2>
+            </div>
+        </div>
+    </div>
+    <div class="flex-auto p-3 sm:p-10">
+        <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+            <form [formGroup]="formData">
+                <!-- Main -->
+                <div class="flex-auto pl-6 pr-6 pt-6 sm:pl-10 sm:pr-10 sm:pt-10">
+                    <div class="grid gap-4 w-full sm:grid-cols-1 md:grid-cols-2">
+                        <div class="overflow-hidden px-4 pt-6 pb-4 mb-4 flex flex-col my-2">
+                            <div class="-mx-3 md:flex mb-6">
+                                <div class="md:w-1/2 px-3 mb-6 md:mb-0">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>ชื่อสาขา</mat-label>
+                                        <input matInput [formControlName]="'name'" [placeholder]="''">
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+                                <div class="md:w-1/2 px-3">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>ชื่อทางธุรกิจ</mat-label>
+                                        <input matInput [formControlName]="'business_name'" [placeholder]="''">
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="-mx-3 md:flex mb-6">
+                                <div class="md:w-1/2 px-3 mb-6 md:mb-0">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>เบอร์ติดต่อ</mat-label>
+                                        <input matInput [formControlName]="'phone'" [placeholder]="''">
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+                                <div class="md:w-1/2 px-3">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>Email</mat-label>
+                                        <input matInput [formControlName]="'email'" [placeholder]="''">
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="-mx-3 md:flex mb-2">
+                                <div class="md:w-1/2 px-3 mb-6 md:mb-0">
+
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>ประเภทการคำนวณคอมมิชชัน</mat-label>
+                                        <mat-select [formControlName]="'cal_com'">
+                                            <mat-option value="all">ทั้งหมด</mat-option>
+                                            <mat-option value="only">เฉพาะบุคคล</mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <div class="md:w-1/2 px-3">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>เลขประจำตัวผู้เสียภาษี</mat-label>
+                                        <input matInput [formControlName]="'tax_id'" [placeholder]="''">
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="-mx-3 md:flex mb-6">
+                                <div class="md:min-w-full px-3 mb-6 md:mb-0">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>หมายเลขใบอนุญาต</mat-label>
+                                        <input matInput [formControlName]="'license_number'" [placeholder]="''">
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="-mx-3 md:flex mb-6">
+                                <div class="md:min-w-full px-3 mb-6 md:mb-0">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>ที่อยู่</mat-label>
+                                        <textarea matInput [formControlName]="'address'" [placeholder]="''"
+                                            [rows]="5"></textarea>
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="overflow-hidden px-8 pt-6 pb-8 mb-4 flex flex-col my-2">
+                            <div class="-mx-3 md:flex mb-6">
+                                <div class="md:w-1/2 px-3 mb-6 md:mb-0">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>วันทำการ</mat-label>
+                                        <input matInput [formControlName]="'open_date'" [placeholder]="''">
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+                                <div class="md:w-1/2 px-3">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>เวลาทำการ</mat-label>
+                                        <input matInput [formControlName]="'open_close_time'" [placeholder]="''">
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="-mx-3 md:flex mb-6">
+                                <div class="md:w-1/2 px-3 mb-6 md:mb-0">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>ได้รับความเห็นชอบตามหนังสือเลขที่</mat-label>
+                                        <input matInput [formControlName]="'approval_letter_number'" [placeholder]="''">
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+                                <div class="md:w-1/2 px-3">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>สิ้นอายุวันที่</mat-label>
+                                        <input matInput [matDatepicker]="expiration_date"
+                                            formControlName="expiration_date">
+                                        <mat-datepicker-toggle matIconSuffix
+                                            [for]="expiration_date"></mat-datepicker-toggle>
+                                        <mat-datepicker #expiration_date></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="-mx-3 md:flex mb-6">
+                                <div class="md:w-1/2 px-3 mb-6 md:mb-0">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>เลขที่ รย. LPG</mat-label>
+                                        <input matInput [formControlName]="'book_number_ry_lpg'" [placeholder]="''">
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+                                <div class="md:w-1/2 px-3">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>สิ้นอายุวันที่</mat-label>
+                                        <input matInput [matDatepicker]="expired_ry_lpg"
+                                            formControlName="expired_ry_lpg">
+                                        <mat-datepicker-toggle matIconSuffix
+                                            [for]="expired_ry_lpg"></mat-datepicker-toggle>
+                                        <mat-datepicker #expired_ry_lpg></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="-mx-3 md:flex mb-6">
+                                <div class="md:w-1/2 px-3 mb-6 md:mb-0">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>เลขที่ ขส. LPG</mat-label>
+                                        <input matInput [formControlName]="'book_number_ks_lpg'" [placeholder]="''">
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+                                <div class="md:w-1/2 px-3">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>สิ้นอายุวันที่</mat-label>
+                                        <input matInput [matDatepicker]="expired_ks_lpg"
+                                            formControlName="expired_ks_lpg">
+                                        <mat-datepicker-toggle matIconSuffix
+                                            [for]="expired_ks_lpg"></mat-datepicker-toggle>
+                                        <mat-datepicker #expired_ks_lpg></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="-mx-3 md:flex mb-6">
+                                <div class="md:w-1/2 px-3 mb-6 md:mb-0">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>เลขที่ รย. NGV</mat-label>
+                                        <input matInput [formControlName]="'book_number_ry_ngv'" [placeholder]="''">
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+                                <div class="md:w-1/2 px-3">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>สิ้นอายุวันที่</mat-label>
+                                        <input matInput [matDatepicker]="expired_ry_ngv"
+                                            formControlName="expired_ry_ngv">
+                                        <mat-datepicker-toggle matIconSuffix
+                                            [for]="expired_ry_ngv"></mat-datepicker-toggle>
+                                        <mat-datepicker #expired_ry_ngv></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="-mx-3 md:flex mb-6">
+                                <div class="md:w-1/2 px-3 mb-6 md:mb-0">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>เลขที่ ขส. NGV</mat-label>
+                                        <input matInput [formControlName]="'book_number_ks_ngv'" [placeholder]="''">
+                                        <!-- <mat-hint>This is a hint text</mat-hint> -->
+                                    </mat-form-field>
+                                </div>
+                                <div class="md:w-1/2 px-3">
+                                    <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                        <mat-label>สิ้นอายุวันที่</mat-label>
+                                        <input matInput [matDatepicker]="expired_ks_ngv"
+                                            formControlName="expired_ks_ngv">
+                                        <mat-datepicker-toggle matIconSuffix
+                                            [for]="expired_ks_ngv"></mat-datepicker-toggle>
+                                        <mat-datepicker #expired_ks_ngv></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="overflow-hidden px-4 sm:px-8 pt-6 pb-8 mb-4 flex flex-col md:flex-row my-2 col-span-2">
+                            <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                                <!-- Dropzone when no image URL -->
+                                <div class="flex justify-center items-center w-full" *ngIf="!url">
+                                    <ngx-dropzone class="w-full max-w-md mx-auto border border-dashed rounded-xl p-4"
+                                        (change)="onSelect($event)">
+                                        <ngx-dropzone-label
+                                            class="block text-center text-gray-500">รูปหัวกระดาษ</ngx-dropzone-label>
+                                        <div *ngFor="let d of files" class="mt-4">
+                                            <ngx-dropzone-image-preview [file]="d"
+                                                class="h-auto max-w-full rounded-lg shadow-md"></ngx-dropzone-image-preview>
+                                        </div>
+                                    </ngx-dropzone>
+                                </div>
+                                <!-- Preview when image URL is available -->
+                                <div class="flex justify-center items-center w-full" *ngIf="url">
+                                    <label class="cursor-pointer flex flex-col items-center gap-2">
+                                        <input (change)="onChange($event)" type="file" id="file" class="hidden">
+                                        <img [src]="url" alt="Preview Image"
+                                            class="w-full max-w-xs md:max-w-md rounded-lg shadow-md object-contain">
+                                        <span class="text-sm text-gray-500">รูปหัวกระดาษ</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                                <div class="flex justify-center items-center w-full" *ngIf="!url_under">
+                                    <ngx-dropzone class="w-full max-w-md mx-auto border border-dashed rounded-xl p-4"
+                                        (change)="onSelectUnder($event)">
+                                        <ngx-dropzone-label
+                                            class="block text-center text-gray-500">รูปท้ายกระดาษ</ngx-dropzone-label>
+                                        <div *ngFor="let d of files1" class="mt-4">
+                                            <ngx-dropzone-image-preview [file]="d"
+                                                class="h-auto max-w-full rounded-lg shadow-md"></ngx-dropzone-image-preview>
+                                        </div>
+                                    </ngx-dropzone>
+                                </div>
+                                <!-- Preview when image URL is available -->
+                                <div class="flex justify-center items-center w-full" *ngIf="url_under">
+                                    <label class="cursor-pointer flex flex-col items-center gap-2">
+                                        <input (change)="onChangeUnder($event)" type="file" id="file1" class="hidden">
+                                        <img [src]="url_under" alt="Preview Image"
+                                            class="w-full max-w-xs md:max-w-md rounded-lg shadow-md object-contain">
+                                        <span class="text-sm text-gray-500">รูปท้ายกระดาษ</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="flex items-center justify-end w-full border-t px-8 py-4">
+                <div class="flex items-center justify-end">
+                    <a class="ml-4" mat-flat-button [routerLink]="['/branch/list-branch']">
+                        <!-- <mat-icon svgIcon="heroicons_solid:x"></mat-icon> -->
+                        Cancel
+                    </a>
+                    <button class="px-6 ml-3 mat-primary" mat-flat-button (click)="Submit()">
+                        <!-- <mat-icon svgIcon="heroicons_solid:check"></mat-icon> -->
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,15 @@
+:host {
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+}
+
+@media only screen and (max-width: 600px) {
+    .light {
+        background: #ffffff !important;
+    }
+}
+
+button { font-family: 'Prompt'; }
+mat-label { font-weight: 700 !important; }

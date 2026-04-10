@@ -1,0 +1,41 @@
+<div class="md:max-w-lg" >
+    <!-- <h1  class="text-xl font-semibold mb-4" >เปลี่ยนสถานะ</h1> -->
+    <div mat-dialog-content class="overflow-y-auto md:max-h-180">
+        <form [formGroup]="form">
+            <div class="flex-auto">
+                <div class="flex flex-col md:flex mb-1">
+                    <div class="md:w-full">
+                        <mat-form-field class="w-full">
+                            <mat-label>เลือกสถานะ</mat-label>
+                            <mat-select [formControlName]="'status'"placholder="เลือกสถานะ">
+                              <mat-option *ngFor="let item of status;" [value]="item.value">
+                                {{item.name}}
+                              </mat-option>
+                            </mat-select>
+                          </mat-form-field>
+                    </div>
+                    <!-- <div class="md:w-full">
+                        <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                            <mat-label>ประเภทการจ่าย</mat-label>
+                            <mat-select [formControlName]="'paid_type'" placeholder="ประเภทการจ่าย">
+                                <mat-option *ngFor="let item of payment" [value]="item.value">
+                                    {{item.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div> -->
+                </div>
+
+            </div>
+        </form>
+    </div>
+    <!-- <div> check : {{this.form.value | json}}</div> -->
+    <div mat-dialog-actions class="flex justify-end">
+        <button class="px-6 ml-3" mat-flat-button [color]="'primary'" (click)="Submit()">
+            ตกลง
+        </button>
+        <button class="px-6 ml-3" mat-flat-button [color]="'accent'" (click)="onClose()">
+            ยกเลิก
+        </button>
+    </div>
+</div>

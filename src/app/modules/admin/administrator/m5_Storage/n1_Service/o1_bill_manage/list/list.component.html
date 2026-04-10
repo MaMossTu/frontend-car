@@ -1,0 +1,273 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <div
+        class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">รายการบิล</div>
+        <!-- Actions -->
+        <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <!-- Products list -->
+        <div class="flex flex-col flex-auto p-5 overflow-hidden sm:overflow-y-auto sm:relative overflow-x-auto">
+
+          <!-- Mat Tab -->
+          <mat-tab-group>
+            <!-- ตรวจสอบ -->
+            <mat-tab label="ตรวจสอบ">
+              <div class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full">
+                <table datatable [dtOptions]="dtOptions" class="table row-border hover w-full">
+                <thead>
+                  <tr>
+                    <th class="">เลขที่</th>
+                    <th class="">วันที่</th>
+                    <th class="">ประเภท</th>
+                    <th class="">วันที่จดทะเบียน</th>
+                    <th class="">เอกสาร</th>
+                    <th class="">พ.ร.บ.</th>
+                    <th class="">ตรวจสภาพ</th>
+                    <th class="">ตรวจแก๊ส</th>
+                    <th class="">รถบรรทุก</th>
+                    <th class="">หมายเหตุ</th>
+                    <th class="">วันดำเนินการ</th>
+                    <th class="w-0* text-center"  >จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="dataRow?.length != 0">
+                  <tr *ngFor="let item of dataRow; let i = index">
+                    <td class="">{{ item.id ?? '-' }}</td>
+                    <td class="">{{ item.name ?? '-' }}</td>
+                    <td class="">{{ item.last_name ?? '-' }}</td>
+                    <td class="">{{ item.phone_number1 ?? '-' }}</td>
+                    <td class="">{{ item.phone_number2 ?? '-' }}</td>
+                    <td class="">{{ item.email ?? '-' }}</td>
+                    <td class="">{{ item.email ?? '-' }}</td>
+                    <td class="">{{ item.email ?? '-' }}</td>
+                    <td class="">{{ item.email ?? '-' }}</td>
+                    <td class="">{{ item.email ?? '-' }}</td>
+                    <td class="">{{ item.email ?? '-' }}</td>
+                    <td  >
+                      <button mat-button    (click)="openStatus(item)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-button   (click)="delete(item.id)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody *ngIf="dataRow?.length == 0">
+                  <tr>
+                    <td colspan="5" class="no-data-available text-center">ไม่มีข้อมูล !</td>
+                  </tr>
+                </tbody>
+                </table>
+              </div>
+            </mat-tab>
+
+            <!-- รอนำส่ง -->
+            <mat-tab label="รอนำส่ง">
+              <div class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full">
+                <table datatable [dtOptions]="dtOptions2"  class="table row-border hover w-full">
+                  <thead>
+                    <tr>
+                      <th class="w-5*">ลำดับ</th>
+                      <th class="">เลขที่</th>
+                      <th class="">ทะเบียน</th>
+                      <th class="">วันที่จดทะเบียน</th>
+                      <th class="">เอกสาร</th>
+                      <th class="">ประเภท</th>
+                      <th class="">รถบรรทุก</th>
+                      <th class="">หมายเหตุ</th>
+                      <th class="w-0* text-center"  >จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody *ngIf="dataRow2?.length != 0">
+                    <tr *ngFor="let item of dataRow2; let i = index">
+                      <td class="">{{ pages2.begin + (i + 1) }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td  >
+                        <button mat-button    (click)="openStatus(item.id)">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-button   (click)="delete(item.id)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tbody *ngIf="dataRow2?.length == 0">
+                    <tr>
+                      <td colspan="9" class="no-data-available text-center">ไม่มีข้อมูล !</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </mat-tab>
+
+            <!-- รายการนำส่ง -->
+            <mat-tab label="รายการนำส่ง">
+              <div class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full">
+                <table datatable [dtOptions]="dtOptions3" class="table row-border hover w-full">
+                  <thead>
+                    <tr>
+                      <th class="">เลขที่</th>
+                      <th class="">ประเภท</th>
+                      <th class="">ทะเบียน</th>
+                      <th class="">วันที่จดทะเบียน</th>
+                      <th class="">เอกสาร</th>
+                      <th class="">รอบ</th>
+                      <th class="">นัดรับ</th>
+                      <th class="">เรียกเก็บ</th>
+                      <th class="">ยอดจริง</th>
+                      <th class="">หมายเหตุ</th>
+                      <th class="">บันทึก</th>
+                      <th class="w-0* text-center"  >จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody *ngIf="dataRow3?.length != 0">
+                    <tr *ngFor="let item of dataRow3; let i = index">
+                      <td class="">{{ pages3.begin + (i + 1) }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td  >
+                        <button mat-button    (click)="openStatus(item.id)">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-button   (click)="delete(item.id)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tbody *ngIf="dataRow3?.length == 0">
+                    <tr>
+                      <td colspan="9" class="no-data-available text-center">ไม่มีข้อมูล !</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </mat-tab>
+
+            <!-- รอรับป้าย -->
+            <mat-tab label="รอรับป้าย">
+              <div class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full">
+                <table datatable [dtOptions]="dtOptions4" class="table row-border hover w-full">
+                  <thead>
+                    <tr>
+                      <th class="w-5*">ลำดับ</th>
+                      <th class="">เลขที่</th>
+                      <th class="">ทะเบียน</th>
+                      <th class="">ประเภท</th>
+                      <th class="">ชื่อลูกค้า</th>
+                      <th class="">ที่อยู่ผู้รับ</th>
+                      <th class="">เบอร์โทรผู้รับ</th>
+                      <th class="w-0* text-center"  >จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody *ngIf="dataRow4?.length != 0">
+                    <tr *ngFor="let item of dataRow4; let i = index">
+                      <td class="">{{ pages4.begin + (i + 1) }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td class="">{{ item.email ?? '-' }}</td>
+                      <td  >
+                        <button mat-button    (click)="openStatus(item.id)">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-button   (click)="delete(item.id)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tbody *ngIf="dataRow4?.length == 0">
+                    <tr>
+                      <td colspan="9" class="no-data-available text-center">ไม่มีข้อมูล !</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </div>
+      </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">เพิ่มบิล</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้ไขบิล</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-col w-full lg:w-4/4 mt-2">
+                    <mff class="w-full" [label]="'ป้ายทะเบียน'" [fCN]="'license_plate'" [pHold]="'ป้ายทะเบียน'"></mff>
+                    <mff class="w-full" [label]="'ชื่อ'" [fCN]="'name'" [pHold]="'ชื่อ'"></mff>
+                    <mff class="w-full" [label]="'รายการ'" [fCN]="'service_name'" [pHold]="'รายการ'"></mff>
+                    <mff class="w-full" [label]="'ราคา'" [fCN]="'service_price'" [pHold]="'ราคา'"></mff>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;"
+                    class="border-solid border">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #status>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title>แก้ไขสถานะ</h2>
+            <mat-dialog-content>
+                <div class=" flex-col w-full lg:w-4/4 mt-2">
+                    <mat-form-field [formControlName]="'status'">
+                        <mat-label>เลือกสถานะ</mat-label>
+                        <mat-select>
+                            <mat-option value="open">เปิด</mat-option>
+                            <mat-option value="wait">รอซ่อม</mat-option>
+                            <mat-option value="ongoing">กำลังซ่อม</mat-option>
+                            <mat-option value="complete">เสร็จสิ้น</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;"
+                    class="border-solid border">ปิด</button>
+                <button mat-button (click)="update()" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

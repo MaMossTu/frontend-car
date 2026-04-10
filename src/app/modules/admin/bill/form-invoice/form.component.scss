@@ -1,0 +1,93 @@
+.container {
+    display: flex;
+    flex-flow: wrap;
+    flex-wrap: wrap;
+}
+
+.card1 {
+    width: 50%;
+    height: 100%;
+    flex-direction: column;
+
+    justify-content: center !important;
+    flex: 1;
+    padding: 2rem;
+    border: 1px solid rgb(210, 210, 210);
+}
+
+
+.card2 {
+    width: 50%;
+    height: 100%;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center !important;
+    padding: 2rem;
+    border: 1px solid rgb(210, 210, 210);
+
+}
+
+.card3 {
+    width: 100%;
+    height: 100%;
+    flex: 2;
+    justify-content: center !important;
+    flex-direction: column;
+    padding: 2rem;
+    border: 1px solid rgb(210, 210, 210);
+
+}
+
+.card_sum {
+
+    width: 30% !important;
+    height: 100%;
+    padding: 20px !important;
+    padding: 2rem;
+    border: 1px solid rgb(210, 210, 210);
+    border-radius: 5%;
+
+
+}
+
+.img {
+    display: flex;
+    width: 100%;
+    height: 200px;
+    align-items: center !important;
+    background: #fff !important;
+    color: #717386 !important;
+    border: 2px dashed #717386 !important;
+    border-radius: 5px !important;
+    font-size: 16px !important;
+    overflow-x: auto !important;
+}
+
+
+
+autocomplete-display-example {
+    mat-option {
+      font-family: "Times New Roman", Times, serif; // does not work
+    }
+  }
+
+  .mat-option .sku {
+    color: #FF5733; /* สีสำหรับ SKU */
+}
+
+.mat-option .product-name {
+    color: #636b6f; /* สีสำหรับชื่อสินค้า */
+}
+
+.mat-option .price {
+    color: #28A745; /* สีสำหรับราคา */
+}
+
+
+.pdf-viewer-container {
+    border: 2px solid #ccc; /* เส้นขอบ */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* เงา */
+    border-radius: 5px; /* มุมโค้ง */
+    padding: 10px; /* เว้นระยะภายใน */
+    background-color: #fff; /* พื้นหลัง */
+  }

@@ -1,0 +1,215 @@
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <div
+        class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">EMS ข้อมูลลูกค้า</div>
+        <!-- Actions -->
+        <div class="flex items-center mt-6 shrink-0 sm:mt-0 sm:ml-4">
+            <div class="flex space-x-2 reduceHeadPad">
+                <mat-form-field appearance="fill" class="w-50">
+                    <mat-select value="default" placeholder="เอกสาร">
+                        <mat-option (click)="pdf()" class="" color="primary">
+                            <mat-icon svgIcon="pdf-icon"></mat-icon>
+                            <span class="ml-2 mr-1">รายงาน ems</span>
+                        </mat-option>
+                        <mat-option (click)="excel()" class="" color="primary">
+                            <mat-icon svgIcon="excel-icon"></mat-icon>
+                            <span class="ml-2 mr-1">รายงาน ems</span>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="fill" class="w-64" [formGroup]="formData">
+                    <mat-date-range-input [rangePicker]="picker">
+                        <input matStartDate placeholder="Start date" formControlName="startDate"
+                            (dateChange)="onDateChange($event, 'startDate', formData)">
+                        <input matEndDate placeholder="End date" formControlName="endDate"
+                            (dateChange)="onDateChange($event, 'endDate', formData)">
+                    </mat-date-range-input>
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-date-range-picker #picker></mat-date-range-picker>
+                </mat-form-field>
+                <!-- <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                    <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                    <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+                </button> -->
+            </div>
+        </div>
+    </div>
+    <div class="flex flex-col flex-auto p-5 overflow-hidden overflow-x-auto sm:overflow-y-auto sm:relative">
+        <mat-tab-group #tabGroup [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="onTabChange()">
+            <!-- กำลังจัดส่ง -->
+            <mat-tab label="รายการบิล">
+                <div
+                    class="flex flex-col flex-auto min-w-full p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+                    <!-- REPLACE TABLE -->
+                    <table #dtElement1 datatable [dtOptions]="dtOptions1" class="table w-full row-border hover">
+                        <thead>
+                            <tr>
+                                <th class="w-5*">ลำดับ</th>
+                                <th class="">เลขบิล</th>
+                                <th class="">วันที่</th>
+                                <th class="*">ทะเบียน</th>
+                                <th class="w-20*">ประเภท</th>
+                                <th class="*">ชื่อผู้รับ</th>
+                                <th class="*">หมายเลขโทรศัพท์</th>
+                                <th class="*">หมายเลข EMS</th>
+                                <th class="*">ที่อยู่ผู้รับ</th>
+                                <th class="w-0* text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="dataRow1?.length != 0">
+                            <tr *ngFor="let item of dataRow1; let i = index">
+                                <td class="">{{ pages1.begin + (i + 1) ?? "-" }} </td>
+                                <td class="">{{ item.no ?? '-' }}</td>
+                                <td class="">{{ (item.date | TH) ?? '-' }}</td>
+                                <td class="">{{ item.license_plate ?? "-" }}</td>
+                                <td class="">{{ item.vehicle_inspection_types ?? "-" }}</td>
+                                <td class="">{{ item.name ?? "-" }}</td>
+                                <td class="">{{ item.phone ?? "-" }}</td>
+                                <td class="">{{ item.ems ?? "-" }}</td>
+                                <td class="">{{ item.address ?? "-" }}</td>
+                                <td class="flex items-center justify-center w-auto space-x-1">
+                                    <button mat-button (click)="openDialog(item, $event)">
+                                        <mat-icon svgIcon="heroicons_solid:pencil-square"></mat-icon>
+                                    </button>
+                                    <button mat-button (click)="envelopeAddress(item.id)">
+                                        <mat-icon svgIcon="heroicons_solid:document-text"></mat-icon>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="dataRow1?.length == 0">
+                            <tr>
+                                <td colspan="9" class="text-center no-data-available">
+                                    ไม่มีข้อมูล !
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </mat-tab>
+            <!-- จัดส่งสำเร็จ -->
+            <mat-tab label="จัดส่งสำเร็จ">
+                <div
+                    class="flex flex-col flex-auto min-w-full p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+                    <!-- REPLACE TABLE -->
+                    <table #dtElement2 datatable [dtOptions]="dtOptions2" class="table w-full row-border hover">
+                        <thead>
+                            <tr>
+                                <th class="w-5*">ลำดับ</th>
+                                <th class="">เลขบิล</th>
+                                <th class="">วันที่</th>
+                                <th class="*">ทะเบียน</th>
+                                <th class="w-20*">ประเภท</th>
+                                <th class="*">ชื่อผู้รับ</th>
+                                <th class="*">หมายเลขโทรศัพท์</th>
+                                <th class="*">หมายเลข EMS</th>
+                                <th class="w-10*">ที่อยู่ผู้รับ</th>
+                                <th class="text-center">รูป</th>
+                                <th class="w-0* text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="dataRow2?.length != 0">
+                            <tr *ngFor="let item of dataRow2; let i = index">
+                                <td class="">{{ pages2.begin + (i + 1) ?? "-" }} </td>
+                                <td class="">{{ item.no ?? '-' }}</td>
+                                <td class="">{{ (item.date | TH) ?? '-' }}</td>
+                                <td class="">{{ item.license_plate ?? "-" }}</td>
+                                <td class="">{{ item.vehicle_inspection_types ?? "-" }}</td>
+                                <td class="">{{ item.name ?? "-" }}</td>
+                                <td class="">{{ item.phone ?? "-" }}</td>
+                                <td class="">{{ item.ems ?? "-" }}</td>
+                                <td class="">{{ item.address ?? "-" }}</td>
+                                <td><img [src]="item.photo" alt="Item Image" style="width: 100px; height: auto;"></td>
+                                <td class="flex items-center justify-center w-auto space-x-1">
+                                    <button mat-button (click)="openDialog(item, $event)">
+                                        <mat-icon svgIcon="heroicons_solid:pencil-square"></mat-icon>
+                                    </button>
+                                    <button mat-button (click)="envelopeAddress(item.id)">
+                                        <mat-icon svgIcon="heroicons_solid:document-text"></mat-icon>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="dataRow2?.length == 0">
+                            <tr>
+                                <td colspan="9" class="text-center no-data-available">
+                                    ไม่มีข้อมูล !
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">เพิ่มหมายเลข EMS</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้ไขหมายเลข EMS</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-col w-full mt-2 lg:w-4/4">
+                    <div class="w-full flex flex-row space-x-2">
+                        <mff class="w-1/2" [label]="'หมายเลข EMS'" [fCN]="'ems'" [pHold]="''"></mff>
+
+                        <div class="flex flex-col w-1/2">
+                            <ngx-dropzone (change)="onSelect($event)"
+                                class="flex h-[250px] aspect-[1/1] overflow-hidden object-contain changeOnHover justify-center items-center">
+                                <ngx-dropzone-label *ngIf="files==null && formData.get('id')?.value==''"
+                                    class="flex items-center justify-center outline-none">รูปภาพ</ngx-dropzone-label>
+                                <img *ngIf="files==null && formData.get('id')?.value!=''"
+                                    [src]="formData.get('image_url')?.value" class="w-auto h-100*">
+                                <!-- <img *ngIf="files!=null" [src]="imagePreview"
+                                    class="w-auto h-100*"> -->
+                                <ngx-dropzone-image-preview class="w-auto h-full" *ngIf="files" [removable]="true"
+                                    [file]="files" (removed)="onRemove(files)">
+                                </ngx-dropzone-image-preview>
+                                <div class="flex flex-row icon-container">
+                                    <mat-icon [svgIcon]="'heroicons_outline:pencil-square'"></mat-icon>
+                                    <span class="ml-2 mr-1">แก้ไขรูปภาพ</span>
+                                </div>
+                            </ngx-dropzone>
+                        </div>
+                    </div>
+                    <div class="w-100* flex flex-row space-x-2">
+                        <mff class="w-50*" [label]="'ชื่อลูกค้า'" [fCN]="'name'" [pHold]="''"></mff>
+                        <mff class="w-50*" [label]="'หมายเลขบิล'" [fCN]="'no'" [readonly]="true"></mff>
+                    </div>
+                    <div class="w-100* flex flex-row space-x-2">
+                        <mff class="w-100*" [label]="'ที่อยู่'" [fCN]="'address'" [pHold]="'ที่อยู่'"></mff>
+                    </div>
+                    <div class="w-100* flex flex-row space-x-2">
+                        <mfs class="w-50*" [label]="'จังหวัด'" [fCN]="'province'" [KEY]="'name_th'"
+                            [sift]="filteredProvinces" form="formData">
+                        </mfs>
+                        <mfs class="w-50*" [label]="'อำเภอ'" [fCN]="'districts'" [KEY]="'name_th'"
+                            [sift]="filteredDistricts" form="formData">
+                        </mfs>
+                    </div>
+                    <div class="w-100* flex flex-row space-x-2">
+                        <mfs class="w-50*" [label]="'ตำบล'" [fCN]="'subdistricts'" [KEY]="'name_th'"
+                            [sift]="filteredSubDistricts" form="formData">
+                        </mfs>
+                        <mff class="w-50*" [label]="'รหัสไปรษณีย์'" [fCN]="'zip_code'" [pHold]="'ที่อยู่'"></mff>
+                    </div>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;"
+                    class="border border-solid">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

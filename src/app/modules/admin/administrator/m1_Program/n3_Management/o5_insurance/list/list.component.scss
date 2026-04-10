@@ -1,0 +1,8 @@
+button { font-family: 'Prompt'; }
+mat-form-field, mff { display: inline; }
+
+.reduceHeadPad {
+    .mat-form-field {
+        margin-bottom: -16px !important;
+    }
+}

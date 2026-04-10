@@ -1,0 +1,69 @@
+/* ----------------------------------------------------------------------------------------------------- */
+
+
+/*  @ Main Tailwind file for injecting utilities.
+/* ----------------------------------------------------------------------------------------------------- */
+
+@tailwind utilities;
+.mat-flat-button {
+    border: 1px solid #1ca9df!important;
+    color: #1ca9df!important;
+    border-radius: 0px !important;
+}
+
+.mat-flat-button.mat-primary {
+    border: 1px solid #1ca9df!important;
+    background-color: #1ca9df!important;
+    border-radius: 0px !important;
+    span.mat-button-wrapper {
+        color: white !important;
+    }
+}
+
+.mat-flat-button.mat-success {
+    border: 1px solid #4DB433 !important;
+    background-color: #4DB433 !important;
+    border-radius: 0px !important;
+    span.mat-button-wrapper {
+        color: white !important;
+    }
+}
+
+.mat-flat-button.mat-success-revers {
+    border: 1px solid #4DB433 !important;
+    background-color: #FFFFFF !important;
+    border-radius: 0px !important;
+    span.mat-button-wrapper {
+        color: #4DB433 !important;
+    }
+}
+
+.mat-menu-item:hover {
+    mat-icon.mat-icon-no-color {
+        color: white;
+    }
+    &:not([disabled]) {
+        background: #1ca9df!important;
+        color: white !important;
+    }
+}
+
+.mat-option {
+    // color: theming.get-color-from-palette($foreground, text);
+    &:hover:not(.mat-option-disabled),
+    &:focus:not(.mat-option-disabled) {
+        background: #1ca9df!important;
+        color: white;
+    }
+    // In multiple mode there is a checkbox to show that the option is selected.
+    // &.mat-selected:not(.mat-option-multiple):not(.mat-option-disabled) {
+    //   background: theming.get-color-from-palette($background, hover);
+    // }
+    &.mat-active {
+        background: #1ca9df!important;
+        color: white !important;
+    }
+    // &.mat-option-disabled {
+    //   color: theming.get-color-from-palette($foreground, hint-text);
+    // }
+}

@@ -1,0 +1,524 @@
+.material-icons {
+    font-family: 'Material Icons' !important;
+}
+
+.bg-gray-50 {
+    background: #FEEDEE !important;
+    font-weight: bold !important;
+}
+
+.bg-select {
+    background: #F6F6F5 !important;
+}
+
+table {
+    width: 100%;
+}
+
+
+//-----------------Check Box-------------------------//
+
+.ui-checkbox {
+    --primary-color: #1677ff;
+    --secondary-color: #fff;
+    --third-color: #000;
+    --primary-hover-color: #4096ff;
+    /* checkbox */
+    --checkbox-diameter: 48px;
+    --checkbox-border-radius: 4px;
+    --checkbox-border-color: #d9d9d9;
+    --checkbox-border-width: 1px;
+    --checkbox-border-style: solid;
+    /* checkmark */
+    --checkmark-size: 3.0;
+    --checkmark-border: 1;
+}
+
+.ui-checkbox,
+.ui-checkbox *,
+.ui-checkbox *::before,
+.ui-checkbox *::after {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.ui-checkbox {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: var(--checkbox-diameter);
+    height: var(--checkbox-diameter);
+    border-radius: var(--checkbox-border-radius);
+    background: var(--secondary-color);
+    border-left: var(--checkbox-border-width) var(--checkbox-border-style) var(--checkbox-border-color);
+
+    -webkit-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+}
+
+.ui-checkbox::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    -webkit-box-shadow: 0 0 0 calc(var(--checkbox-diameter) / 2.5) var(--primary-color);
+    box-shadow: 0 0 0 calc(var(--checkbox-diameter) / 2.5) var(--primary-color);
+    border-radius: inherit;
+    opacity: 0;
+    -webkit-transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+    -o-transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+    transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+}
+
+.ui-checkbox::before {
+    top: 40%;
+    left: 50%;
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 7px;
+    border-right: 2px solid black;
+    /* ตั้งค่า border สีดำ */
+    border-bottom: 2px solid black;
+    /* ตั้งค่า border สีดำ */
+    transform: translate(-50%, -50%) rotate(45deg) scale(3);
+    /* ตั้งขนาดให้แสดงเต็ม */
+    opacity: 0.2;
+    /* แสดง checkmark ให้ชัดเจน */
+    transition: all 0.2s ease-in-out;
+}
+
+/* actions */
+
+// .ui-checkbox:hover {
+//     border-color: var(--primary-color);
+// }
+
+.ui-checkbox:checked {
+    background: var(--primary-color);
+    border-color: transparent;
+}
+
+.ui-checkbox:checked::before {
+    transform: translate(-50%, -50%) rotate(45deg) scale(var(--checkmark-size));
+    /* ขยายขนาด checkmark เมื่อถูกคลิก */
+    opacity: 1;
+    /* แสดง checkmark ให้ชัดเจนเมื่อถูกคลิก */
+    border-color: var(--secondary-color);
+    /* เปลี่ยนสี border เมื่อถูกคลิก */
+    transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+}
+
+.ui-checkbox:active:not(:checked)::after {
+    -webkit-transition: none;
+    -o-transition: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    transition: none;
+    opacity: 1;
+}
+
+
+// :host ::ng-deep {
+//     .mat-form-field-appearance-fill .mat-form-field-flex {
+//         padding: 0 0  !important;
+//     }
+// }
+
+:host ::ng-deep .custom .mat-form-field-appearance-fill .mat-form-field-flex {
+    padding-left: 16px !important;
+    padding-right: 0px !important;
+    margin-bottom: -2px !important;
+}
+
+:host ::ng-deep .fixfill .mat-form-field-appearance-fill .mat-form-field-flex {
+    padding-left: 16px !important;
+    padding-right: 0px !important;
+    padding-bottom: 0px !important;
+    overflow: hidden;
+    height: auto;
+    display: inline-flex;
+    height: 55px;
+}
+
+@media (max-width: 400px) {
+    :host ::ng-deep .reduceScreen .mat-form-field-wrapper .mat-form-field-flex {
+        padding: 0 8px !important;
+    }
+}
+
+@media (min-width: 1280px) and (max-width: 1400px) {
+    :host ::ng-deep .reduceScreen .mat-form-field-wrapper .mat-form-field-flex {
+        padding: 0 8px !important;
+    }
+}
+
+@media (min-width: 1280px) {
+    .carbutton {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .carbutton> :not([hidden])~ :not([hidden]) {
+        --tw-space-y-reverse: 0 !important;
+        margin-top: calc(0.5rem
+                /* 8px */
+                * calc(1 - var(--tw-space-y-reverse))) !important;
+        margin-bottom: calc(0.5rem
+                /* 8px */
+                * var(--tw-space-y-reverse)) !important;
+
+        --tw-space-x-reverse: 0 !important;
+        margin-right: calc(0px * var(--tw-space-x-reverse)) !important;
+        margin-left: calc(0px * calc(1 - var(--tw-space-x-reverse))) !important;
+    }
+}
+
+// :host ::ng-deep .mat-form-field.mat-form-field-appearance-fill .mat-form-field-wrapper .mat-form-field-flex {
+//     padding: 0 0 !important;
+// }
+// :host ::ng-deep .mat-form-field-flex .ng-tns-c38-26 {
+//     padding: 0 0 !important;
+// }
+// :host ::ng-deep .mat-form-field .ng-tns-c323-3 .ng-tns-c38-26 .mat-primary .mat-form-field-type-mat-input .mat-form-field-appearance-fill .mat-form-field-can-float .mat-form-field-has-label .mat-form-field-hide-placeholder .mat-form-field-disabled .ng-untouched .ng-pristine .ng-star-inserted{
+//     padding: 0 0 !important;
+// }
+
+@keyframes slideUpFromUnder {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInFromRight {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.slide-in {
+    animation: slideUpFromUnder 0.5s ease-out;
+}
+
+.slide-in2 {
+    animation: slideInFromRight 0.75s ease-out;
+}
+
+.button {
+    padding: 0 4px;
+    width: 95px;
+    height: 50px;
+    border: 2px solid #315cfd;
+    border-radius: 10px;
+    transition: all 0.3s;
+    cursor: pointer;
+    background: white;
+    font-weight: 550;
+
+    font-family: 'Prompt' !important;
+}
+
+.button:hover,
+.button.focused {
+    background: #315cfd;
+    color: white;
+    font-size: 1.1em;
+}
+
+* {
+    font-family: 'Prompt';
+}
+
+.bill-label {
+    margin-top: -12px !important;
+    margin-right: 1rem !important;
+}
+
+:host ::ng-deep .force1 {
+    margin-bottom: 1.75rem !important;
+    padding-bottom: 1.75rem !important;
+}
+
+.tabDisble {
+    pointer-events: none !important;
+    opacity: 0.5 !important;
+}
+
+.changeOnHover {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+
+    img {
+        width: 100%;
+        height: 100%;
+        border-radius: 4px;
+        object-fit: cover;
+        display: block;
+        transition: filter 0.3s ease; // Optional transition for the blur effect
+    }
+
+    // Adding a pseudo-element for the gray overlay
+    &::after {
+        content: '';
+        position: absolute;
+        border-radius: 4px;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); // Semi-transparent gray overlay
+        transition: opacity 0.3s ease;
+        opacity: 0; // Hidden by default
+        z-index: 1; // Ensure it is above the image but below the text/icon
+    }
+
+    .icon-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        color: white;
+        transition: opacity 0.3s ease;
+        text-align: center;
+        z-index: 2; // Ensure it is above the overlay
+
+        mat-icon {
+            // font-size: 36px; // Adjust size as needed
+            color: white;
+        }
+
+        span {
+            // font-size: 12px; // Adjust size as needed
+            font-family: 'Prompt'; // Ensure this font is available in your project
+        }
+    }
+
+    &:hover {
+        img {
+            filter: blur(4px); // Adjust blur effect as needed
+        }
+
+        ngx-dropzone-label {
+            opacity: 0;
+        }
+
+        &::after {
+            opacity: 1; // Show the gray overlay on hover
+        }
+
+        .icon-container {
+            opacity: 1; // Show icon and text on hover
+        }
+    }
+}
+
+.actPeriodYearButton {
+    .mat-raised-button {
+        width: auto; // ปรับให้เป็นอัตโนมัติหรือกำหนดเป็นค่าที่เหมาะสม
+        min-width: 0 !important; // ปรับความกว้างขั้นต่ำ
+        text-align: center !important;
+        margin-top: -1rem !important;
+
+        color: white !important;
+        background-color: #93c5fd !important;
+    }
+}
+
+.actPeriodRangeButton {
+    width: 1.5rem;
+    text-align: center !important;
+    font-size: larger;
+
+    color: white !important;
+}
+
+::ng-deep .actPeriodTotalDay {
+    margin-left: 10px;
+
+    .mat-button-toggle-appearance-standard .mat-button-toggle-label-content {
+        padding: 0 10px !important;
+        line-height: 24px !important;
+
+        border: black !important;
+        border-width: 1px !important;
+    }
+}
+
+::ng-deep .mat-button-toggle-checked {
+    background-color: rgba(144, 202, 249, 0.6) !important;
+    /* เปลี่ยนสีพื้นหลังของปุ่มที่ถูกเลือก */
+    color: black;
+    /* สีของข้อความเมื่อถูกเลือก */
+}
+
+::ng-deep .clearIconPad {
+    .mat-icon-button {
+        // width: auto;
+        margin-right: -0.5rem;
+    }
+}
+
+.exButtonCL {
+    .button {
+        background-color: white;
+        border-color: gray;
+    }
+}
+
+.mat-button-toggle-group {
+    display: flex;
+    flex-wrap: wrap;
+    border: 2px solid gray;
+}
+
+:host ::ng-deep .customer-autocomplete-panel {
+    max-height: 320px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
+    overflow: auto;
+}
+
+:host ::ng-deep .customer-option.mat-mdc-option {
+    min-height: 64px !important;
+    padding: 10px 14px !important;
+    align-items: flex-start !important;
+}
+
+:host ::ng-deep .customer-option .customer-option__wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+:host ::ng-deep .customer-option__title {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+:host ::ng-deep .customer-option__meta {
+    font-size: 12px;
+    line-height: 18px;
+    opacity: 0.75;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+:host ::ng-deep .customer-option__meta .pill {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.06);
+}
+
+:host ::ng-deep .customer-option__meta .dot {
+    opacity: 0.6;
+}
+
+/* hover/selected ให้ดูชัด */
+:host ::ng-deep .customer-option.mat-mdc-option:hover {
+    background: rgba(0, 0, 0, 0.04) !important;
+}
+
+:host ::ng-deep .customer-option.mat-mdc-option.mdc-list-item--selected {
+    background: rgba(0, 0, 0, 0.06) !important;
+}
+
+
+:host ::ng-deep .customer-autocomplete-panel {
+    max-height: 320px !important;
+    border-radius: 12px !important;
+    overflow: auto !important;
+}
+
+/* ✅ reset/จัดรูปแบบ option ให้ไม่ทับกัน */
+:host ::ng-deep .customer-option.mat-mdc-option {
+    min-height: 70px !important;
+    /* เพิ่มความสูงต่อ 1 รายการ */
+    padding: 10px 14px !important;
+    align-items: flex-start !important;
+    /* กัน center แล้วชน */
+    white-space: normal !important;
+    /* อนุญาตขึ้นบรรทัดใหม่ */
+    line-height: normal !important;
+}
+
+/* ✅ บังคับให้ text ภายในเป็น block จริง ๆ */
+:host ::ng-deep .customer-option .mdc-list-item__primary-text {
+    width: 100% !important;
+    display: block !important;
+    white-space: normal !important;
+}
+
+/* wrapper */
+:host ::ng-deep .customer-option__wrap {
+    display: block !important;
+    width: 100% !important;
+}
+
+/* title */
+:host ::ng-deep .customer-option__title {
+    display: block !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 20px !important;
+    margin-bottom: 6px !important;
+
+    /* ถ้าชื่อยาวมากให้ตัด ... */
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+/* meta */
+:host ::ng-deep .customer-option__meta {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    align-items: center !important;
+
+    font-size: 12px !important;
+    line-height: 18px !important;
+    opacity: 0.75 !important;
+}
+
+/* pill */
+:host ::ng-deep .customer-option__meta .pill {
+    font-size: 11px !important;
+    padding: 2px 8px !important;
+    border-radius: 999px !important;
+    background: rgba(0, 0, 0, 0.06) !important;
+}
+
+:host ::ng-deep .customer-option__meta .dot {
+    opacity: 0.6 !important;
+}

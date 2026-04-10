@@ -1,0 +1,116 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between px-5 pt-5">
+        <div>
+            <h2 class="text-2xl font-extrabold leading-7 tracking-tight truncate md:text-xl sm:leading-10">
+                รายงานประจำวัน
+            </h2>
+        </div>
+        <div class="flex flex-row gap-2">
+            <button mat-flat-button [color]="'primary'" (click)="GetReport()">
+                <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:search'"></mat-icon>
+                <span class="ml-2"> ค้นหา</span>
+            </button>
+            <button class="bg-green-700 text-white" mat-flat-button (click)="export()">
+                <mat-icon class="text-white" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                <span class="ml-2 mr-1 text-white">Excel</span>
+            </button>
+        </div>
+       
+    </div>
+    <form [formGroup]="form" class="px-5">
+        <div class="flex flex-col md:flex-row justify-start pb-2 my-2 gap-2 border-b-2 border-gray-400">
+            <mat-form-field [ngClass]="formFieldHelpers" class="w-1/4 fuse-mat-dense">
+                <mat-label>วันที่เริ่มต้น - วันที่สิ้นสุด</mat-label>
+                <mat-date-range-input [rangePicker]="picker1">
+                    <input matStartDate formControlName="date_start" placeholder="เริ่มต้น" (dateChange)="dateChange()">
+                    <input matEndDate formControlName="date_end" placeholder="สิ้นสุด" (dateChange)="dateChange()">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker1></mat-date-range-picker>
+            </mat-form-field>
+            <!-- <mat-form-field [ngClass]="formFieldHelpers" class="w-1/4">
+                <mat-label>Status</mat-label>
+                <mat-select [formControlName]="'branch_id'" placeholder="Select status">
+                    <mat-option *ngFor="let item of this.branchs;" [value]="item.id">
+                        {{item.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field [ngClass]="formFieldHelpers" class="w-1/4">
+                <mat-label>ลูกค้า</mat-label>
+                <input 
+                    matInput 
+                    [formControl]="itemFilter" 
+                    [matAutocomplete]="AutoComplete" 
+                    placeholder="ค้นหาลูกค้า" 
+                />
+                <mat-autocomplete 
+                    #AutoComplete="matAutocomplete" 
+                    (optionSelected)="onSelect($event.option.value, 'manual')">
+                    <mat-option *ngFor="let item of filterItem | async" [value]="item">
+                        {{item.name}}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field> -->
+        </div>
+    </form>
+    <div class="flex flex-col flex-auto px-5 py-2 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full" id="excel-table">
+        <table class="table row-border hover w-full border-2 border-slate-900 whitespace-nowrap">
+            <thead class="border-2 border-slate-900">
+                <tr class="border-2 border-slate-900 font-bold text-lg">
+                    <th class="border-2 border-slate-900" rowspan="2">#</th>
+                    <th class="border-2 border-slate-900" rowspan="2">เลขที่ทำรายการ</th>
+                    <th class="border-2 border-slate-900" rowspan="2">วันที่</th>
+                    <th class="border-2 border-slate-900" rowspan="2">ชื่อลูกค้า</th>
+                    <th class="border-2 border-slate-900" rowspan="2">ทะเบียน</th>
+                    <th class="border-2 border-slate-900 text-center h-10"
+                        [attr.colspan]="this.dataRow[0]?.services?.length || 0">บริการ</th>
+                    <th class="border-2 border-slate-900" rowspan="2">ส่วนลดก่อน VAT</th>
+                    <th class="border-2 border-slate-900" rowspan="2">ส่วนลดหลัง VAT</th>
+                    <th class="border-2 border-slate-900" rowspan="2">ยอดรวม VAT</th>
+                    <th class="border-2 border-slate-900" rowspan="2">ยอดไม่รวม VAT</th>
+                </tr>
+
+                <tr class="bg-gray-700 text-white border-2 border-slate-900">
+                    <ng-container *ngFor="let item of this.dataRow[0]?.services; let j = index">
+                        <th class="border-2 border-slate-900 text-center">{{item.name ?? '-'}}</th>
+                    </ng-container>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngIf="dataRow?.length !== 0">
+                    <tr *ngFor="let item of dataRow; let i = index" class="hover:bg-slate-100">
+                        <td class="border-2 border-slate-900">{{ pages.begin + (i + 1) }}</td>
+                        <td class="border-2 border-slate-900">{{ item?.no?? '-' }}</td>
+                        <td class="border-2 border-slate-900">{{ (item?.date | date : 'dd/MM/yyyy')?? '-' }}</td>
+                        <td class="border-2 border-slate-900">{{ item?.name ?? '-' }}</td>
+                        <td class="border-2 border-slate-900">{{ item?.license_plate ?? '-' }}</td>
+                        <ng-container *ngFor="let service of item?.services; let j = index">
+                            <th class="border-2 border-slate-900 text-center">{{(service.amount | number : '1.2')?? 0}}</th>
+                        </ng-container>
+                        <td class="border-2 border-slate-900 text-center h-10">{{ (item?.discount_before_vat | number : '1.2') ?? 0 }}</td>
+                        <td class="border-2 border-slate-900 text-center h-10">{{ (item?.discount_after_vat | number : '1.2') ?? 0 }}</td>
+                        <td class="border-2 border-slate-900 text-center h-10">{{ (item?.total_vatcal | number : '1.2') ?? 0 }}</td>
+                        <td class="border-2 border-slate-900 text-center h-10">{{ (item?.total_nonvatcal | number : '1.2') ?? 0 }}</td>
+                    </tr>
+                    <tr >
+                        <td colspan="5" class="no-data-available text-right h-10 border-2 border-slate-900 font-bold text-lg">ยอดรวม</td>
+                        <ng-container *ngFor="let col of dataRow[0]?.services; let j = index">
+                            <td class="no-data-available text-center h-10 border-2 border-slate-900">{{ (getColumnTotal(j) | number : '1.2') }}</td>
+                        </ng-container>
+                        <td class="no-data-available text-center h-10 border-2 border-slate-900">{{ getTotal('discount_before_vat')| number : '1.2' }}</td>
+                        <td class="no-data-available text-center h-10 border-2 border-slate-900">{{ getTotal('discount_after_vat')| number : '1.2' }}</td>
+                        <td class="no-data-available text-center h-10 border-2 border-slate-900">{{ getTotal('total_vatcal')| number : '1.2' }}</td>
+                        <td class="no-data-available text-center h-10 border-2 border-slate-900">{{ getTotal('total_nonvatcal')| number : '1.2' }}</td>
+                    </tr>
+                </ng-container>
+            </tbody>
+            <tbody *ngIf="dataRow?.length == 0">
+                <tr>
+                    <td colspan="14" class="no-data-available text-center h-10">ไม่มีข้อมูล !</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

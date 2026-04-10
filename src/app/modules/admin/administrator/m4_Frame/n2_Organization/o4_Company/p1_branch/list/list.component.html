@@ -1,0 +1,205 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">สาขา</div>
+        <!-- Actions -->
+        <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <div class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full">
+            <!-- REPLACE TABLE -->
+            <table datatable [dtOptions]="dtOptions" class="table row-border hover w-100*">
+                <thead>
+                    <tr>
+                        <th class="w-5*">ลำดับ</th>
+                        <th class="">โลโก</th>
+                        <th class="">ชื่อ</th>
+                        <th class="">ชื่อธุรกิจ</th>
+                        <th class="">เบอร์โทร</th>
+                        <th class="">อีเมล</th>
+                        <th class="">หมายเลขใบอนุญาติ</th>
+                        <th class="w-0* text-center"  >จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="dataRow?.length != 0">
+                    <tr *ngFor="let item of dataRow; let i = index">
+                        <td class="">{{ pages.begin + (i + 1) }}</td>
+                        <td><img [src]="item.logo_url" alt="Item Image" style="width: 100px; height: auto;"></td>
+                        <td class="">{{ item.name?? '-'  }}</td>
+                        <td class="">{{ item.business_name ?? '-' }}</td>
+                        <td class="">{{ item.phone?? '-'  }}</td>
+                        <td class="">{{ item.email ?? '-' }}</td>
+                        <td class="">{{ item.license_number?? '-'  }}</td>
+                        <td class="w-0* flex items-center justify-center space-x-1"  >
+                            <button mat-button    (click)="openDialog(item, $event)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-button   (click)="delete(item.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="dataRow?.length == 0">
+                    <tr>
+                        <td colspan="5" class="no-data-available text-center">ไม่มีข้อมูล !</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">เพิ่มสาขา</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้ไขสาขา</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-col w-full lg:w-full mt-2">
+                    <div class="w-full flex flex-row">
+                        <div class="w-1/3 flex flex-wrap justify-start pb-4">
+                            <ngx-dropzone (change)="onSelect($event)"
+                                class="flex aspect-[1/1] h-[160px] overflow-hidden object-contain changeOnHover">
+                                <ngx-dropzone-label *ngIf="files==null && formData.get('id')?.value==''"
+                                    class="flex items-center justify-center outline-none">รูปภาพ</ngx-dropzone-label>
+                                <img *ngIf="files==null && formData.get('id')?.value!=''" [src]="formData.get('logo_url')?.value"
+                                    class="aspect-[1/1] h-[160px] justify-center">
+                                <img *ngIf="files!=null" [src]="imagePreview"
+                                    class="aspect-[1/1] h-[160px] justify-center">
+                                <ngx-dropzone-image-preview class="w-full h-full"
+                                    *ngIf="files" [removable]="true" [file]="files" (removed)="onRemove(files)">
+                                </ngx-dropzone-image-preview>
+                                <div class="flex flex-row icon-container">
+                                    <mat-icon [svgIcon]="'heroicons_outline:pencil-square'"></mat-icon>
+                                    <span class="ml-2 mr-1">แก้ไขรูปภาพ</span>
+                                </div>
+                            </ngx-dropzone>
+                        </div>
+                        <div class="w-2/3 flex flex-col justify-end">
+                            <div class="w-100* flex flex-row space-x-2">
+                                <mff class="w-full" [label]="'ชื่อ'" [fCN]="'name'" [pHold]="'ชื่อ'"></mff>
+                                <mff class="w-full" [label]="'ชื่อทางธุรกิจ'" [fCN]="'business_name'" [pHold]="'ชื่อธุรกิจ'"></mff>
+                            </div>
+                            <div class="w-100* flex flex-row space-x-2">
+                                <mff class="w-full" [label]="'หมายเลขโทรศัพท์'" [fCN]="'phone'" [pHold]="'หมายเลขโทรศัพท์'"></mff>
+                                <mff class="w-full" [label]="'อีเมล'" [fCN]="'email'" [pHold]="'อีเมล'"></mff>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-100* flex flex-row space-x-2">
+                        <mff class="w-1/3" [label]="'หมายเลขใบอนุญาติ'" [fCN]="'license_number'" [pHold]="'หมายเลขใบอนุญาติ'"></mff>
+                        <mff class="w-1/3" [label]="'รหัสภาษี'" [fCN]="'tax_id'" [pHold]="'หมายเลขภาษี'"></mff>
+                        <!-- <mff class="w-full" [label]="'ประเภทการคำนวณคอมมิชชัน'" [fCN]="'cal_com'" [pHold]="'ประเภท'"></mff> -->
+                        <mat-form-field appearance="fill" class="w-1/3">
+                            <mat-label>ประเภทการคำนวณคอมมิชชัน</mat-label>
+                            <mat-select [formControlName]="'cal_com'">
+                                <mat-option value="all">ทั้งหมด</mat-option>
+                                <mat-option value="only">เฉพาะบุคคล</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <!-- <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>ที่อยู่</mat-label>
+                        <input matInput (click)="openAddressDialog()" [formControlName]="'address'">
+                    </mat-form-field> -->
+                    <mff class="w-full" [label]="'ที่อยู่'" [fCN]="'address'" [pHold]="''"></mff>
+                    <div class="w-100* flex flex-row space-x-2">
+                        <mff class="w-full" [label]="'วันทำการ'" [fCN]="'open_close_time'" [pHold]="'โลโก้'"></mff>
+                        <mff class="w-full" [label]="'เวลาทำการ'" [fCN]="'open_date'" [pHold]="'หมายเลขใบอนุญาติ'"></mff>
+                    </div>
+                    <div class="w-full flex flex-row space-x-2">
+                        <mff class="w-full" [label]="'ได้รับความเห็นชอบตามหนังสือเลขที่'" [fCN]="'approval_letter_number'" [pHold]="''"></mff>
+                        <div class="w-full">
+                            <mat-form-field>
+                                <mat-label>สิ้นอายุวันที่</mat-label>
+                                <input matInput [matDatepicker]="picker" formControlName="expiration_date">
+                                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                <mat-datepicker #picker></mat-datepicker>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                     <div class="w-full flex flex-row space-x-2">
+                        <mff class="w-full" [label]="'ได้รับความเห็นชอบตามหนังสือเลขที่'" [fCN]="'approval_letter_number'" [pHold]="''"></mff>
+                        <div class="w-full">
+                            <mat-form-field>
+                                <mat-label>สิ้นอายุวันที่</mat-label><input matInput [matDatepicker]="picker" formControlName="expiration_date">
+                                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                <mat-datepicker #picker></mat-datepicker>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="w-full">
+                        <div class="w-full flex flex-wrap justify-start pb-4">
+                            <ngx-dropzone (change)="onSelect_under($event)"
+                                class="flex w-full aspect-[1/1] h-[210px] overflow-hidden object-contain changeOnHover">
+                                <ngx-dropzone-label *ngIf="files_under==null && formData.get('id')?.value==''"
+                                    class="flex items-center justify-center outline-none">รูปภาพ</ngx-dropzone-label>
+                                <img *ngIf="files_under==null && formData.get('id')?.value!=''" [src]="formData.get('logo_under_url')?.value"
+                                    class="aspect-[1/1] h-[160px] justify-center">
+                                <!-- <img *ngIf="files_under!=null" [src]="imagePreview_under"
+                                    class="aspect-[1/1] h-[160px] justify-center"> -->
+                                <ngx-dropzone-image-preview class="w-full h-full"
+                                    *ngIf="files_under" [removable]="true" [file]="files_under" (removed)="onRemove(files_under)">
+                                </ngx-dropzone-image-preview>
+                                <div class="flex flex-row icon-container">
+                                    <mat-icon [svgIcon]="'heroicons_outline:pencil-square'"></mat-icon>
+                                    <span class="ml-2 mr-1">แก้ไขรูปภาพ</span>
+                                </div>
+                            </ngx-dropzone>
+                        </div>
+                    </div>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;" class="border-solid border">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+                <!-- <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="test()">
+                    <span class="ml-2 mr-1">EmerTEST</span>
+                </button> -->
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #AddressDialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData_address">
+            <h2 mat-dialog-title>ที่อยู่ลูกค้า</h2>
+            <mat-dialog-content class="space-y-3">
+                <mff class="w-100* force1" [label]="'ที่อยู่'" [fCN]="'address'" [pHold]="'ที่อยู่'"
+                    form="formData_address">
+                </mff>
+                <mfs [class]="'w-100* force1'" [label]="'จังหวัด'" [fCN]="'province'" [KEY]="'name_th'"
+                    [sift]="filteredProvinces" form="formData_address">
+                </mfs>
+                <mfs [class]="'w-100* force1'" [label]="'อำเภอ'" [fCN]="'districts'" [KEY]="'name_th'"
+                    [sift]="filteredDistricts" form="formData_address">
+                </mfs>
+                <mfs [class]="'w-100* force1'" [label]="'ตำบล'" [fCN]="'subdistricts'" [KEY]="'name_th'"
+                    [sift]="filteredSubDistricts" form="formData_address">
+                </mfs>
+                <mff class="w-100*" [label]="'รหัสไปรษณีย์'" [fCN]="'zip_code'" [pHold]="'ที่อยู่'"
+                    form="formData_address">
+                </mff>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog(addressDialogRef)" style="border-color: #1ca9df; color: #1ca9df;"
+                    class="border border-solid">ปิด</button>
+                <button mat-button (click)="saveAddress()" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

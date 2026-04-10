@@ -1,0 +1,67 @@
+<div class="md:max-w-lg">
+    <!-- <h1  class="text-xl font-semibold mb-4" >เปลี่ยนสถานะ</h1> -->
+    <div mat-dialog-content class="overflow-y-auto md:max-h-180">
+        <form [formGroup]="form">
+            <div class="flex-auto">
+                <div class="flex flex-col md:flex mb-1">
+                    <div class="md:w-full">
+                        <mat-form-field class="w-full" *ngIf="this.type === 'quotation'">
+                            <mat-label>เลือกสถานะ</mat-label>
+                            <mat-select [formControlName]="'status'" (selectionChange)="onChangeType()"
+                                placholder="เลือกสถานะ">
+                                <mat-option *ngFor="let item of status1;" [value]="item.value">
+                                    {{item.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field class="w-full" *ngIf="this.type === 'taxinvoice'">
+                            <mat-label>เลือกสถานะ</mat-label>
+                            <mat-select [formControlName]="'status'" (selectionChange)="onChangeType()"
+                                placholder="เลือกสถานะ">
+                                <mat-option *ngFor="let item of status3;" [value]="item.value">
+                                    {{item.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field class="w-full" *ngIf="this.type === 'invoice' ">
+                            <mat-label>เลือกสถานะ</mat-label>
+                            <mat-select [formControlName]="'status'" (selectionChange)="onChangeType()"
+                                placholder="เลือกสถานะ">
+                                <mat-option *ngFor="let item of status2;" [value]="item.value">
+                                    {{item.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field class="w-full" *ngIf="this.type === 'billing'">
+                            <mat-label>เลือกสถานะ</mat-label>
+                            <mat-select [formControlName]="'status'" (selectionChange)="onChangeType()"
+                                placholder="เลือกสถานะ">
+                                <mat-option *ngFor="let item of status2;" [value]="item.value">
+                                    {{item.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field class="w-full" *ngIf="this.type === 'billing'">
+                            <mat-label>รูปแบบการชำระ</mat-label>
+                            <mat-select [formControlName]="'paid_type'" placholder="เลือกรูปแบบการชำระ">
+                                <mat-option *ngFor="let item of paid_type;" [value]="item.value">
+                                    {{item.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+    <!-- <div> check : {{this.form.value | json}}</div> -->
+    <div mat-dialog-actions class="flex justify-end">
+        <button class="px-6 ml-3" mat-flat-button [color]="'primary'" (click)="Submit()">
+            ตกลง
+        </button>
+        <button class="px-6 ml-3" mat-flat-button [color]="'accent'" (click)="onClose()">
+            ยกเลิก
+        </button>
+    </div>
+</div>

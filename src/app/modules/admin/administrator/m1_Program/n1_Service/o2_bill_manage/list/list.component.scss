@@ -1,0 +1,298 @@
+.inventory-grid {
+    grid-template-columns: 48px auto 40px;
+
+    @screen sm {
+        grid-template-columns: 48px auto 112px 72px;
+    }
+
+    @screen md {
+        grid-template-columns: 48px 112px auto 112px 72px;
+    }
+
+    @screen lg {
+        grid-template-columns: 30px 142px 142px 142px 142px auto 120px 30px 30px 30px;
+    }
+}
+
+.inventory-grid-2 {
+    grid-template-columns: 48px auto 40px;
+
+    @screen sm {
+        grid-template-columns: 48px auto 112px 72px;
+    }
+
+    @screen md {
+        grid-template-columns: 48px 112px auto 112px 72px;
+    }
+
+    @screen lg {
+        grid-template-columns: 30px 112px 112px 132px 112px auto 30px;
+    }
+}
+
+// .btn-none-bg {
+//     border-radius: 5px !important;
+//     background:#ffffff !important;
+//     border:2px solid #F43F5E !important;
+//     color:#F43F5E !important;
+// }
+
+.bg-gray-50 {
+    background: #FEEDEE !important;
+    font-weight: bold !important;
+}
+
+.bg-select {
+    background: #F6F6F5 !important;
+}
+
+table {
+    width: 100%;
+}
+
+.ui-checkbox {
+    --primary-color: #1677ff;
+    --secondary-color: #fff;
+    --third-color: #000;
+    --primary-hover-color: #4096ff;
+    /* checkbox */
+    --checkbox-diameter: 48px;
+    --checkbox-border-radius: 7px;
+    --checkbox-border-color: #d9d9d9;
+    --checkbox-border-width: 1px;
+    --checkbox-border-style: solid;
+    /* checkmark */
+    --checkmark-size: 3.0;
+    --checkmark-border: 1;
+  }
+
+  .ui-checkbox,
+  .ui-checkbox *,
+  .ui-checkbox *::before,
+  .ui-checkbox *::after {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  .ui-checkbox {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: var(--checkbox-diameter);
+    height: var(--checkbox-diameter);
+    border-radius: var(--checkbox-border-radius);
+    background: var(--secondary-color);
+    border-left: var(--checkbox-border-width) var(--checkbox-border-style) var(--checkbox-border-color);
+
+    -webkit-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .ui-checkbox::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    -webkit-box-shadow: 0 0 0 calc(var(--checkbox-diameter) / 2.5) var(--primary-color);
+    box-shadow: 0 0 0 calc(var(--checkbox-diameter) / 2.5) var(--primary-color);
+    border-radius: inherit;
+    opacity: 0;
+    -webkit-transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+    -o-transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+    transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+  }
+
+  .ui-checkbox::before {
+    top: 40%;
+    left: 50%;
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 7px;
+    border-right: 2px solid black; /* ตั้งค่า border สีดำ */
+    border-bottom: 2px solid black; /* ตั้งค่า border สีดำ */
+    transform: translate(-50%, -50%) rotate(45deg) scale(3); /* ตั้งขนาดให้แสดงเต็ม */
+    opacity: 0.2 ; /* แสดง checkmark ให้ชัดเจน */
+    transition: all 0.2s ease-in-out;
+  }
+  /* actions */
+
+  // .ui-checkbox:hover {
+  //   border-color: var(--primary-color);
+  // }
+
+  .ui-checkbox:checked {
+    background: var(--primary-color);
+    border-color: transparent;
+  }
+
+  .ui-checkbox:checked::before {
+    transform: translate(-50%, -50%) rotate(45deg) scale(var(--checkmark-size)); /* ขยายขนาด checkmark เมื่อถูกคลิก */
+    opacity: 1; /* แสดง checkmark ให้ชัดเจนเมื่อถูกคลิก */
+    border-color: var(--secondary-color); /* เปลี่ยนสี border เมื่อถูกคลิก */
+    transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+  }
+
+  .ui-checkbox:active:not(:checked)::after {
+    -webkit-transition: none;
+    -o-transition: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    transition: none;
+    opacity: 1;
+  }
+
+
+
+  :host ::ng-deep .custom .mat-form-field-appearance-fill .mat-form-field-flex {
+    padding-left: 16px !important;
+    padding-right: 0px !important;
+  }
+
+.mat-flat-button {
+    text-align: left;
+    background-color: #1ca9df;
+    color: white;
+    font-family: 'Prompt';
+}
+
+$type-statuses: (
+    open: #0b8cf5,
+    finish: #10b981,
+    late: #fb923c,
+    cancel: #ef4444
+);
+$type-width: 80px;
+
+.type {
+    @each $status, $color in $type-statuses {
+        .#{$status}-status {
+            background-color: $color;
+            color: white;
+            padding: 12px;
+            border-radius: 4px;
+            width: $type-width;
+            text-align: center;
+            display: inline-block;
+        }
+    }
+}
+
+.reduceHeadPad {
+    .mat-form-field {
+        margin-bottom: -16px !important;
+    }
+}
+
+.changeOnHover {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+
+    img {
+        width: 100%;
+        height: 100%;
+        border-radius: 4px;
+        object-fit: cover;
+        display: block;
+        transition: filter 0.3s ease; // Optional transition for the blur effect
+    }
+
+    // Adding a pseudo-element for the gray overlay
+    &::after {
+        content: '';
+        position: absolute;
+        border-radius: 4px;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); // Semi-transparent gray overlay
+        transition: opacity 0.3s ease;
+        opacity: 0; // Hidden by default
+        z-index: 1; // Ensure it is above the image but below the text/icon
+    }
+
+    .icon-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        color: white;
+        transition: opacity 0.3s ease;
+        text-align: center;
+        z-index: 2; // Ensure it is above the overlay
+
+        mat-icon {
+            // font-size: 36px; // Adjust size as needed
+            color: white;
+        }
+
+        span {
+            // font-size: 12px; // Adjust size as needed
+            font-family: 'Prompt'; // Ensure this font is available in your project
+        }
+    }
+
+    &:hover {
+        img {
+            filter: blur(4px); // Adjust blur effect as needed
+        }
+
+        ngx-dropzone-label { opacity: 0; }
+
+        &::after {
+            opacity: 1; // Show the gray overlay on hover
+        }
+
+        .icon-container {
+            opacity: 1; // Show icon and text on hover
+        }
+    }
+}
+/* Default Style */
+.status-dropdown {
+    padding: 5px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    color: #fff; /* White text */
+    background-color: #e5e7eb; /* Default gray */
+}
+
+/* Colors by status */
+.open {
+    background-color: #0b8cf5; /* Blue */
+    border-color: #0b8cf5;
+}
+
+.finish {
+    background-color: #10b981; /* Green */
+    border-color: #10b981;
+}
+
+.overdue {
+    background-color: #fb923c; /* Orange */
+    border-color: #fb923c;
+}
+
+.unpaid {
+    background-color: #fb923c; /* Orange */
+    border-color: #fb923c;
+}
+
+.cancel {
+    background-color: #ef4444; /* Red */
+    border-color: #ef4444;
+}
+

@@ -1,0 +1,101 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">เอกสาร/ลูกค้า</div>
+        <!-- Actions -->
+        <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <div class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full">
+            <!-- REPLACE TABLE -->
+            <table datatable [dtOptions]="dtOptions" class="table row-border hover w-full">
+                <thead>
+                    <tr>
+                        <th class="w-5*">ลำดับ</th>
+                        <th class="*">หมายเลขเอกสาร</th>
+                        <th class="*">ชื่อเอกสาร</th>
+                        <th class="*">รหัสลูกค้า</th>
+                        <th class="*">ชื่อลูกค้า</th>
+                        <th class="*">จำนวนเอกสาร</th>
+                        <th class="*">ราคา</th>
+                        <th class="w-0* text-center"  >จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="dataRow?.length != 0">
+                    <tr *ngFor="let item of dataRow; let i = index">
+                        <td class="">{{ pages.begin + (i + 1) }} </td>
+                        <td class="">{{ item.doc?.no ? item.doc.no : '-' }} </td>
+                        <td class="">{{ item.doc?.name ? item.doc.name : '-' }} </td>
+                        <td class="">{{ item.customer?.no ? item.customer.no : '-' }} </td>
+                        <td class="">{{ item.customer?.name ? item.customer.name : '-' }} </td>
+                        <td class="">{{ item.total_qty ?? '-' }}</td>
+                        <td class="">{{ item.price ?? '-' }}</td>
+                        <td class="w-auto flex items-center justify-center space-x-1"  >
+                            <button mat-button    (click)="openDialog(item, $event)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-button   (click)="delete(item.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="dataRow?.length == 0">
+                    <tr>
+                        <td colspan="8" class="no-data-available text-center">
+                            ไม่มีข้อมูล !
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">เพิ่มเอกสาร</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้ไขเอกสาร</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-col w-full lg:w-4/4 mt-2">
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>เอกสาร</mat-label>
+                        <input type="text" matInput [formControl]="docsControl" [matAutocomplete]="auto">
+                        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onDocSelected($event)">
+                            <mat-option *ngFor="let item of filteredDocs | async" [value]="item">
+                                [{{item.no}}] {{item.name}}
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>ลูกค้า</mat-label>
+                        <input type="text" matInput [formControl]="cusControl" [matAutocomplete]="autoCustomer">
+                        <mat-autocomplete #autoCustomer="matAutocomplete" (optionSelected)="onCusSelected($event)">
+                            <mat-option *ngFor="let item of filteredCustomer | async" [value]="item">
+                                {{item.name}}
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                    <mff class="w-100*" [label]="'จำนวนเอกสาร'" [fCN]="'total_qty'" [pHold]="''"></mff>
+                    <mff class="w-100*" [label]="'ราคา'" [fCN]="'price'" [pHold]="''"></mff>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;" class="border-solid border">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

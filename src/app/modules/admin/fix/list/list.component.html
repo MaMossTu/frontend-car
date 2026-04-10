@@ -1,0 +1,119 @@
+<router-outlet></router-outlet>
+<div class="flex flex-col flex-auto min-w-0">
+    <div class="flex-auto p-4 m-4 overflow-x-auto rounded-md sm:p-10 bg-card">
+        <div class="flex flex-row justify-between pb-2 my-5">
+            <div>
+                <h2 class="text-2xl font-extrabold leading-7 tracking-tight truncate md:text-xl sm:leading-10">
+                    รายการซ่อม
+                </h2>
+            </div>
+            <button mat-flat-button [color]="'primary'" (click)="opendialogAdd()">
+                <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:plus-circle'"></mat-icon>
+                <span class="ml-2"> เพิ่มรายการ</span>
+            </button>
+        </div>
+
+        <mat-tab-group (selectedTabChange)="onChangeType($event)">
+            <ng-container>
+                <mat-tab *ngFor="let item of status1" [label]="item.name">
+                    <ng-template mat-tab-content>
+                    </ng-template>
+                </mat-tab>
+                <mat-tab label="ทั้งหมด">
+                    <ng-template mat-tab-content>
+                    </ng-template>
+                </mat-tab>
+            </ng-container>
+        </mat-tab-group>
+
+        <table datatable [dtOptions]="dtOptions" class="table w-full bg-white row-border hover whitespace-nowrap">
+            <thead>
+                <tr>
+                    <th class="w-[10px]">ลำดับ</th>
+                    <th>เลขที่</th>
+                    <th>วันที่</th>
+                    <th>ทะเบียน</th>
+                    <th>ลูกค้า</th>
+                    <th>สถานะ</th>
+                    <th>ยอดรวมสุทธิ</th>
+                    <th>สถานะการชำระ</th>
+                    <th class="w-[50px]">จัดการ</th>
+                </tr>
+            </thead>
+            <tbody *ngIf="dataRow?.length != 0">
+                <tr *ngFor="let item of dataRow; let i = index">
+                    <td>{{ pages.begin + (i + 1) }}</td>
+                    <td>{{ item.no ?? '-'}}</td>
+                    <td>{{ item.date ?? '-'}}</td>
+                    <td>{{ item.license_plate ?? '-' }}</td>
+                    <td>{{ item.customer_name ?? '-' }}</td>
+
+                    <td>
+                        <div>
+                            <span *ngIf="item.status === 'open'"
+                                class="px-2 py-1 text-sm font-semibold text-yellow-500 bg-yellow-200 rounded-md">เปิดงาน</span>
+                            <span *ngIf="item.status === 'wait'"
+                                class="p-1 text-sm font-semibold text-orange-500 bg-orange-100 rounded-md">รอซ่อม</span>
+                            <span *ngIf="item.status === 'repairing'"
+                                class="p-1 text-sm font-semibold text-blue-500 bg-blue-200 rounded-md">กำลังซ่อม</span>
+                            <span *ngIf="item.status === 'success'"
+                                class="p-1 text-sm font-semibold text-green-500 bg-green-200 rounded-md">เสร็จสิ้น</span>
+                            <span *ngIf="item.status === 'cancel'"
+                                class="p-1 text-sm font-semibold text-red-500 bg-red-200 rounded-md">ยกเลิก</span>
+                        </div>
+                    </td>
+                    <td>
+                        {{
+                        item.total_amount != null
+                        ? (item.total_amount % 1 === 0
+                        ? (item.total_amount | number:'1.0-0')
+                        : (item.total_amount | number:'1.2-2'))
+                        : '-'
+                        }}
+                    </td>
+                    <td>
+                        <div>
+                            <span *ngIf="item.status_expend === 'unpaid'"
+                                class="px-2 py-1 text-sm font-semibold text-orange-500 bg-orange-200 rounded-md">ยังไม่จ่าย/จ่ายไม่ครบ</span>
+                            <span *ngIf="item.status_expend === 'paid'"
+                                class="p-1 text-sm font-semibold text-green-500 bg-green-100 rounded-md">จ่ายแล้ว</span>
+                        </div>
+                    </td>
+                    <td>
+                        <button mat-icon-button [matMenuTriggerFor]="menu">
+                            <mat-icon class="icon-size-5" svgIcon="heroicons_solid:cog"></mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu">
+                            <button mat-menu-item (click)="openDialogEdit(item.id)">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_solid:pencil-square"></mat-icon>
+                                <span>แก้ไข</span>
+                            </button>
+                            <button mat-menu-item (click)="updateStatus(item)">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:check-circle"></mat-icon>
+                                <span>เปลี่ยนสถานะ</span>
+                            </button>
+                            <button mat-menu-item (click)="updateWorkOrderPayment(item)">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:cash"></mat-icon>
+                                <span>ชำระเงิน</span>
+                            </button>
+                            <button mat-menu-item (click)="printPDF(item.id, item.status)"
+                                *ngIf="item.status === 'open' || item.status === 'success'">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:printer"></mat-icon>
+                                <span>พิมพ์เอกสาร</span>
+                            </button>
+                            <button mat-menu-item (click)="clickDelete(item.id)">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_solid:trash"></mat-icon>
+                                <span>ลบ</span>
+                            </button>
+                        </mat-menu>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody *ngIf="dataRow?.length == 0">
+                <tr>
+                    <td colspan="7" class="text-center no-data-available">ไม่มีข้อมูล !</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

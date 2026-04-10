@@ -1,0 +1,27 @@
+$type-statuses: (
+    real: #0b8cf5,
+    copy: #10b981,
+    late: #fb923c,
+    cancel: #ef4444
+);
+$type-width: 110px;
+
+.type {
+    @each $status, $color in $type-statuses {
+        .#{$status}-status {
+            background-color: $color;
+            color: white;
+            padding: 12px;
+            border-radius: 4px;
+            width: $type-width;
+            text-align: center;
+            display: inline-block;
+        }
+    }
+}
+
+.reduceHeadPad {
+    .mat-form-field {
+        margin-bottom: -16px!important;
+    }
+}

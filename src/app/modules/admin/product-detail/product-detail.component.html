@@ -1,0 +1,6 @@
+<h2>Product Details</h2>
+<div *ngFor="let product of data.products">
+  <p>Name: {{ product.name }}</p>
+  <!-- Add more product details here -->
+</div>
+<button mat-button (click)="closeDialog()">Close</button>

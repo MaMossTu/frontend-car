@@ -1,0 +1,88 @@
+<div class="flex-auto" >
+    <div class="grid gap-4 w-full sm:grid-cols-1">
+        <form class="overflow-hidden px-4 pb-8 mb-4 flex flex-col my-2" [formGroup]="form">
+            <span
+                class="text-xl md:text-xl font-bold tracking-tight leading-7 sm:leading-10 truncate text-gray-500 border-b-2 border-gray-300 mb-3">
+                ที่อยู่ EMS
+            </span>
+            <div class="-mx-3 md:flex mb-6">
+                <div class="flex flex-row md:w-1/3 px-3 mb-6 md:mb-0 gap-2">
+                    <mat-label class="font-bold">เลือกที่อยู่</mat-label>
+                    <mat-radio-group aria-labelledby="example-radio-group-label " class="example-radio-group " formControlName="type">
+                        <mat-radio-button class="example-radio-button mx-2" [color]="'primary'" [value]="'later'"> ใส่ข้อมูลภายหลัง</mat-radio-button>
+                        <mat-radio-button class="example-radio-button mx-2" [color]="'primary'" [value]="'same'"> ที่อยู่เดียวกับลูกค้า</mat-radio-button>
+                        <mat-radio-button class="example-radio-button mx-2" [color]="'primary'" [value]="'new'"> ที่อยู่ใหม่</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+            </div>
+            <div *ngIf = "form.get('type').value === 'new'">
+                <div class="-mx-3 md:flex mb-2">
+                    <div class="md:w-full px-3">
+                        <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                            <mat-label>ชื่อ</mat-label>
+                            <input matInput [placeholder]="'กรอกชื่อ'" formControlName="name">
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="-mx-3 md:flex mb-2">
+                    <div class="md:w-full px-3">
+                        <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                            <mat-label>ที่อยู่ </mat-label>
+                            <input matInput [placeholder]="'กรอกข้อมูลที่อยู่'" formControlName="address">
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="-mx-3 md:flex mb-2">
+                    <div class="md:w-full px-3 flex flex-row gap-2">
+                        <mat-form-field class="w-1/2" [ngClass]="formFieldHelpers">
+                            <mat-label>จังหวัด</mat-label>
+                            <input matInput [formControl]="provinceFilter" [matAutocomplete]="province"
+                                placeholder="ค้นหาจังหวัด" />
+                            <mat-autocomplete #province="matAutocomplete" (optionSelected)="selectProvince($event)">
+                                <mat-option *ngFor="let item of filterProvince | async" [value]="item.name_th">
+                                    <span class="product-name">{{item.name_th}}</span>
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                        <mat-form-field class="w-1/2" [ngClass]="formFieldHelpers">
+                            <mat-label>อำเภอ</mat-label>
+                            <input matInput [formControl]="districtFilter" [matAutocomplete]="district"
+                                placeholder="ค้นหาอำเภอ" />
+                            <mat-autocomplete #district="matAutocomplete" (optionSelected)="selectDistrict($event)">
+                                <mat-option *ngFor="let item of filterDistrict | async" [value]="item.name_th">
+                                    <span class="product-name">{{item.name_th}}</span>
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="-mx-3 md:flex mb-2">
+                    <div class="md:w-full px-3 flex flex-row gap-2">
+                        <mat-form-field class="w-1/2" [ngClass]="formFieldHelpers">
+                            <mat-label>ตำบล</mat-label>
+                            <input matInput [formControl]="subdistrictFilter" [matAutocomplete]="subdistrict"
+                                placeholder="ค้นหาตำบล" />
+                            <mat-autocomplete #subdistrict="matAutocomplete" (optionSelected)="selectSubDistrict($event)">
+                                <mat-option *ngFor="let item of filterSubdistrict | async" [value]="item.name_th">
+                                    <span class="product-name">{{item.name_th}}</span>
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                        <mat-form-field [ngClass]="formFieldHelpers" class="w-1/2">
+                            <mat-label>รหัสไปรษณีย์ </mat-label>
+                            <input matInput [placeholder]="'รหัสไปรษณีย์'" formControlName="zip_code">
+                        </mat-form-field>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end mt-2">
+                <button class="px-6 ml-3" mat-flat-button [color]="'primary'" (click)="onSaveClick()">
+                    บันทึก
+                </button>
+                <button class="px-6 ml-3" mat-flat-button [color]="'accent'" (click)="onCancelClick()">
+                    ยกเลิก
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

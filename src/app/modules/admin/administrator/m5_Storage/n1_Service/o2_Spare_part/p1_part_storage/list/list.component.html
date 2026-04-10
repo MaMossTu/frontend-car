@@ -1,0 +1,134 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto sm:overflow-hidden bg-card dark:bg-transparent">
+    <div
+        class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">รายการอะไหล่รถ</div>
+        <!-- Actions -->
+        <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+            <mat-form-field appearance="fill" class="w-50 pt-4">
+                <mat-select placeholder="ประเภทอะไหล่" (selectionChange)="onStatusChange($event)">
+                    <mat-option value="">ทั้งหมด</mat-option>
+                    <mat-option *ngFor="let item of productTypes" [value]="item.id">{{ item.name }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="excel()">
+                <mat-icon svgIcon="excel-icon"></mat-icon>
+                <span class="ml-2 mr-1">ข้อมูลอะไหล่</span>
+            </button>
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <div class="flex flex-col flex-auto p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto min-w-full">
+            <!-- REPLACE TABLE -->
+            <table datatable [dtOptions]="dtOptions" class="table row-border hover w-100*">
+                <thead>
+                    <tr>
+                        <th class="w-5*">ลำดับ</th>
+                        <th class="">รูปภาพ</th>
+                        <th class="">ชื่อ</th>
+                        <th class="">หมวดหมู่</th>
+                        <th class="">รายละเอียด</th>
+                        <th class="">ราคา</th>
+                        <th class="">จำนวน</th>
+                        <th class="w-0* text-center"  >จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="dataRow?.length != 0">
+                    <tr *ngFor="let item of dataRow; let i = index">
+                        <td class="">{{ pages.begin + (i + 1) }}</td>
+                        <td>
+                            <div class="cursor-pointer" (click)="showPicture(item.image_url)">
+                                <img [src]="(item.image_url!=null)&&(item.image_url!=='null')&&(item.image_url)
+                            ? item.image_url
+                            : 'assets/icons/no-image-icon-6.png'" alt="Image" style="width: 50px; height: auto;">
+                            </div>
+                        </td>
+                        <td class="">{{ item.name ?? '-' }}</td>
+                        <td class="">{{ item.product_type?.name ?? '-' }}</td>
+                        <td class="">{{ item.description ?? '-' }}</td>
+                        <td class="">{{ (item.price ?? 0 ) | number}}</td>
+                        <td class="">{{ (item.qty ?? 0 ) | number}}</td>
+                        <td class="w-auto flex items-center justify-center space-x-1"
+                             >
+                            <button mat-button    (click)="openDialog(item, $event)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-button   (click)="delete(item.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="dataRow?.length == 0">
+                    <tr>
+                        <td colspan="7" class="no-data-available text-center">ไม่มีข้อมูล !</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">เพิ่มอะไหล่</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้ไขอะไหล่</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-col w-full lg:w-4/4 mt-2">
+                    <ngx-dropzone (change)="onSelect($event)"
+                        class="flex w-full h-[160px] overflow-hidden object-contain changeOnHover justify-center items-center">
+                        <ngx-dropzone-label *ngIf="files==null && formData.get('id')?.value==''"
+                            class="flex items-center justify-center outline-none">รูปภาพ</ngx-dropzone-label>
+                        <img *ngIf="files==null && formData.get('id')?.value!=''"
+                            [src]="formData.get('image_url')?.value" class="w-auto h-[160px] object-contain">
+                        <!-- <img *ngIf="files!=null" [src]="imagePreview"
+                            class="w-auto h-[160px]"> -->
+                        <ngx-dropzone-image-preview class="w-auto h-[160px] object-contain" *ngIf="files"
+                            [removable]="true" [file]="files" (removed)="onRemove(files)">
+                        </ngx-dropzone-image-preview>
+                        <div class="flex flex-row icon-container">
+                            <mat-icon [svgIcon]="'heroicons_outline:pencil-square'"></mat-icon>
+                            <span class="ml-2 mr-1">แก้ไขรูปภาพ</span>
+                        </div>
+                    </ngx-dropzone>
+                    <mff class="w-full mt-4" [label]="'ชื่ออะไหล่'" [fCN]="'name'" [pHold]="'ชื่ออะไหล่'"></mff>
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>หมวดหมู่</mat-label>
+                        <mat-select [formControlName]="'product_type_id'">
+                            <mat-option value="">ไม่มีหมวดหมู่</mat-option>
+                            <mat-option *ngFor="let item of productTypes" [value]="item.id">
+                                {{ item.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <div class="w-full flex flex-row space-x-2">
+                        <mff class="w-full" [label]="'จำนวน'" [fCN]="'qty'" [pHold]="'จำนวน'" type="number"></mff>
+                        <mff class="w-full" [label]="'ราคา'" [fCN]="'price'" [pHold]="'ราคา'" type="number"></mff>
+                    </div>
+                    <mat-form-field class="w-100*">
+                        <mat-label>รายละเอียด</mat-label>
+                        <textarea matInput min="0" [formControlName]="'description'"></textarea>
+                    </mat-form-field>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;"
+                    class="border-solid border">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

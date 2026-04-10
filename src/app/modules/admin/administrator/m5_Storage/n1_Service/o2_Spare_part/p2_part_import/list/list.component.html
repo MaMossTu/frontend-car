@@ -1,0 +1,106 @@
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <div class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight" *ngIf="this.type === 'deposit'">รายการรับเข้าอะไหล่</div>
+        <div class="text-4xl font-extrabold tracking-tight" *ngIf="this.type === 'withdraw'">รายการเบิกออกอะไหล่</div>
+        <!-- Actions -->
+        <div class="flex items-center mt-6 shrink-0 sm:mt-0 sm:ml-4">
+            <button class="sm:ml-4" mat-flat-button [color]="'primary'" (click)="openDialog()">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">เพิ่มข้อมูล</span>
+            </button>
+        </div>
+    </div>
+    <div class="flex flex-auto overflow-hidden">
+        <div class="flex flex-col flex-auto min-w-full p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+            <!-- REPLACE TABLE -->
+            <table datatable [dtOptions]="dtOptions" class="table row-border hover w-100*">
+                <thead>
+                    <tr>
+                        <th class="w-5*">ลำดับ</th>
+                        <th *ngIf="this.type === 'withdraw'">บิล</th>
+                        <th class="">ชื่อ</th>
+                        <th class="">ยอดก่อนหน้า</th>
+                        <th class="">
+                            <span *ngIf="this.type === 'deposit'">ยอดรับเข้า</span>
+                            <span *ngIf="this.type === 'withdraw'">ยอดเบิกออกเข้า</span>
+                        </th>
+                        <th class="">ยอดสุทธิ</th>
+                        <th class="">วันที่</th>
+                        <th class="">หมายเหตุ</th>
+                        <!-- <th class="">สถานะ</th> -->
+                        <th class="w-0* text-center"  >จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="dataRow?.length != 0">
+                    <tr *ngFor="let item of dataRow; let i = index">
+                        <td class="">{{ pages.begin + (i + 1) }}</td>
+                        <td *ngIf="this.type === 'withdraw'">{{ item?.work_order?.no ?? '-'}}</td>
+                        <td class="">{{ item?.service?.name ?? '-' }}</td>
+                        <td class="">{{ item?.stock ?? 0 }}</td>
+                        <td class="">{{ item?.qty ?? 0 }}</td>
+                        <td class="">{{ item?.balance ?? 0 }}</td>
+                        <td class="">{{ item?.date | date : 'dd-MM-yyyy' }}</td>
+                        <td class="">{{ item?.remark ?? '-' }}</td>
+                        <td class="flex items-center justify-center w-auto space-x-1"  >
+                            <button mat-button    (click)="openDialog(item, $event)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-button   (click)="delete(item.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="dataRow?.length == 0">
+                    <tr>
+                        <td colspan="4" class="text-center no-data-available">ไม่มีข้อมูล !</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit && this.type === 'deposit'">เพิ่มรายการรับเข้าอะไหล่</h2>
+            <h2 mat-dialog-title *ngIf="isEdit  && this.type === 'deposit'">แก้ไขรายการรับเข้าอะไหล่</h2>
+            <h2 mat-dialog-title *ngIf="!isEdit && this.type === 'withdraw'">เพิ่มรายการเบิกออกอะไหล่</h2>
+            <h2 mat-dialog-title *ngIf="isEdit  && this.type === 'withdraw'">แก้ไขรายการเบิกออกอะไหล่</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-col w-full mt-2 lg:w-4/4">
+                    <mat-form-field>
+                        <mat-label>วันที่</mat-label><input matInput [matDatepicker]="picker" formControlName="date">
+                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+                    <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                        <mat-label>อะไหล่</mat-label>
+                        <input matInput [formControl]="itemFilter" [matAutocomplete]="subdistrict"
+                            placeholder="ค้นหาอะไหล่" />
+                        <mat-autocomplete #subdistrict="matAutocomplete" (optionSelected)="selectItem($event)">
+                            <mat-option *ngFor="let item of filterItem | async" [value]="item.name">
+                                <span class="product-name">{{item.name}}</span>
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+
+                    <mff class="w-full" [label]="'จำนวน'" [fCN]="'qty'" [pHold]="''" type="number"></mff>
+                    <mff class="w-full" [label]="'หมายเหตุ'" [fCN]="'remark'" [pHold]="''"></mff>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog()" style="border-color: #1ca9df; color: #1ca9df;" class="border border-solid">ปิด</button>
+                <button mat-button (click)="Submit()" *ngIf="!isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+                <button mat-button (click)="Submit()" *ngIf="isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

@@ -1,0 +1,36 @@
+<div mat-dialog-title class="dialog-title">
+    <div class="text-lg font-medium mb-2">Printing prices for each size</div>
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+</div>
+
+<mat-dialog-content>
+    <form [formGroup]="sizeForm">
+        <div formArrayName="sizes" class="flex flex-col font-medium">
+            <ng-container *ngFor="let item of sizeForm.get('sizes')['controls']; let i = index" [formGroupName]="i">
+                <div class="flex items-center justify-between">
+                    <div class="text-secondary">{{item.value.size}}</div>
+                    <div>
+                        <mat-form-field>
+                            <input matInput min="0" [formControlName]="'price'" value="0" placeholder="Input cost" type="number" >
+                        </mat-form-field>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </form>
+</mat-dialog-content>
+
+<!-- <mat-dialog-actions>
+
+    <button class="ml-4 btn-none-bg" mat-flat-button [color]="'primary'" (click)="dialogRef.close()">
+        <mat-icon svgIcon="heroicons_solid:x"></mat-icon>
+        Discard
+    </button>
+    <button class="px-6 ml-3 btn-confirm" mat-flat-button [color]="'accent'" (click)="save()">
+        <mat-icon svgIcon="heroicons_solid:check"></mat-icon>
+        Confirm
+    </button>
+
+</mat-dialog-actions> -->

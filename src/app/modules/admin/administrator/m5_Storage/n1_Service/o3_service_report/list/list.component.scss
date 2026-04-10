@@ -1,0 +1,22 @@
+button { font-family: 'Prompt'; }
+mat-label { font-weight: 700 !important; }
+
+.mat-form-field {
+    display: inline;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f1f1f1; /* เปลี่ยนสีพื้นหลังตามต้องการ */
+    z-index: 10;
+}
+th, td {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: left;
+}

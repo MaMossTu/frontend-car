@@ -1,0 +1,161 @@
+<style>
+
+</style>
+
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div
+        class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">ติดตามลูกค้า</div>
+        <!-- Actions -->
+        <div class="flex items-center mt-6 shrink-0 sm:mt-0 sm:ml-4" [formGroup]="formData">
+            <!-- Add product button -->
+            <div class="flex">
+                <div class="flex space-x-2 reduceHeadPad">
+                    <!-- <mat-form-field appearance="fill" class="w-50">
+                        <mat-select value="default" placeholder="เอกสาร">
+                            <mat-option (click)="pdfDay()" class="" color="primary">
+                                <mat-icon svgIcon="pdf-icon"></mat-icon>
+                                <span class="ml-2 mr-1">สรุปรายวัน</span>
+                            </mat-option>
+                            <mat-option (click)="pdfMonth()" class="" color="primary">
+                                <mat-icon svgIcon="pdf-icon"></mat-icon>
+                                <span class="ml-2 mr-1">สรุปรายเดือน</span>
+                            </mat-option>
+                            <mat-option (click)="pdfDay()" class="" color="primary">
+                                <mat-icon svgIcon="excel-icon"></mat-icon>
+                                <span class="ml-2 mr-1">สรุปรายวัน</span>
+                            </mat-option>
+                            <mat-option (click)="pdfMonth()" class="" color="primary">
+                                <mat-icon svgIcon="excel-icon"></mat-icon>
+                                <span class="ml-2 mr-1">สรุปรายเดือน</span>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field> -->
+                    <mat-form-field appearance="fill" class="w-64" [formGroup]="formData">
+                        <mat-date-range-input [rangePicker]="picker">
+                            <input
+                                matStartDate
+                                placeholder="Start date"
+                                formControlName="startDate"
+                                (dateChange)="onDateChange($event, 'startDate', formData)">
+                            <input
+                                matEndDate
+                                placeholder="End date"
+                                formControlName="endDate"
+                                (dateChange)="onDateChange($event, 'endDate', formData)">
+                        </mat-date-range-input>
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-date-range-picker #picker></mat-date-range-picker>
+                    </mat-form-field>
+                </div>
+                <!-- <a routerLink="../../d02.bill_manage/new" class="ml-4" mat-flat-button [color]="'primary'">
+                    <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                    <span class="ml-2 mr-1">สร้างบิล</span>
+                </a> -->
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col flex-auto min-w-full p-5 overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+
+        <table datatable [dtOptions]="dtOptions1" class="table w-full row-border hover">
+            <thead>
+                <tr>
+                    <th class="">ทะเบียน</th>
+                    <th class="">ชื่อลูกค้า</th>
+                    <th class="">เบอร์โทรผู้รับ</th>
+                    <th class="">วันหมดภาษี</th>
+                    <th class="">วันหมดอายุ พ.ร.บ.</th>
+                    <th class="">วันหมดอายุประกัน</th>
+                    <th class="">วันเวลาล่าสุดที่โทร</th>
+                    <th class="w-0* text-center"  >จัดการ</th>
+                </tr>
+            </thead>
+            <tbody *ngIf="dataRow1?.length != 0">
+                <tr *ngFor="let item of dataRow1; let i = index">
+                    <!-- <td class="">{{ pages.begin + (i + 1) }}</td> -->
+                    <td class="">{{ item.license_plate ?? '-' }}</td>
+                    <td class="">{{ item.customer_name ?? '-' }}</td>
+                    <td class="">{{ item.phone_number ?? '-' }}</td>
+                    <td class="type"><span [ngClass]="{'real-status': item.notificate_tax_status == 1}">
+                        {{ item.notificate_tax ? (item.notificate_tax | TH) : '-' }}
+                    </span></td>
+                    <td class="type"><span [ngClass]="{'real-status': item.prb_expiry_date_status == 1}">
+                        {{ item.prb_expiry_date ? (item.prb_expiry_date | TH) : '-' }}
+                    </span></td>
+                    <td class="type">
+                        <span [ngClass]="{'real-status': item.insurance_expiry_date_status == 1}">{{ item.insurance_expiry_date ? (item.insurance_expiry_date | TH) : '-' }}
+                    </span></td>
+                    <td class="type" >
+                        <span [ngClass]="{'late-status': item.call_log_status == 1}"> {{ ((item.call_log | date: 'dd/MM/yyyy HH:mm:ss') ?? '-')  }} </span>
+                    </td>
+                    <td class="flex items-center justify-center w-auto space-x-1"  >
+                        <button mat-button    (click)="openDialogdetail(item, $event)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <!-- <button mat-button   (click)="delete(item.id)">
+                            <mat-icon>delete</mat-icon>
+                        </button> -->
+                    </td>
+                </tr>
+            </tbody>
+            <tbody *ngIf="dataRow1?.length == 0">
+                <tr>
+                    <td colspan="7" class="text-center no-data-available">ไม่มีข้อมูล !</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<ng-template #Dialog>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <h2 mat-dialog-title *ngIf="!isEdit">เพิ่มข้อมูลลูกค้า</h2>
+            <h2 mat-dialog-title *ngIf="isEdit">แก้ไขลูกค้า</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-col w-full mt-2 lg:w-4/4">
+                    <div class="w-100* flex flex-row space-x-2">
+                        <mff class="w-50*" [label]="'ชื่อ'" [fCN]="'name'" [pHold]="''"></mff>
+                        <mff class="w-50*" [label]="'อีเมล'" [fCN]="'email'" [pHold]="''"></mff>
+                    </div>
+                    <mff class="w-full" [label]="'หมายเลขผู้เสียภาษี'" [fCN]="'tax_id'" [pHold]="''"></mff>
+                    <mff class="w-full" [label]="'รหัสลูกค้า'" [fCN]="'no'" [pHold]="''"></mff>
+                    <div class="flex items-center w-full">
+                        <mat-form-field appearance="fill" class="flex-grow">
+                            <mat-label class="w-100*">ประเภทผู้ใช้บริการ</mat-label>
+                            <mat-select [formControlName]="'type'">
+                                <mat-option value="personal">บุคคลธรรมดา</mat-option>
+                                <mat-option value="vendor">บริษัท</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div *ngIf="formData.get('type')?.value === 'vendor'" class="space-x-5 pb-7">
+                        <mat-checkbox [formControlName]="'is_headquarter'">สำนักงานใหญ่</mat-checkbox>
+                        <mat-checkbox [formControlName]="'is_backoffice'">ลูกค้าหลังร้าน</mat-checkbox>
+                    </div>
+                    <mat-form-field [formGroup]="formData_address" appearance="fill" class="w-full">
+                        <mat-label>ที่อยู่</mat-label>
+                        <input matInput (click)="openAddressDialog()" [formControlName]="'address'">
+                    </mat-form-field>
+                    <div class="flex flex-row">
+                        <mff class="w-1/2 pr-1" [label]="'เบอร์โทร 1'" [fCN]="'phone_number1'" [pHold]="''"></mff>
+                        <mff class="w-1/2 pl-1" [label]="'เบอร์โทร 2'" [fCN]="'phone_number2'" [pHold]="''"></mff>
+                    </div>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog(dialog)" style="border-color: #1ca9df; color: #1ca9df;" class="border border-solid">ปิด</button>
+                <button mat-button (click)="create()" *ngIf="!isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+                <button mat-button (click)="update()" *ngIf="isEdit" style="background-color: #1ca9df;" class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>

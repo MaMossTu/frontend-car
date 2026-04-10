@@ -1,0 +1,235 @@
+<div class="flex flex-col flex-auto min-w-0">
+    <div class="flex-auto p-2 md:p-4">
+        <div class="grid gap-4 w-full sm:grid-cols-1 md:grid-cols-1">
+            <form class="bg-card rounded-2xl md:shadow overflow-hidden p-4 mb-4 flex flex-col my-2" [formGroup]="form">
+                <span class="text-xl md:text-xl font-bold tracking-tight leading-7 sm:leading-10 truncate text-gray-500"
+                    *ngIf="!this.Id">
+                    สร้าง{{checkStatus(type)}}
+                </span>
+                <span class="text-xl md:text-xl font-bold tracking-tight leading-7 sm:leading-10 truncate text-gray-500"
+                    *ngIf="this.Id">
+                    แก้ไข{{checkStatus(type)}} {{this.itemData?.no ?? '-'}}
+                </span>
+                <div class="flex flex-col gap-2">
+                    <div class="flex flex-col w-full md:w-full">
+                        <div class="md:flex flex-row mb-0">
+                            <div class="md:w-1/4 px-2 mb-2 md:mb-0">
+                                <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                    <mat-label>วันที่เอกสาร</mat-label>
+                                    <input matInput [matDatepicker]="picker" placeholder="วันที่"
+                                        [formControlName]="'date'">
+                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                            <div class="md:w-1/4 px-2 mb-2 md:mb-0">
+                                <mat-form-field [ngClass]="formFieldHelpers" class="w-full">
+                                    <mat-label>วันที่ครบกำหนด</mat-label>
+                                    <input matInput [matDatepicker]="validPicker" placeholder="วันที่"
+                                        [formControlName]="'due_date'">
+                                    <mat-datepicker-toggle matSuffix [for]="validPicker"></mat-datepicker-toggle>
+                                    <mat-datepicker #validPicker></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                            <div class="md:w-1/4 px-2 mb-2 md:mb-0">
+                                <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                                    <mat-label>สาขา</mat-label>
+                                    <mat-select [formControlName]="'branche_id'" placeholder="เลือกสาขา">
+                                        <mat-option *ngFor="let item of branch" [value]="item.id">
+                                            {{item.name}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div class="md:w-1/4 px-2 mb-2 md:mb-0">
+                                <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                                    <mat-label>ยอดรวม</mat-label>
+                                        <input matInput placeholder="ระบุจำนวน" [formControlName]="'total'"
+                                            type="number" readonly>
+
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col w-full md:w-full">
+                        <div class="md:flex flex-row mb-0">
+                            <div class="md:w-1/4 px-2 mb-2 md:mb-0">
+                                <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                                    <mat-label>ค้นหาลูกค้า</mat-label>
+                                    <input matInput [formControl]="customerFilter" [matAutocomplete]="customer"
+                                        placeholder="ค้นหาลูกค้า" />
+                                    <mat-autocomplete #customer="matAutocomplete"
+                                        (optionSelected)="onOptionCustomer($event)">
+                                        <mat-option *ngFor="let item of filterCustomer | async" [value]="item.name">
+                                            <span class="product-name">{{item.name}} {{item?.lname ?? ''}}</span>
+                                        </mat-option>
+                                    </mat-autocomplete>
+                                </mat-form-field>
+                            </div>
+                            <div class="md:w-1/4 px-2 mb-2 md:mb-0 w-full">
+                                <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                                    <mat-label>เงื่อนไขการชำระเงิน</mat-label>
+                                    <input matInput placeholder="เงื่อนไขการชำระเงิน" [formControlName]="'condition'">
+                                </mat-form-field>
+                            </div>
+                            <div class="md:w-2/4 px-2 mb-2 md:mb-0 w-full">
+                                <mat-form-field class="w-full" [ngClass]="formFieldHelpers">
+                                    <mat-label>หมายเหตุ</mat-label>
+                                    <input matInput placeholder="หมายเหตุ" [formControlName]="'remark'">
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col w-full md:w-full">
+                        <div class="-mx-3 md:flex mb-0">
+
+                        </div>
+                    </div>
+                    <div class="flex flex-col w-full md:w-full">
+                        <div class="-mx-3 md:flex mb-0">
+                            <div class="md:w-full px-3 mb-2 md:mb-0 overflow-x-auto" formArrayName="billing_invoices">
+                                <table
+                                    class="w-full text-md text-left rtl:text-right text-gray-500 dark:text-gray-400 ">
+                                    <thead
+                                        class="text-md text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                                        <tr>
+                                            <th scope="col" class="px-2 py-3 w-3/12">
+                                                ใบแจ้งหนี้ ({{this.form.value?.billing_invoices?.length ?? '0'}})
+                                            </th>
+                                            <th scope="col" class="px-2 py-3 w-3/12">
+                                                วันที่เอกสาร
+                                            </th>
+                                            <th scope="col" class="px-2 py-3 w-3/12">
+                                                วันที่ครบกำหนด
+                                            </th>
+                                            <th scope="col" class="px-2 py-3 w-3/12">
+                                                ราคารวม
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let depo; of: service().controls; let i = index" [formGroupName]="i"
+                                            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                            <th scope="row"
+                                                class="px-2 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                <div class="flex flex-row gap-2 items-center">
+                                                    <div class="flex-col justify-center mt-2">
+                                                        <mat-icon class="icon-size-7 cursor-pointer text-red-600"
+                                                            svgIcon="heroicons_solid:minus-circle"
+                                                            (click)="removeService(i)">
+                                                        </mat-icon>
+                                                    </div>
+                                                    <div class="">
+                                                        <p class="font-semibold text-gray-900 mb-0 text-lg">
+                                                            {{this.form.value.billing_invoices[i].invoice_no}} , ลูกค้า
+                                                            :[{{this.form.value.billing_invoices[i].customer_no}}]
+                                                            {{this.form.value.billing_invoices[i].customer_name}}
+                                                            {{this.form.value.billing_invoices[i].type}}
+
+                                                        </p>
+                                                        <!-- <p class="font-semibold text-gray-900 mb-0 text-lg">
+                                                            ราคา : <span class="font-normal text-gray-600 text-lg"> {{this.form.value.billing_invoices[i].unit_price}}</span> บาท</p> -->
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <td
+                                                class="px-2 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                <div class="flex flex-row gap-2 items-center">
+
+                                                    <div class="">
+                                                        <p class="font-semibold text-gray-900 mb-0 text-lg">
+                                                            {{this.form.value.billing_invoices[i].date | date :
+                                                            'dd/MM/yyyy'}} </p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-2 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                <div class="flex flex-row gap-2 items-center">
+
+                                                    <div class="">
+                                                        <p class="font-semibold text-gray-900 mb-0 text-lg">
+                                                            {{this.form.value.billing_invoices[i].due_date | date :
+                                                            'dd/MM/yyyy'}} </p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-2 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                <div class="flex flex-row gap-2 items-center">
+
+                                                    <div class="">
+                                                        <p class="font-semibold text-gray-900 mb-0 text-lg">
+                                                            {{this.form.value.billing_invoices[i].unit_price | number}} </p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tbody>
+                                        <tr
+                                            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                            <th scope="row" colspan="6"
+                                                class="py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                <div
+                                                    class="md:min-w-full px-3 mb-6 md:mb-0  flex flex-col md:flex-row gap-2">
+                                                    <mat-form-field class="w-full md:w-9/12"
+                                                        [ngClass]="formFieldHelpers">
+                                                        <mat-label>ค้นหาใบแจ้งหนี้</mat-label>
+                                                        <input matInput [formControl]="itemFilter"
+                                                            [matAutocomplete]="item" placeholder="ค้นหาใบแจ้งหนี้" />
+                                                        <mat-autocomplete #item="matAutocomplete"
+                                                            (optionSelected)="onOptionProduct($event)">
+                                                            <mat-option *ngFor="let item of filterItem | async"
+                                                                [value]="item.no">
+                                                                <span class="product-name">{{item.no}}</span>,
+                                                                <span class="price">[{{item.customer_no}}]
+                                                                    {{item.customer_name}} </span>,
+                                                                <span class="sku">ราคา : {{item.total_amount}}</span>,
+                                                                <span class="price">[ประเภท VAT: {{item.type}}]</span>
+
+                                                            </mat-option>
+                                                        </mat-autocomplete>
+                                                    </mat-form-field>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="flex flex-row mx-5">
+                        <div class="flex flex-col mx-3 md:flex mb-6 w-2/3">
+                            <div class="w-full px-3 mb-6 md:mb-0">
+
+                            </div>
+                        </div>
+                        <div class="flex flex-col mx-3 md:flex mb-6 w-1/3">
+                            <div class="flex flex-row justify-between w-full px-3 mb-6 md:mb-0">
+                                <p class="mt-4">ยอดรวม</p>
+                                <mat-form-field class="w-1/3" [ngClass]="formFieldHelpers">
+                                    <div class="md:min-w-full mb-6 md:mb-0  flex flex-col md:flex-row gap-2 text-right">
+                                        <input matInput placeholder="ระบุจำนวน" [formControlName]="'total'"
+                                            type="number" readonly>
+                                    </div>
+                                </mat-form-field>
+                            </div>
+
+                        </div>
+                    </div> -->
+                </div>
+                <div class="flex flex-row mt-2 justify-center">
+                    <div class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                        <button class="px-6 ml-3" mat-flat-button [color]="'primary'" (click)="Submit();">
+                            บันทึก
+                        </button>
+                        <button class="px-6 ml-3 text-white" mat-flat-button [color]="'accent'" (click)="backTo()">
+                            ยกเลิก
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

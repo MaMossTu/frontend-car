@@ -1,0 +1,327 @@
+<router-outlet></router-outlet>
+<div class="flex flex-col flex-auto min-w-0">
+    <div class="flex-auto p-4 m-4 overflow-x-auto rounded-md sm:p-10 bg-card">
+        <div class="flex flex-row justify-between pb-2 my-5">
+            <div>
+                <h2 class="text-2xl font-extrabold leading-7 tracking-tight truncate md:text-xl sm:leading-10">
+                    รายการ{{checkStatus(type)}}
+                </h2>
+            </div>
+            <div class="flex flex-row gap-2">
+                <button mat-flat-button [color]="'primary'" (click)="opendialogworkorder()"
+                    *ngIf="this.type === 'taxinvoice'">
+                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:plus-circle'"></mat-icon>
+                    <span class="ml-2"> เพิ่มใบกับกำภาษีจากงานซ่อม</span>
+                </button>
+                <button mat-flat-button [color]="'primary'" (click)="opendialoginvoice()"
+                    *ngIf="this.type === 'taxinvoice'">
+                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:plus-circle'"></mat-icon>
+                    <span class="ml-2"> เพิ่มใบกับกำภาษีจากใบแจ้งหนี้</span>
+                </button>
+                <button mat-flat-button [color]="'primary'" (click)="opendialogrunno()"
+                    *ngIf="this.type === 'taxinvoice'">
+                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:plus-circle'"></mat-icon>
+                    <span class="ml-2"> เพิ่มใบกับกำภาษีจากบิล</span>
+                </button>
+
+                <button mat-flat-button [color]="'primary'" (click)="opendialogAdd()"
+                    *ngIf="this.type === 'quotation'  || this.type === 'billing'">
+                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:plus-circle'"></mat-icon>
+                    <span class="ml-2"> เพิ่ม{{checkStatus(type)}}</span>
+                </button>
+            </div>
+        </div>
+
+        <mat-tab-group (selectedTabChange)="onChangeType($event)">
+            <ng-container *ngIf="this.type === 'quotation'">
+                <mat-tab *ngFor="let item of status1" [label]="item.name">
+                    <ng-template mat-tab-content>
+                    </ng-template>
+                </mat-tab>
+                <mat-tab label="ทั้งหมด">
+                    <ng-template mat-tab-content>
+                    </ng-template>
+                </mat-tab>
+            </ng-container>
+            <ng-container *ngIf="this.type === 'taxinvoice'">
+                <mat-tab *ngFor="let item of status3" [label]="item.name">
+                    <ng-template mat-tab-content>
+                    </ng-template>
+                </mat-tab>
+                <mat-tab label="ทั้งหมด">
+                    <ng-template mat-tab-content>
+                    </ng-template>
+                </mat-tab>
+            </ng-container>
+            <!-- สำหรับ invoice หรือ billing -->
+            <ng-container *ngIf="this.type === 'invoice' || this.type === 'billing'">
+                <mat-tab *ngFor="let item of status2" [label]="item.name">
+                    <ng-template mat-tab-content>
+                    </ng-template>
+                </mat-tab>
+
+                <mat-tab label="ทั้งหมด">
+                    <ng-template mat-tab-content>
+                    </ng-template>
+                </mat-tab>
+            </ng-container>
+        </mat-tab-group>
+        <table datatable [dtOptions]="dtOptions" class="table w-full bg-white row-border hover whitespace-nowrap">
+            <thead>
+                <tr>
+                    <th class="w-[10px]">ลำดับ</th>
+                    <th>เลขที่</th>
+                    <th>ชื่อ</th>
+                    <th>วันที่</th>
+                    <th>
+                        <span *ngIf="this.type === 'quotation'">ยืนราคาถึง</span>
+                        <span *ngIf="this.type === 'invoice'">ครบกำหนด</span>
+                        <span *ngIf="this.type === 'billing'">remark</span>
+                        <span *ngIf="this.type == 'taxinvoice'">จากบิล</span>
+                    </th>
+                    <th>สถานะ</th>
+                    <th>ยอดรวมสุทธิ</th>
+                    <th *ngIf="this.type !== 'quotation'">หักภาษี ณ ที่จ่าย</th>
+                    <th *ngIf="this.type !== 'quotation'">% ภาษี</th>
+                    <th *ngIf="this.type !== 'quotation'">ยอดหัก</th>
+                    <th *ngIf="this.type !== 'quotation'">ยอดชำระเงิน</th>
+                    <th *ngIf="this.type === 'taxinvoice'">เงื่อนไขการชำระเงิน</th>
+                    <th class="w-[50px]">จัดการ</th>
+                </tr>
+            </thead>
+            <tbody *ngIf="dataRow?.length != 0">
+                <tr *ngFor="let item of dataRow; let i = index">
+                    <td>{{ pages.begin + (i + 1) }}</td>
+                    <!-- <td>{{ item.no ?? '-'}}</td> -->
+                    <td>{{ item.no ?? '-'}}</td>
+                    <td>
+                        <div *ngIf="this.type !== 'taxinvoice'">
+                            {{ item.name ?? item.customer_name }}
+                        </div>
+                        <div *ngIf="this.type === 'taxinvoice' ">
+                            <div *ngIf="item.inspection">
+                                {{ item.inspection?.customers?.name ?? '-' }} {{ item.inspection?.customers?.lname}}
+                            </div>
+                            <div *ngIf="item.tax_invoice">
+                                {{ item.tax_invoice?.customer_name ?? '-' }}
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ (item.date | date: 'dd/MM/yyyy') ?? '-' }}</td>
+                    <td>
+                        <div *ngIf="this.type === 'quotation'">
+                            {{ (item.valid_until | date: 'dd/MM/yyyy') ?? '-' }}
+                        </div>
+                        <div *ngIf="this.type === 'invoice'">
+                            {{ (item.due_date | date: 'dd/MM/yyyy') ?? '-' }}
+                        </div>
+                        <div *ngIf="this.type === 'billing'">
+                            {{ item.remark ?? '-' }}
+                        </div>
+                        <div *ngIf="this.type === 'taxinvoice'">
+                            <!-- {{ item.inspection?.no ?? '-' }} -->
+                            {{ item.inspection?.no ?? item.tax_invoice?.invoice?.no ?? item.tax_invoice?.work_order?.no
+                            ?? '-' }}
+                        </div>
+                    </td>
+
+                    <td>
+                        <div *ngIf="this.type === 'quotation'">
+                            <span *ngIf="item.status === 'draft'"
+                                class="px-2 py-1 text-sm font-semibold text-yellow-500 bg-yellow-200 rounded-md">ร่าง</span>
+                            <span *ngIf="item.status === 'sent'"
+                                class="p-1 text-sm font-semibold text-blue-500 bg-blue-100 rounded-md">รอตรวจสอบ</span>
+                            <span *ngIf="item.status === 'approved'"
+                                class="p-1 text-sm font-semibold text-green-500 bg-green-200 rounded-md">อนุมัติ</span>
+                            <span *ngIf="item.status === 'create'"
+                                class="p-1 text-sm font-semibold text-teal-600 bg-teal-200 rounded-md">สร้างใบแจ้งหนี้แล้ว</span>
+                            <span *ngIf="item.status === 'rejected'"
+                                class="p-1 text-sm font-semibold text-red-500 bg-red-200 rounded-md">ยกเลิก</span>
+                        </div>
+                        <div *ngIf="this.type === 'taxinvoice' ">
+                            <div *ngIf="item.inspection">
+                                <span *ngIf="item.inspection?.status === 'open'"
+                                    class="px-2 py-1 text-sm font-semibold text-blue-500 bg-blue-200 rounded-md">เปิด</span>
+                                <span *ngIf="item.inspection?.status === 'overdue'"
+                                    class="px-2 py-1 text-sm font-semibold text-yellow-500 bg-yellow-200 rounded-md">แบ่งจ่าย</span>
+                                <span *ngIf="item.inspection?.status === 'unpaid'"
+                                    class="px-2 py-1 text-sm font-semibold text-orange-500 bg-orange-200 rounded-md">ค้างจ่าย</span>
+                                <span *ngIf="item.inspection?.status === 'finish'"
+                                    class="px-2 py-1 text-sm font-semibold text-green-500 bg-green-200 rounded-md">เสร็จสิ้น</span>
+                                <span *ngIf="item.inspection?.status === 'cancel'"
+                                    class="px-2 py-1 text-sm font-semibold text-red-500 bg-red-200 rounded-md">ยกเลิก</span>
+                            </div>
+                            <div *ngIf="item.tax_invoice">
+                                <span *ngIf="item?.tax_invoice?.status === 'draft'"
+                                    class="px-2 py-1 text-sm font-semibold text-yellow-500 bg-yellow-200 rounded-md">ร่าง</span>
+                                <span *ngIf="item?.tax_invoice?.status === 'sent'"
+                                    class="p-1 text-sm font-semibold text-blue-500 bg-blue-100 rounded-md">รอตรวจสอบ</span>
+                                <span *ngIf="item?.tax_invoice?.status === 'approved'"
+                                    class="p-1 text-sm font-semibold text-green-500 bg-green-200 rounded-md">อนุมัติ</span>
+                                <span *ngIf="item?.tax_invoice?.status === 'rejected'"
+                                    class="p-1 text-sm font-semibold text-red-500 bg-red-200 rounded-md">ยกเลิก</span>
+                            </div>
+                        </div>
+                        <div *ngIf="this.type === 'invoice' || this.type === 'billing'">
+                            <span *ngIf="item.status === 'unpaid'"
+                                class="px-2 py-1 text-sm font-semibold text-yellow-500 bg-yellow-200 rounded-md">ยังไม่จ่าย</span>
+                            <span *ngIf="item.status === 'paid'"
+                                class="p-1 text-sm font-semibold text-green-500 bg-green-200 rounded-md">จ่ายแล้ว</span>
+                            <span *ngIf="item.status === 'cancel'"
+                                class="p-1 text-sm font-semibold text-red-500 bg-red-200 rounded-md">ยกเลิก</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="this.type === 'quotation' || this.type === 'invoice'">
+                            {{ item.total_amount ? (item.total_amount | number : '1.2-2') : 0 }}
+                        </div>
+                        <div *ngIf="this.type === 'billing'">
+                            {{ item.total ? (item.total | number : '1.2-2') : 0 }}
+                        </div>
+                        <div *ngIf="this.type === 'taxinvoice'">
+                            <div *ngIf="item.inspection">
+                                {{ item?.inspection?.total_vatcal ? (item?.inspection?.total_vatcal | number : '1.2-2')
+                                : 0 }}
+                            </div>
+                            <div *ngIf="item.tax_invoice">
+                                {{ item?.tax_invoice?.total_amount ? (item?.tax_invoice?.total_amount | number :
+                                '1.2-2') : 0 }}
+                            </div>
+                        </div>
+                    </td>
+                    <td *ngIf="type !== 'quotation'">
+                        <div *ngIf="this.type !== 'taxinvoice'">
+                            {{ item?.withholding_tax === 'N' ? 'ไม่หักภาษี ณ ที่จ่าย' : item?.withholding_tax === 'Y' ?
+                            'หักภาษี ณ ที่จ่าย' : '-' }}
+                        </div>
+                        <div *ngIf="this.type === 'taxinvoice'">
+                            {{ item?.tax_invoice?.withholding_tax === 'N' ? 'ไม่หักภาษี ณ ที่จ่าย' :
+                            item?.tax_invoice?.withholding_tax === 'Y' ?
+                            'หักภาษี ณ ที่จ่าย' : '-' }}
+                        </div>
+                    </td>
+                    <td *ngIf="type !== 'quotation'">
+                        <div *ngIf="type !== 'taxinvoice'">
+                            <ng-container *ngIf="item?.withholding_tax === 'Y'; else noWithholding">
+                                {{ (item?.withholding_tax_percent ?? 3) }} %
+                            </ng-container>
+                            <ng-template #noWithholding>
+                                0
+                            </ng-template>
+                        </div>
+
+                        <div *ngIf="type === 'taxinvoice'">
+                            <ng-container *ngIf="item?.tax_invoice?.withholding_tax === 'Y'; else noWithholdingInvoice">
+                                {{ (item?.tax_invoice?.withholding_tax_percent ?? 3) }} %
+                            </ng-container>
+                            <ng-template #noWithholdingInvoice>
+                                0
+                            </ng-template>
+                        </div>
+                    </td>
+                     <td *ngIf="this.type !== 'quotation'" class="text-right">
+                        <div>
+                            <div *ngIf="this.type !== 'taxinvoice'">
+                                <span class="font-bold">{{ priceWithWithholding(item) | number : '1.2-2'
+                                    }}</span>
+                            </div>
+                            <div *ngIf="this.type === 'taxinvoice'">
+                                <span class="font-bold">{{ calculateInvoiceWithWithholdingPercent(item?.tax_invoice) | number :
+                                    '1.2-2'
+                                    }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td *ngIf="this.type !== 'quotation'" class="text-right">
+                        <div>
+                            <div *ngIf="this.type !== 'taxinvoice'">
+                                <span class="font-bold">{{ sumPaidPrice(item?.invoice_payment) | number : '1.2-2'
+                                    }}</span>
+                            </div>
+                            <div *ngIf="this.type === 'taxinvoice'">
+                                <span class="font-bold">{{ calculateInvoiceWithWithholding(item?.tax_invoice) | number :
+                                    '1.2-2'
+                                    }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td *ngIf="this.type === 'taxinvoice'" class="text-right">
+                        <div>
+                            <div *ngIf="item.inspection">
+                                {{ getpaid_type(item?.inspection?.paid_type) }}
+                            </div>
+                            <div *ngIf="item.tax_invoice">
+                                {{ getpaid_type(item?.tax_invoice?.paid_type) }}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <button mat-icon-button [matMenuTriggerFor]="menu">
+                            <mat-icon class="icon-size-5" svgIcon="heroicons_solid:cog"></mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu">
+                            <button mat-menu-item *ngIf="item.status === 'draft' || item.status === 'unpaid' "
+                                (click)="openDialogEdit(item.id)">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_solid:pencil-square"></mat-icon>
+                                <span>แก้ไข</span>
+                            </button>
+                            <button mat-menu-item *ngIf="item?.tax_invoice?.status === 'draft'"
+                                (click)="openDialogEdit(item?.tax_invoice?.id)">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_solid:pencil-square"></mat-icon>
+                                <span>แก้ไข</span>
+                            </button>
+                            <button mat-menu-item *ngIf="this.type !== 'taxinvoice' && this.type !== 'quotation'"
+                                (click)="updateStatus(item)">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:check-circle"></mat-icon>
+                                <span>เปลี่ยนสถานะ</span>
+                            </button>
+                            <button mat-menu-item *ngIf=" this.type === 'quotation' && item.status !== 'approved'"
+                                (click)="updateStatus(item)">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:check-circle"></mat-icon>
+                                <span>เปลี่ยนสถานะ</span>
+                            </button>
+                            <button mat-menu-item *ngIf="this.type === 'taxinvoice'"
+                                (click)="updateStatus(item?.tax_invoice)">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:check-circle"></mat-icon>
+                                <span>เปลี่ยนสถานะ</span>
+                            </button>
+                            <button mat-menu-item (click)="updateInvoicePayment(item)" *ngIf="this.type === 'invoice'">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:cash"></mat-icon>
+                                <span>ชำระเงิน</span>
+                            </button>
+                            <button mat-menu-item *ngIf="this.type !== 'taxinvoice'"
+                                (click)="printPDF(item.id, this.type)">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:printer"></mat-icon>
+                                <span>พิมพ์เอกสาร</span>
+                            </button>
+                            <!-- <button mat-menu-item *ngIf="this.type === 'invoice' && item.status === 'paid' " (click)="printPDF_receipt(item.id)">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:printer"></mat-icon>
+                                <span>พิมพ์ใบเสร็จ</span>
+                            </button> -->
+                            <button mat-menu-item *ngIf="this.type === 'taxinvoice'"
+                                (click)="printPDF(item?.tax_invoice.id, this.type)">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:printer"></mat-icon>
+                                <span>พิมพ์เอกสาร</span>
+                            </button>
+                            <button mat-menu-item (click)="createInvoice(item.id)"
+                                *ngIf="item.status === 'approved' && this.type === 'quotation'">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_outline:document-add"></mat-icon>
+                                <span>ใบแจ้งหนี้</span>
+                            </button>
+                            <button mat-menu-item *ngIf="item.status === 'cancel' || item.status === 'rejected'"
+                                (click)="clickDelete(item.id)">
+                                <mat-icon class="icon-size-5" svgIcon="heroicons_solid:trash"></mat-icon>
+                                <span>ลบ</span>
+                            </button>
+                        </mat-menu>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody *ngIf="dataRow?.length == 0">
+                <tr>
+                    <td colspan="7" class="text-center no-data-available">ไม่มีข้อมูล !</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

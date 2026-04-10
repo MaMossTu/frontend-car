@@ -1,0 +1,736 @@
+<div class="flex flex-col flex-auto sm:absolute sm:inset-0 sm:overflow-hidden bg-card dark:bg-transparent">
+    <!-- Header -->
+    <div
+        class="relative flex flex-col px-6 py-8 border-b sm:flex-row flex-0 sm:items-center sm:justify-between md:px-8">
+        <!-- Loader -->
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <!-- Title -->
+        <div class="text-4xl font-extrabold tracking-tight">จัดการบิล</div>
+        <!-- Actions -->
+        <div class="flex items-center mt-6 shrink-0 sm:mt-0 sm:ml-4" [formGroup]="formData">
+            <div class="flex space-x-2 reduceHeadPad">
+                <mat-form-field appearance="fill" class="w-50">
+                    <mat-select value="default" placeholder="เอกสาร">
+                        <mat-option (click)="pdfDay()" class="" color="primary">
+                            <mat-icon svgIcon="pdf-icon"></mat-icon>
+                            <span class="ml-2 mr-1">สรุปรายวัน</span>
+                        </mat-option>
+                        <mat-option (click)="pdfMonth()" class="" color="primary">
+                            <mat-icon svgIcon="pdf-icon"></mat-icon>
+                            <span class="ml-2 mr-1">สรุปรายเดือน</span>
+                        </mat-option>
+                        <mat-option (click)="pdfDay()" class="" color="primary">
+                            <mat-icon svgIcon="excel-icon"></mat-icon>
+                            <span class="ml-2 mr-1">สรุปรายวัน</span>
+                        </mat-option>
+                        <mat-option (click)="pdfMonth()" class="" color="primary">
+                            <mat-icon svgIcon="excel-icon"></mat-icon>
+                            <span class="ml-2 mr-1">สรุปรายเดือน</span>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="fill" class="w-50">
+                    <mat-select placeholder="สถานะ" (selectionChange)="onStatusChange($event.value)">
+                        <mat-option value="">ทั้งหมด</mat-option>
+                        <mat-option value="open">เปิด</mat-option>
+                        <mat-option value="finish">สำเร็จ</mat-option>
+                        <mat-option value="overdue">แบ่งจ่าย</mat-option>
+                        <mat-option value="unpaid">ค้างจ่าย</mat-option>
+                        <mat-option value="cancel">ยกเลิก</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="fill" class="w-64" [formGroup]="formData">
+                    <mat-date-range-input [rangePicker]="picker">
+                        <input matStartDate placeholder="Start date" formControlName="startDate"
+                            (dateChange)="onDateChange($event, 'startDate', formData)">
+                        <input matEndDate placeholder="End date" formControlName="endDate"
+                            (dateChange)="onDateChange($event, 'endDate', formData)">
+                    </mat-date-range-input>
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-date-range-picker #picker></mat-date-range-picker>
+                </mat-form-field>
+            </div>
+            <a routerLink="/bill_create/list" class="ml-4" mat-flat-button [color]="'primary'">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">สร้างบิล</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="flex flex-col flex-auto p-5 sm:overflow-y-auto ">
+        <table datatable [dtOptions]="dtOptions" class="table w-full row-border hover whitespace-nowrap">
+            <thead>
+                <tr>
+                    <!-- <th class="w-1 text-center" rowspan="2">#</th> -->
+                    <th class="" rowspan="2">เลขที่</th>
+                    <th class="" rowspan="2">วันที่</th>
+                    <th class="" rowspan="2">ทะเบียน</th>
+                    <th class="" rowspan="2">ชื่อลูกค้า</th>
+                    <th class="" colspan="9" class="text-center">บริการ</th>
+                    <th class="" rowspan="2">ส่วนลด</th>
+                    <th class="" rowspan="2">สุทธิ</th>
+                    <th class="w-1/12" rowspan="2">สถานะ</th>
+                    <th class="w-0* text-center" rowspan="2">จัดการ</th>
+                </tr>
+                <tr class="text-white bg-gray-700">
+                    <th class="">ตรวจ</th>
+                    <th class="">ภาษี</th>
+                    <th class="">พ.ร.บ.</th>
+                    <th class="">ประกัน</th>
+                    <th class="">แก๊ส</th>
+                    <th class="">หนังสือรับรองวิศวกร</th>
+                    <th class="">ขนส่ง</th>
+                    <th class="">อื่นๆ</th>
+                    <th class="">EMS</th>
+                </tr>
+            </thead>
+            <tbody *ngIf="dataRow1?.length != 0">
+                <tr *ngFor="let item of dataRow1; let i = index">
+                    <!-- <td style="width:5%">{{ pages.begin + (i + 1) }}</td> -->
+                    <td>{{ item.no ?? '-' }}</td>
+                    <td>{{ (item.date | TH) ?? '-'}}</td>
+                    <td>{{ item.inspection_vehicles[0]?.license_plate ?? '-' ?? '-'}}</td>
+                    <td>{{ item.customers?.name ?? '-' }} {{ item.customers?.lname ?? '' }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0].vehicle_service_transaction,1) }}</td>
+                    <td>{{ getTexTotal(item.inspection_vehicles[0].vehicle_service_transaction) }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0].vehicle_service_transaction,2) }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0].vehicle_service_transaction,7) }}</td>
+                    <td>{{ getGasTotal(item.inspection_vehicles[0].vehicle_service_transaction) }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0].vehicle_service_transaction,13) }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0].vehicle_service_transaction,14) }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0].vehicle_service_transaction,15) }}</td>
+                    <td>{{ getServicePrice(item.inspection_vehicles[0].vehicle_service_transaction,16) }}</td>
+                    <td>{{ item.discount != null ? ((item.discount + item.discount_before_vat +
+                        item.discount_after_vat)| number:'1.2-2') : '0.00' }}</td>
+                    <td>
+                        <span *ngIf="item.status != 'open'"> {{ item.total != null ? ((item.total_vatcal +
+                            item.total_nonvatcal) | number:'1.2-2') : '0.00' }}</span>
+                        <span *ngIf="item.status == 'open'"> {{ item.total != null ? ((item.total) | number:'1.2-2') :
+                            '0.00' }}</span>
+                    </td>
+                    <td class="">
+                        <section>
+                            <div class="type">
+                                <select [value]="item.status" (change)="updateStatus(item, $event.target.value)"
+                                    [ngClass]="item.status" class="status-dropdown">
+                                    <option value="open">เปิด</option>
+                                    <option value="finish">สำเร็จ</option>
+                                    <option value="overdue">แบ่งจ่าย</option>
+                                    <option value="unpaid">ค้างจ่าย</option>
+                                    <option value="cancel">ยกเลิก</option>
+                                </select>
+                            </div>
+                        </section>
+                    </td>
+                    <td class="flex items-center justify-center w-auto">
+                        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More actions">
+                            <mat-icon class="icon-size-5" svgIcon="heroicons_solid:cog"></mat-icon>
+                        </button>
+
+                        <mat-menu #menu="matMenu">
+                            <button mat-menu-item (click)="openpaidType(item)">
+                                <mat-icon svgIcon="heroicons_solid:document-text"></mat-icon>
+                                <span>ดูข้อมูล</span>
+                            </button>
+                            <button mat-menu-item (click)="update(item)">
+                                <mat-icon>edit</mat-icon>
+                                <span>แก้ไขบิล</span>
+                            </button>
+                            <button mat-menu-item (click)="openDialogEdit(item)">
+                                <mat-icon>edit</mat-icon>
+                                <span>แก้ไขลูกค้า</span>
+                            </button>
+
+                        </mat-menu>
+                    </td>
+
+                </tr>
+            </tbody>
+            <tbody *ngIf="dataRow1?.length == 0">
+                <tr>
+                    <td colspan="16" class="text-center no-data-available">ไม่มีข้อมูล !</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<ng-template #paidType>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <mat-dialog-content>
+                <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
+                    <mat-tab *ngIf="billState()" label="วิธีการชำระเงิน">
+                        <div class="relative flex flex-row w-full lg:w-4/4">
+                            <!-- <div class="relative flex flex-col w-2/3 lg:w-4/4">
+                            <mff class="w-full" type="number" [label]="'ยอดชำระทั้งหมด'" [fCN]="'total'"
+                                [pHold]="''" (keydown)="noNaN($event)" [readonly]="true"></mff>
+                            <mff class="w-full" type="number" [label]="'ยอดไม่คิด vat'" [fCN]="'total_nonvat'"
+                                [pHold]="''" (keydown)="noNaN($event)" [readonly]="true"></mff>
+                            <mff class="w-full" type="number" [label]="'ยอดคิด vat'" [fCN]="'total_vat'"
+                                [pHold]="''" (keydown)="noNaN($event)" [readonly]="true"></mff>
+                            <mff class="w-full" type="number" [label]="'ส่วนลด'" [fCN]="'discount'" [pHold]="''"
+                                (keydown)="noNaN($event)"></mff>
+                            <mff class="w-full" type="number" [label]="'ส่วนลดก่อนคิด vat'" [fCN]="'discount_before_vat'" [pHold]="''"
+                                (keydown)="noNaN($event)"></mff>
+                            <mff class="w-full" type="number" [label]="'ส่วนลดหลังคิด vat'" [fCN]="'discount_after_vat'" [pHold]="''"
+                                (keydown)="noNaN($event)"></mff> -->
+                            <!-- <p class="flex flex-row space-x-3">
+                                <span class="pt-[2px]">คงเดิมทศนิยม</span>
+                                <mat-slide-toggle (change)="toggleDiscount($event)"></mat-slide-toggle>
+                                <span class="pt-[2px]">คิดเป็นส่วนลด</span>
+                            </p> -->
+                            <!-- <mff class="w-full" [label]="'ยอดที่จ่ายแล้ว'" [fCN]="'paid_price'" [pHold]="''"></mff>
+                            <mff class="w-full" [label]="'ยอดคงเหลือ'" [fCN]="'remaining_amount'" [pHold]="''"></mff> -->
+                            <!-- </div> -->
+                            <div class="relative flex flex-col w-2/3 lg:w-4/4">
+                                <mff class="w-full" type="number" [label]="'ยอดชำระทั้งหมด'" [fCN]="'total'"
+                                    [pHold]="''" (keydown)="noNaN($event)" [readonly]="true"></mff>
+                                <div class="flex flex-row w-full gap-2 ">
+                                    <mff class="w-full" type="number" [label]="'ยอด non-vat'" [fCN]="'total_nonvat'"
+                                        [pHold]="''" (keydown)="noNaN($event)" [readonly]="true"></mff>
+                                    <mff class="w-full" type="number" [label]="'ยอด vat'" [fCN]="'total_vat'"
+                                        [pHold]="''" (keydown)="noNaN($event)" [readonly]="true"></mff>
+                                </div>
+
+                                <div class="flex flex-row w-full gap-2">
+                                    <div class="flex flex-col w-full mt-4 pt-4  border-t-2 border-gray-300">
+                                        <mff class="w-full" type="number" [label]="'ส่วนลด'" [fCN]="'discount'"
+                                            [pHold]="''" (keydown)="noNaN($event)"></mff>
+                                    </div>
+                                    <div class="flex flex-col w-full mt-4 pt-4 border-t-2 border-gray-300">
+                                        <mff class="w-full" type="number" [label]="'ส่วนลดก่อนคิด vat'"
+                                            [fCN]="'discount_before_vat'" [pHold]="''" (keydown)="noNaN($event)"></mff>
+                                        <mff class="w-full" type="number" [label]="'ส่วนลดหลังคิด vat'"
+                                            [fCN]="'discount_after_vat'" [pHold]="''" (keydown)="noNaN($event)">
+                                        </mff>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-row w-1/3 mt-6">
+                                <!-- [formControlName]="''" -->
+                                <!-- <div class="w-50* flex flex-col">
+                                <a class="mb-6 text-2xl">รูปแบบการชำระ</a>
+                                <form [formGroup]="formData_PaidData">
+                                    <mat-radio-group [formControlName]="'status'"
+                                        class="flex flex-col ml-4 space-y-4">
+                                        <mat-radio-button value="overdue">เต็มจำนวน</mat-radio-button>
+                                        <mat-radio-button value="finish">แบ่งจ่าย</mat-radio-button>
+                                        <mat-radio-button value="whatisthis">ค้างจ่าย</mat-radio-button>
+                                    </mat-radio-group>
+                                </form>
+                            </div> -->
+                                <div class="w-100* flex flex-col items-center space-y-2 pl-8">
+                                    <a class="flex justify-center w-full mb-4 text-2xl">รูปแบบการชำระ</a>
+                                    <button mat-raised-button class="w-full" (click)="updatePaidStatus('finish')">
+                                        <mat-icon [svgIcon]="'heroicons_outline:banknotes'"></mat-icon>
+                                        <span class="ml-2 mr-1">เต็มจำนวน</span>
+                                    </button>
+                                    <button mat-raised-button class="w-full" (click)="updatePaidStatus('overdue')">
+                                        <mat-icon [svgIcon]="'heroicons_outline:banknotes'"></mat-icon>
+                                        <span class="ml-2 mr-1">แบ่งจ่าย</span>
+                                    </button>
+                                    <button mat-raised-button class="w-full" (click)="updatePaidStatus('unpaid')">
+                                        <mat-icon [svgIcon]="'heroicons_outline:banknotes'"></mat-icon>
+                                        <span class="ml-2 mr-1">ค้างจ่าย</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <mat-tab *ngIf="billState()" label="ชำระเงิน">
+                        <div class="relative flex flex-row w-full mt-1">
+                            <div class="relative flex flex-col w-full mt-1">
+                                <a class="flex justify-between pb-6">ยอดชำระ nonvat<span class="ml-auto text-right">{{
+                                        (formData.get('total_nonvatcal').value || '0.00') | number:'1.2-2' }}</span></a>
+                                <a class="flex justify-between pb-6">ยอดชำระ vat<span class="ml-auto text-right">{{
+                                        (formData.get('total_vatcal').value || '0.00') | number:'1.2-2' }}</span></a>
+                                <a class="flex justify-between pb-6">ค้างชำระ nonvat<span class="ml-auto text-right">{{
+                                        (formData.get('overdue_nonvat').value || '0.00') | number:'1.2-2' }}</span></a>
+                                <a class="flex justify-between pb-6">ค้าางชำระ vat<span class="ml-auto text-right">{{
+                                        (formData.get('overdue_vat').value || '0.00') | number:'1.2-2' }}</span></a>
+                                <mat-divider class="pb-4"></mat-divider>
+                                <!-- <a class="flex justify-between pb-8">สุทธิ<span class="ml-auto text-right">
+                                        {{ (formData.get('last_price').value || '0.00') | number:'1.2-2' }}</span></a> -->
+                                <!-- <a class="flex justify-between pb-4">ยอดคงเหลือ<span class="ml-auto text-right">
+                                    {{ (formData.get('remaining_amount').value || '0.00') | number:'1.2-2' }}</span></a> -->
+                                <!-- <div class="flex flex-row items-center justify-between">
+                                    <a class="mt-1 text-left">รับเงิน</a>
+                                    <div class="flex items-center justify-end space-x-1">
+                                        <button mat-raised-button class="mr-1" (click)="setNowToLast()">รับพอดี</button>
+                                        <mff class="pr-2 -mt-2 text-right" [label]="'nonvat'" [fCN]="'now_paid'" [pHold]="'nonvat'"></mff>
+                                        <mff class="-mt-2 text-right" [label]="'vat'" [fCN]="'now_paid_vat'" [pHold]="'vat'"></mff>
+                                    </div>
+                                </div> -->
+
+                                <a *ngIf="formData.get('change_price').value > 0"
+                                    class="flex justify-between pb-2">เงินทอน nonvat<span class="ml-auto text-right">{{
+                                        (formData.get('change_price').value || '0.00') | number:'1.2-2' }}</span></a>
+                                <a *ngIf="formData.get('change_price_vat').value > 0"
+                                    class="flex justify-between pb-2">เงินทอน vat<span class="ml-auto text-right">{{
+                                        (formData.get('change_price_vat').value || '0.00') | number:'1.2-2'
+                                        }}</span></a>
+                                <mat-form-field class="w-full">
+                                    <mat-label>รายละเอียด</mat-label>
+                                    <textarea matInput min="0" formControlName="description"
+                                        placeholder="กรอกรายละเอียด"></textarea>
+                                </mat-form-field>
+                            </div>
+                            <div class="relative flex flex-col w-full gap-2 ml-6">
+                                <div>
+                                    <div class="flex flex-row items-center justify-between">
+                                        <div class="flex flex-col w-full">
+                                            <div class="flex items-center justify-end space-x-1">
+                                                <mat-form-field class="w-full">
+                                                    <mat-label>วันชำระเงิน</mat-label>
+                                                    <input matInput [matDatepicker]="registrationdate"
+                                                        [formControlName]="'installment_date'"
+                                                        (input)="onDateInput($event)"
+                                                        (dateChange)="onDateChange($event, 'installment_date', formData)"
+                                                        placeholder="DD/MM/YYYY">
+                                                    <mat-datepicker-toggle matSuffix
+                                                        [for]="registrationdate"></mat-datepicker-toggle>
+                                                    <mat-datepicker #registrationdate></mat-datepicker>
+                                                </mat-form-field>
+                                            </div>
+
+                                            <div class="flex items-center justify-end space-x-1">
+                                                <mff class="-mt-2 w-full" [label]="'รับเงิน non-vat'" [fCN]="'now_paid'"
+                                                    [pHold]="'ยอดที่รับ nonvat'"></mff>
+                                            </div>
+                                            <div class="flex items-center justify-end space-x-1">
+                                                <mff class="-mt-2 w-full" [label]="'รับเงิน vat'" [fCN]="'now_paid_vat'"
+                                                    [pHold]="'ยอดที่รับ vat'"></mff>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a *ngIf="formData.get('change_price').value > 0"
+                                        class="flex justify-between pb-6">เงินทอน<span class="ml-auto text-right">
+                                            {{ (formData.get('change_price').value || '0.00') | number:'1.2-2'
+                                            }}</span></a>
+                                </div>
+                                <a class="w-full flex justify-center mb-4 text-2xl">ประเภทการชำระ</a>
+                                <button mat-raised-button class="w-full" (click)="updatePaidResult('paid_cash')">
+                                    <mat-icon [svgIcon]="'heroicons_outline:banknotes'"></mat-icon>
+                                    <span class="ml-2 mr-1">ชำระเงินสด</span>
+                                </button>
+                                <button mat-raised-button class="w-full" (click)="updatePaidResult('paid_tran')">
+                                    <mat-icon [svgIcon]="'heroicons_outline:building-library'"></mat-icon>
+                                    <span class="ml-2 mr-1">โอนผ่านธนาคาร</span>
+                                </button>
+                                <button mat-raised-button class="w-full" (click)="updatePaidResult('credit')">
+                                    <mat-icon [svgIcon]="'heroicons_outline:credit-card'"></mat-icon>
+                                    <span class="ml-2 mr-1">บัตรเครดิต</span>
+                                </button>
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <mat-tab label="ข้อมูลการทำรายการ">
+                        <div class="flex flex-auto overflow-hidden">
+                            <div
+                                class="flex flex-col flex-auto min-w-full overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+                                <!-- REPLACE TABLE -->
+                                <table class="table row-border hover w-100*">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center border border-black">ลำดับ</th>
+                                            <th class="text-center border border-black">เวลา</th>
+                                            <th class="text-center border border-black">ยอดชำระ</th>
+                                            <th class="text-center border border-black">ยอดจ่าย</th>
+                                            <th class="text-center border border-black">ยอดค้าง</th>
+                                            <th class="text-center border border-black">ช่องทางชำระ</th>
+                                            <th class="text-center border border-black">ประเภท</th>
+                                            <th class="text-center border border-black">หมายเหตุ</th>
+                                            <th class="text-center border border-black">พิมพ์เอกสาร<span>/จัดการ</span>
+                                            </th>
+                                            <!-- <th class="w-0* text-center"  >จัดการ</th> -->
+                                        </tr>
+                                    </thead>
+                                    <tbody *ngIf="dataRow2?.length > 0">
+                                        <tr *ngFor="let item of dataRow2; let i = index">
+                                            <td class="text-center border border-black">{{ i + 1 }}</td>
+                                            <td class="text-center border border-black">{{ (item.date | TH) ?? '-' }}
+                                            </td>
+                                            <td class="text-center border border-black">{{ (item.before_price |
+                                                number:'1.2-2') ?? '-' }}
+                                            </td>
+                                            <td class="text-center border border-black">{{ (item.paid_price |
+                                                number:'1.2-2') ?? '-' }}</td>
+                                            <td class="text-center border border-black">{{ (item.after_price |
+                                                number:'1.2-2') ?? '-' }}
+                                            </td>
+                                            <td class="text-center border border-black">
+                                                <span class="ml-auto text-right" [ngSwitch]="item.paid_type">
+                                                    <ng-container *ngSwitchCase="'paid_cash'">ชำระเงินสด</ng-container>
+                                                    <ng-container
+                                                        *ngSwitchCase="'paid_tran'">โอนผ่านธนาคาร</ng-container>
+                                                    <ng-container *ngSwitchCase="'overdue'">ผ่อนจ่าย</ng-container>
+                                                    <ng-container *ngSwitchCase="'credit'">บัตรเครดิต</ng-container>
+                                                    <ng-container *ngSwitchDefault>ไม่มีข้อมูล</ng-container>
+                                                </span>
+                                            </td>
+                                            <td class="text-center border border-black">
+                                                <span class="ml-auto text-right" [ngSwitch]="item.type">
+                                                    <ng-container *ngSwitchCase="'vat'">ภาษี</ng-container>
+                                                    <ng-container *ngSwitchCase="'nonvat'">ไม่คิดภาษี</ng-container>
+                                                    <ng-container *ngSwitchDefault>ไม่มีข้อมูล</ng-container>
+                                                </span>
+                                            </td>
+                                            <td class="text-center border border-black">{{ item.description ?? '-' }}
+                                            </td>
+                                            <td class="space-x-2 text-center border border-black">
+                                                <button (click)="printreceipt(billId, item.id)" class=""
+                                                    matTooltip="ใบสำคัญรับเงิน"
+                                                    matTooltipClass="bg-gray-800 text-md text-white p-3 rounded-lg;">
+                                                    <mat-icon svgIcon="heroicons_outline:document-text"></mat-icon>
+                                                </button>
+                                                <button (click)="openTransection(item)" class=""
+                                                    matTooltip="แก้ไขข้อมูลการทำรายการ"
+                                                    matTooltipClass="bg-gray-800 text-md text-white p-3 rounded-lg;">
+                                                    <mat-icon>edit</mat-icon>
+                                                </button>
+                                                <button (click)="deleteTransec(item.id)" class=""
+                                                    matTooltip="ลบข้อมูลการทำรายการ"
+                                                    matTooltipClass="bg-gray-800 text-md text-white p-3 rounded-lg;">
+                                                    <mat-icon>delete</mat-icon>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tbody *ngIf="dataRow2?.length == 0">
+                                        <tr>
+                                            <td colspan="8" class="text-center no-data-available">ไม่มีข้อมูล !</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <mat-tab label="พิมพ์เอกสาร">
+                        <div class="flex items-start justify-start w-full pt-5 space-x-12">
+                            <div class="flex flex-col flex-wrap w-full space-y-4">
+                                <a class="justify-center">การจัดการบิล</a>
+                                <button (click)="printbillservice(billId)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ใบเสร็จ</span>
+                                </button>
+                                <!-- <button (click)="billtax_invioce(billId)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ใบกำกับภาษี</span>
+                                </button> -->
+                                <button (click)="printquotation(billId)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <!-- <span class="ml-2">ใบกำกับภาษี</span> -->
+                                    <span class="ml-2">ใบเสนอราคา</span>
+                                </button>
+                                <button (click)="printBillquotation(billId)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ใบวางบิล</span>
+                                </button>
+                                <button (click)="printallreceipt(billId)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ใบสำคัญรับเงิน</span>
+                                </button>
+                            </div>
+                            <!-- <div class="w-50* flex flex-col flex-wrap space-y-4">
+                                <a class="justify-center">ตรวจสภาพแก๊ส</a>
+                                <button (click)="printPDF1(formData.value.vehicle_id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ใบอนุญาต</span>
+                                </button>
+                                <button (click)="printPDF2(formData.value.vehicle_id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">รูปถ่าย LPG</span>
+                                </button>
+                                <button (click)="printPDF3(formData.value.vehicle_id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">Check List LPG</span>
+                                </button>
+                                <button (click)="printPDF4(formData.value.vehicle_id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ลอกลายถัง NGV</span>
+                                </button>
+                                <button (click)="printPDF5(formData.value.id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">แบบประเมิน NGV</span>
+                                </button>
+                            </div> -->
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
+            </mat-dialog-content>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #TransecInform>
+    <div class="flex flex-col">
+        <form [formGroup]="formData_PaidData">
+            <h2 mat-dialog-title>แก้ไขประเภทการจ่าย</h2>
+            <mat-dialog-content>
+                <!-- REPLACE CONTENT mt-2-->
+                <div class="flex flex-col w-full mt-2 lg:w-4/4">
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>ประเภทร</mat-label>
+                        <mat-select [formControlName]="'paid_type'">
+                            <mat-option value="paid_cash">ชำระเงินสด</mat-option>
+                            <mat-option value="paid_tran">ชำระผ่านธนาคาร</mat-option>
+                            <mat-option value="credit">บัตรเครดิต</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mff class="w-full" [label]="'หมายเหตุ'" [fCN]="'description'" [pHold]="'หมายเหตุ'"></mff>
+                </div>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-end">
+                <button mat-button (click)="closeDialog(transecInformRef)"
+                    style="border-color: #1ca9df; color: #1ca9df;" class="border border-solid">ปิด</button>
+                <button mat-button (click)="updateTransec()" style="background-color: #1ca9df;"
+                    class="text-white">บันทึก</button>
+            </mat-dialog-actions>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #paidType2>
+    <div class="flex flex-col">
+        <form [formGroup]="formData">
+            <mat-dialog-content>
+                <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
+                    <!-- <mat-tab  *ngIf="billState()" label="วิธีการชำระเงิน">
+                        <div class="relative flex flex-col w-full lg:w-4/4">
+                            <mff class="w-full" type="number" [label]="'ยอดชำระทั้งหมด'" [fCN]="paidState()"
+                                [pHold]="''" (keydown)="noNaN($event)"></mff>
+                            <mff class="w-full" type="number" [label]="'ส่วนลด'" [fCN]="'discount'" [pHold]="''" (keydown)="noNaN($event)"></mff>
+                            <p class="flex flex-row space-x-3">
+                                <span class="pt-[2px]">คงเดิมทศนิยม</span>
+                                <mat-slide-toggle (change)="toggleDiscount($event)"></mat-slide-toggle>
+                                <span class="pt-[2px]">คิดเป็นส่วนลด</span>
+                            </p>
+                            <div class="flex flex-row w-full mt-6">
+                                <div class="w-100* flex flex-col items-end space-y-2 sm:pr-10">
+                                    <a class="w-[200px] lgx:w-30* flex justify-center mb-4 text-2xl">รูปแบบการชำระ</a>
+                                    <button mat-raised-button class="w-[200px] lgx:w-30*"
+                                        (click)="updatePaidStatus('finish')">
+                                        <mat-icon [svgIcon]="'heroicons_outline:banknotes'"></mat-icon>
+                                        <span class="ml-2 mr-1">เต็มจำนวน</span>
+                                    </button>
+                                    <button mat-raised-button class="w-[200px] lgx:w-30*"
+                                        (click)="updatePaidStatus('overdue')">
+                                        <mat-icon [svgIcon]="'heroicons_outline:banknotes'"></mat-icon>
+                                        <span class="ml-2 mr-1">แบ่งจ่าย</span>
+                                    </button>
+                                    <button mat-raised-button class="w-[200px] lgx:w-30*"
+                                        (click)="updatePaidStatus('unpaid')">
+                                        <mat-icon [svgIcon]="'heroicons_outline:banknotes'"></mat-icon>
+                                        <span class="ml-2 mr-1">ค้างจ่าย</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-tab> -->
+                    <mat-tab *ngIf="billState()" label="ชำระเงิน">
+                        <div class="relative flex flex-col w-full mt-1 lg:w-4/4">
+                            <!-- <section class="mb-4 space-x-1 text-right">
+                                <button mat-raised-button>ใบเสนอราคา</button>
+                                <button mat-raised-button>ตัวเลือก</button>
+                            </section> -->
+                            <!-- <a class="flex justify-between pb-6">วิธีการชำระเงิน
+                                <span class="ml-auto text-right" [ngSwitch]="formData.get('status').value">
+                                    <ng-container *ngSwitchCase="'paid_cash'">ชำระเงินสด</ng-container>
+                                    <ng-container *ngSwitchCase="'paid_tran'">โอนผ่านธนาคาร</ng-container>
+                                    <ng-container *ngSwitchCase="'overdue'">ผ่อนจ่าย</ng-container>
+                                    <ng-container *ngSwitchCase="'credit'">บัตรเครดิต</ng-container>
+                                    <ng-container *ngSwitchDefault>ไม่มีข้อมูล</ng-container>
+                                </span>
+                            </a> -->
+                            <a class="flex justify-between pb-6">ยอดชำระ<span class="ml-auto text-right">
+                                    {{ (formData.get(paidState()).value || '0.00') | number:'1.2-2' }}</span></a>
+                            <a class="flex justify-between pb-4">ส่วนลดรวม<span class="ml-auto text-right">
+                                    {{ (formData.get('discount').value || '0.00') | number:'1.2-2' }}</span></a>
+                            <mat-divider class="pb-4"></mat-divider>
+                            <a class="flex justify-between pb-8">สุทธิ<span class="ml-auto text-right">
+                                    {{ (formData.get('last_price').value || '0.00') | number:'1.2-2' }}</span></a>
+                            <!-- <a class="flex justify-between pb-4">ยอดคงเหลือ<span class="ml-auto text-right">
+                                {{ (formData.get('remaining_amount').value || '0.00') | number:'1.2-2' }}</span></a> -->
+                            <div class="flex flex-row items-center justify-between">
+                                <a class="mt-1 text-left">รับเงิน</a>
+                                <div class="flex items-center justify-end space-x-1">
+                                    <button mat-raised-button class="mr-1" (click)="setNowToLast()">รับพอดี</button>
+                                    <mff class="-mt-2 text-right" [label]="''" [fCN]="'now_paid'" [pHold]="'total'">
+                                    </mff>
+                                </div>
+                            </div>
+                            <a *ngIf="formData.get('change_price').value > 0"
+                                class="flex justify-between pb-6">เงินทอน<span class="ml-auto text-right">
+                                    {{ (formData.get('change_price').value || '0.00') | number:'1.2-2' }}</span></a>
+                            <mat-form-field class="w-full">
+                                <mat-label>รายละเอียด</mat-label>
+                                <textarea matInput min="0" formControlName="description"
+                                    placeholder="กรอกรายละเอียด"></textarea>
+                            </mat-form-field>
+                            <div class="flex flex-row space-x-1">
+                                <!-- <button mat-raised-button class="w-100*" (click)="changeTab(0)">ย้อนกลับ</button> -->
+                                <!-- <button mat-raised-button class="w-100*" (click)="pushChange()">บันทึก</button> -->
+                            </div>
+                            <div class="w-100* flex flex-col items-end space-y-2 sm:pr-10 mt-6">
+                                <a class="w-[200px] lgx:w-30* flex justify-center mb-4 text-2xl">ประเภทการชำระ</a>
+                                <button mat-raised-button class="w-[200px] lgx:w-30*"
+                                    (click)="updatePaidResult('paid_cash')">
+                                    <mat-icon [svgIcon]="'heroicons_outline:banknotes'"></mat-icon>
+                                    <span class="ml-2 mr-1">ชำระเงินสด</span>
+                                </button>
+                                <button mat-raised-button class="w-[200px] lgx:w-30*"
+                                    (click)="updatePaidResult('paid_tran')">
+                                    <mat-icon [svgIcon]="'heroicons_outline:building-library'"></mat-icon>
+                                    <span class="ml-2 mr-1">โอนผ่านธนาคาร</span>
+                                </button>
+                                <button mat-raised-button class="w-[200px] lgx:w-30*"
+                                    (click)="updatePaidResult('credit')">
+                                    <mat-icon [svgIcon]="'heroicons_outline:credit-card'"></mat-icon>
+                                    <span class="ml-2 mr-1">บัตรเครดิต</span>
+                                </button>
+                            </div>
+                            <!-- <div class="text-right bottom-4">
+                                <button mat-button (click)="changeTab(0)" style="border-color: #1ca9df; color: #1ca9df;"
+                                    class="border border-solid">ปิด</button>
+                                <button mat-button (click)="update()" style="background-color: #1ca9df;"
+                                    class="text-white">บันทึก</button>
+                            </div> -->
+                        </div>
+                    </mat-tab>
+                    <mat-tab label="ข้อมูลการทำรายการ">
+                        <div class="flex flex-auto overflow-hidden">
+                            <div
+                                class="flex flex-col flex-auto min-w-full overflow-x-auto sm:overflow-x-auto sm:overflow-y-auto">
+                                <!-- REPLACE TABLE -->
+                                <table class="table row-border hover w-100*">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">ลำดับ</th>
+                                            <th class="text-center">เวลา</th>
+                                            <th class="text-center">ยอดชำระ</th>
+                                            <th class="text-center">ยอดจ่าย</th>
+                                            <th class="text-center">ยอดค้าง</th>
+                                            <th class="text-center">ช่องทางชำระ</th>
+                                            <th class="text-center">หมายเหตุ</th>
+                                            <th class="text-center">พิมพ์เอกสาร<span>/จัดการ</span></th>
+                                            <!-- <th class="w-0* text-center"  >จัดการ</th> -->
+                                        </tr>
+                                    </thead>
+                                    <tbody *ngIf="dataRow2?.length > 0">
+                                        <tr *ngFor="let item of dataRow2; let i = index">
+                                            <td class="text-center">{{ i + 1 }}</td>
+                                            <td class="text-center">{{ (item.created_at | TH) ?? '-' }}</td>
+                                            <td class="text-center">{{ (item.before_price | number:'1.2-2') ?? '-' }}
+                                            </td>
+                                            <td class="text-center">{{ (item.paid_price | number:'1.2-2') ?? '-' }}</td>
+                                            <td class="text-center">{{ (item.after_price | number:'1.2-2') ?? '-' }}
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="ml-auto text-right" [ngSwitch]="item.paid_type">
+                                                    <ng-container *ngSwitchCase="'paid_cash'">ชำระเงินสด</ng-container>
+                                                    <ng-container
+                                                        *ngSwitchCase="'paid_tran'">โอนผ่านธนาคาร</ng-container>
+                                                    <ng-container *ngSwitchCase="'overdue'">ผ่อนจ่าย</ng-container>
+                                                    <ng-container *ngSwitchCase="'credit'">บัตรเครดิต</ng-container>
+                                                    <ng-container *ngSwitchDefault>ไม่มีข้อมูล</ng-container>
+                                                </span>
+                                            </td>
+                                            <td class="text-center">{{ item.description ?? '-' }}</td>
+                                            <td class="space-x-2 text-center">
+                                                <!-- <button (click)="printbillservice(billId)" class=""
+                                                    matTooltip="ใบเสร็จ" matTooltipClass="bg-gray-800 text-md text-white p-3 rounded-lg;">
+                                                    <mat-icon svgIcon="heroicons_outline:document-text"></mat-icon>
+                                                </button> -->
+                                                <button (click)="printreceipt(billId, item.id)" class=""
+                                                    matTooltip="ใบสำคัญรับเงิน"
+                                                    matTooltipClass="bg-gray-800 text-md text-white p-3 rounded-lg;">
+                                                    <mat-icon svgIcon="heroicons_outline:document-text"></mat-icon>
+                                                </button>
+                                                <button (click)="openTransection(item)" class=""
+                                                    matTooltip="แก้ไขข้อมูลการทำรายการ"
+                                                    matTooltipClass="bg-gray-800 text-md text-white p-3 rounded-lg;">
+                                                    <mat-icon>edit</mat-icon>
+                                                    <!-- <mat-icon svgIcon="heroicons_solid:pencil-square"></mat-icon> -->
+                                                </button>
+                                                <button (click)="deleteTransec(item.id)" class=""
+                                                    matTooltip="ลบข้อมูลการทำรายการ"
+                                                    matTooltipClass="bg-gray-800 text-md text-white p-3 rounded-lg;">
+                                                    <mat-icon>delete</mat-icon>
+                                                </button>
+                                                <!-- <button (click)="printBillquotation(billId)" class=""
+                                                    matTooltip="ใบวางบิล/ใบแจ้งหนี้ใบแจ้งหนี้" matTooltipClass="bg-gray-800 text-md text-white p-3 rounded-lg;">
+                                                    <mat-icon svgIcon="heroicons_outline:document-text"></mat-icon>
+                                                </button> -->
+                                            </td>
+                                            <!-- <td class="w-10* text-center"  >
+                                                <button mat-button   (click)="openDialog(item, $event)">
+                                                    <mat-icon svgIcon="heroicons_solid:document-text"></mat-icon>
+                                                </button>
+                                            </td> -->
+                                        </tr>
+                                    </tbody>
+                                    <tbody *ngIf="dataRow2?.length == 0">
+                                        <tr>
+                                            <td colspan="8" class="text-center no-data-available">ไม่มีข้อมูล !</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <mat-tab label="พิมพ์เอกสาร">
+                        <div class="flex items-start justify-start w-full pt-5 space-x-12">
+                            <div class="w-50* flex flex-col flex-wrap space-y-4">
+                                <a class="justify-center">การจัดการบิล</a>
+                                <button (click)="printbillservice(billId)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ใบเสร็จ</span>
+                                </button>
+                                <!-- <button (click)="billtax_invioce(billId)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ใบกำกับภาษี</span>
+                                </button> -->
+                                <button (click)="printquotation(billId)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <!-- <span class="ml-2">ใบกำกับภาษี</span> -->
+                                    <span class="ml-2">ใบเสนอราคา</span>
+                                </button>
+                                <button (click)="printBillquotation(billId)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ใบวางบิล</span>
+                                </button>
+                            </div>
+                            <div class="w-50* flex flex-col flex-wrap space-y-4">
+                                <a class="justify-center">ตรวจสภาพแก๊ส</a>
+                                <button (click)="printPDF1(formData.value.vehicle_id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ใบอนุญาต</span>
+                                </button>
+                                <button (click)="printPDF2(formData.value.vehicle_id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">รูปถ่าย LPG</span>
+                                </button>
+                                <button (click)="printPDF3(formData.value.vehicle_id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">Check List LPG</span>
+                                </button>
+                                <button (click)="printPDF4(formData.value.vehicle_id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">ลอกลายถัง NGV</span>
+                                </button>
+                                <button (click)="printPDF5(formData.value.id)" class="ml-1" mat-flat-button>
+                                    <mat-icon svgIcon="heroicons_outline:document"></mat-icon>
+                                    <span class="ml-2">แบบประเมิน NGV</span>
+                                </button>
+                            </div>
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
+            </mat-dialog-content>
+        </form>
+    </div>
+</ng-template>

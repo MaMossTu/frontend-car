@@ -1,0 +1,114 @@
+.inventory-grid {
+    grid-template-columns: 48px auto 40px;
+
+    @screen sm {
+        grid-template-columns: 48px auto 112px 72px;
+    }
+
+    @screen md {
+        grid-template-columns: 48px 112px auto 112px 72px;
+    }
+
+    @screen lg {
+        grid-template-columns: 30px 142px 142px 142px 142px auto 120px 30px 30px 30px;
+    }
+}
+
+.inventory-grid-2 {
+    grid-template-columns: 48px auto 40px;
+
+    @screen sm {
+        grid-template-columns: 48px auto 112px 72px;
+    }
+
+    @screen md {
+        grid-template-columns: 48px 112px auto 112px 72px;
+    }
+
+    @screen lg {
+        grid-template-columns: 30px 112px 112px 132px 112px auto 30px;
+    }
+}
+
+// .btn-none-bg {
+//     border-radius: 5px !important;
+//     background:#ffffff !important;
+//     border:2px solid #F43F5E !important;
+//     color:#F43F5E !important;
+// }
+
+.bg-gray-50 {
+    background: #FEEDEE !important;
+    font-weight: bold !important;
+}
+
+.bg-select {
+    background: #F6F6F5 !important;
+}
+
+table {
+    width: 100%;
+}
+
+$type-statuses: (
+    open: #0b8cf5,
+    finish: #10b981,
+    late: #fb923c,
+    cancel: #ef4444
+);
+$type-width: 80px;
+
+.type {
+    @each $status, $color in $type-statuses {
+        .#{$status}-status {
+            background-color: $color;
+            color: white;
+            padding: 12px;
+            border-radius: 4px;
+            width: $type-width;
+            text-align: center;
+            display: inline-block;
+        }
+    }
+}
+
+.reduceHeadPad {
+    .mat-form-field {
+        margin-bottom: -16px!important;
+    }
+}
+
+.status-dropdown {
+    padding: 5px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    color: #fff; /* White text */
+    background-color: #e5e7eb; /* Default gray */
+}
+
+/* Colors by status */
+.open {
+    background-color: #0b8cf5; /* Blue */
+    border-color: #0b8cf5;
+}
+
+.finish {
+    background-color: #10b981; /* Green */
+    border-color: #10b981;
+}
+
+.overdue {
+    background-color: #fb923c; /* Orange */
+    border-color: #fb923c;
+}
+
+.unpaid {
+    background-color: #ef4444; /* Orange */
+    border-color: #ef4444;
+}
+
+.cancel {
+    background-color: #ef4444; /* Red */
+    border-color: #ef4444;
+}
